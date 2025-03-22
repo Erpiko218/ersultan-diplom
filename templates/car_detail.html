@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Детали выбранной машины -->
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <h2>{{ car.brand }} {{ car.model }}</h2>
+            <p class="text-primary fs-4">${{ car.price_per_hour }} / day</p>
+
+            {% if car.image %}
+                <img src="{{ car.image.url }}" alt="{{ car.brand }} {{ car.model }}" class="img-fluid rounded shadow-sm mb-3">
+            {% endif %}
+
+            <div class="d-flex gap-2">
+                {% for photo in car.photos.all %}
+                    <img src="{{ photo.image.url }}" alt="{{ car.brand }} photo" class="rounded shadow-sm" width="60">
+                {% endfor %}
+            </div>
+
+            <div class="mt-3">
+                <a href="#" class="btn btn-primary w-100">Rent a car</a>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <h3>Technical Specification</h3>
+            <div class="row g-3">
+                <div class="col-6">Gear Box: <b>{{ car.transmission }}</b></div>
+                <div class="col-6">Fuel: <b>{{ car.fuel_type }}</b></div>
+                <div class="col-6">Doors: <b>{{ car.doors }}</b></div>
+                <div class="col-6">Air Conditioner: <b>{{ car.air_conditioner_available }}</b></div>
+                <div class="col-6">Seats: <b>{{ car.seats }}</b></div>
+                <div class="col-6">Distance: <b>{{ car.distance }}</b></div>
+            </div>
+
+            <h3 class="mt-4">Car Equipment</h3>
+            <ul class="list-unstyled">
+                <li>✅ ABS</li>
+                <li>✅ Air Bags</li>
+                <li>✅ Cruise Control</li>
+                <li>✅ Air Conditioner</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Другие машины того же типа -->
+    <h3>Other cars</h3>
+    <div class="row">
+        {% for other_car in related_cars %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm border-0">
+                    {% if other_car.image %}
+                        <img src="{{ other_car.image.url }}" class="card-img-top" alt="{{ other_car.brand }} {{ other_car.model }}">
+                    {% else %}
+                        <div class="p-5 bg-secondary text-center text-white">Нет изображения</div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ other_car.brand }} {{ other_car.model }}</h5>
+                        <p class="text-primary fw-bold">${{ other_car.price_per_hour }} / day</p>
+                        <a href="{% url 'car_detail' other_car.id %}" class="btn btn-primary w-100">View Details</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>Нет других машин этого типа.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

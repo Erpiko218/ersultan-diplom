@@ -1,30 +1,55 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>Список автомобилей</h2>
+<div class="container py-5">
+    <h2 class="text-center mb-4">Список автомобилей</h2>
 
     <!-- Фильтр по типу -->
-    <ul>
-        <li><a href="{% url 'car_list' %}">Все машины</a></li>
-        <li><a href="{% url 'car_list_by_type' 'Sedan' %}">Седаны</a></li>
-        <li><a href="{% url 'car_list_by_type' 'SUV' %}">Внедорожники</a></li>
-        <li><a href="{% url 'car_list_by_type' 'Cabriolet' %}">Кабриолеты</a></li>
-        <li><a href="{% url 'car_list_by_type' 'Minivan' %}">Минивэны</a></li>
-    </ul>
+    <div class="d-flex justify-content-center mb-4">
+        <a href="{% url 'car_list' %}"
+           class="btn {% if active_filter == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %} mx-2">
+            Все машины
+        </a>
+        <a href="{% url 'car_list' %}?type=Sedan"
+           class="btn {% if active_filter == 'Sedan' %}btn-primary{% else %}btn-outline-secondary{% endif %} mx-2">
+            Седаны
+        </a>
+        <a href="{% url 'car_list' %}?type=SUV"
+           class="btn {% if active_filter == 'SUV' %}btn-primary{% else %}btn-outline-secondary{% endif %} mx-2">
+            Внедорожники
+        </a>
+        <a href="{% url 'car_list' %}?type=Cabriolet"
+           class="btn {% if active_filter == 'Cabriolet' %}btn-primary{% else %}btn-outline-secondary{% endif %} mx-2">
+            Кабриолеты
+        </a>
+        <a href="{% url 'car_list' %}?type=Minivan"
+           class="btn {% if active_filter == 'Minivan' %}btn-primary{% else %}btn-outline-secondary{% endif %} mx-2">
+            Минивэны
+        </a>
+    </div>
 
     <!-- Список машин -->
-    <div class="car-list">
+    <div class="row">
         {% for car in cars %}
-            <div class="car">
-                <h3>{{ car.brand }} {{ car.model }} ({{ car.year }})</h3>
-                <p>Тип: {{ car.get_type_display }}</p>
-                <p>Цена за час: {{ car.price_per_hour }} тг</p>
-                {% if car.image %}
-                    <img src="{{ car.image.url }}" alt="{{ car.brand }} {{ car.model }}" width="200">
-                {% endif %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm border-0">
+                    {% if car.image %}
+                        <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.brand }} {{ car.model }}">
+                    {% else %}
+                        <div class="p-5 bg-secondary text-center text-white">Нет изображения</div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ car.brand }} {{ car.model }} ({{ car.year }})</h5>
+                        <p class="card-text">Тип: {{ car.get_type_display }}</p>
+                        <p class="card-text text-primary fw-bold">Цена за час: {{ car.price_per_hour }} тг</p>
+                        <p class="card-text"><i class="fas fa-gas-pump"></i> {{ car.fuel_type }} | <i class="fas fa-cogs"></i> {{ car.transmission }}</p>
+                        <a href="{% url 'car_detail' car.id %}" class="btn btn-primary w-100">Посмотреть детали</a>
+                    </div>
+                </div>
             </div>
         {% empty %}
-            <p>Машины не найдены.</p>
+            <p class="text-center">Машины не найдены.</p>
         {% endfor %}
     </div>
+</div>
 {% endblock %}

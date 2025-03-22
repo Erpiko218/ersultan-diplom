@@ -26,20 +26,16 @@ class CarListView(ListView):
 
     def get_queryset(self):
         """Фильтруем машины по типу, если параметр передан"""
-        car_type = self.kwargs.get('type')  # Получаем тип из URL
+        car_type = self.request.GET.get('type')  # Исправляем на GET параметр
         if car_type:
             return Car.objects.filter(type=car_type, is_available=True)
-        return Car.objects.filter(is_available=True)  # По умолчанию все доступные машины
+        return Car.objects.filter(is_available=True)
 
-
-class CarTypeListView(ListView):
-    model = Car
-    template_name = "car_list.html"
-    context_object_name = "cars"
-
-    def get_queryset(self):
-        car_type = self.kwargs.get("type")
-        return Car.objects.filter(type=car_type, is_available=True)
+    def get_context_data(self, **kwargs):
+        """Добавляем активный фильтр в контекст"""
+        context = super().get_context_data(**kwargs)
+        context['active_filter'] = self.request.GET.get('type', 'all')
+        return context
 
 
 class CarDetailView(DetailView):
@@ -47,6 +43,20 @@ class CarDetailView(DetailView):
     template_name = "car_detail.html"
     context_object_name = "car"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Получаем текущий автомобиль
+        current_car = self.get_object()
+
+        # Получаем список автомобилей того же типа (исключая текущий)
+        related_cars = Car.objects.filter(
+            type=current_car.type,
+            is_available=True
+        ).exclude(id=current_car.id)[:3]  # Ограничиваем до 3 машин
+
+        context['related_cars'] = related_cars
+        return context
 
 
 class RentCarView(LoginRequiredMixin, CreateView):

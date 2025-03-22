@@ -17,6 +17,10 @@ class Dealer(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "Дилер"
+        verbose_name_plural = "Дилеры"
+
 
 class Car(models.Model):
     class CarType(models.TextChoices):
@@ -50,6 +54,10 @@ class Car(models.Model):
     description = models.TextField(blank=True, null=True, verbose_name="Описание")
     dealer = models.ForeignKey("Dealer", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Дилер")
     image = models.ImageField(upload_to='cars/', null=True, blank=True, verbose_name="Фото")
+    seats = models.IntegerField(verbose_name="Места", default=5)
+    doors = models.IntegerField(verbose_name="Двери", default=4)
+    distance = models.IntegerField(verbose_name="Пробег", default=100)
+    air_conditioner_available = models.BooleanField(verbose_name="Кондиционер", default=True)
     transmission = models.CharField(
         max_length=20,
         choices=TransmissionTypes.choices,
@@ -81,6 +89,10 @@ class CarReview(models.Model):
 
     def __str__(self):
         return f"Отзыв {self.user.username} на {self.car} ({self.rating})"
+
+    class Meta:
+        verbose_name = "Отзыв Машины"
+        verbose_name_plural = "Отзывы Машин"
 
 
 class Rental(models.Model):
@@ -137,6 +149,10 @@ class Rental(models.Model):
     def __str__(self):
         return f"Аренда {self.car} пользователем {self.user.username}"
 
+    class Meta:
+        verbose_name = "Аренда"
+        verbose_name_plural = "Аренды"
+
 
 class Transaction(models.Model):
     TRANSACTION_TYPES = (
@@ -151,6 +167,10 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"Транзакция {self.user.username}: {self.transaction_type} {self.amount}"
+
+    class Meta:
+        verbose_name = "Транзакция"
+        verbose_name_plural = "Транзакции"
 
 
 # 3. Текущее местоположение машины
@@ -171,6 +191,10 @@ class CarLocation(models.Model):
         except CarLocation.DoesNotExist:
             return None
 
+    class Meta:
+        verbose_name = "Расположение Машины"
+        verbose_name_plural = "Расположение Машин"
+
 
 # 4. История перемещений (лог трекинга)
 class TripTracking(models.Model):
@@ -181,6 +205,10 @@ class TripTracking(models.Model):
 
     def __str__(self):
         return f"Трек аренды {self.rental.id} ({self.latitude}, {self.longitude})"
+
+    class Meta:
+        verbose_name = "Трекер Машины"
+        verbose_name_plural = "Трекер Машин"
 
 
 # 6. Штрафы
@@ -193,3 +221,7 @@ class Fine(models.Model):
 
     def __str__(self):
         return f"Штраф {self.user.username} ({self.amount} руб.)"
+
+    class Meta:
+        verbose_name = "Штраф"
+        verbose_name_plural = "Штрафы"
