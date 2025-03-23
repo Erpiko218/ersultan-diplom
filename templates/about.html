@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}О нас - Car Rental{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <h1 class="fw-bold">Где каждая поездка становится незабываемой</h1>
+    <p class="text-muted">Главная / О нас</p>
+</div>
+
+<!-- Блок с преимуществами -->
+<div class="container mt-5">
+    <div class="row text-center">
+        <div class="col-md-3">
+            <h4>Разнообразие брендов</h4>
+            <p>У нас широкий выбор автомобилей от эконом до премиум класса.</p>
+        </div>
+        <div class="col-md-3">
+            <h4>Максимальная свобода</h4>
+            <p>Бронируйте авто в любое время и в любом месте.</p>
+        </div>
+        <div class="col-md-3">
+            <h4>Отличная поддержка</h4>
+            <p>Мы всегда готовы помочь вам 24/7.</p>
+        </div>
+        <div class="col-md-3">
+            <h4>Гибкость в дороге</h4>
+            <p>Арендуйте авто без ограничений на пробег.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Видео блок -->
+<div class="container mt-5 text-center">
+    <iframe width="100%" height="400" class="rounded"
+        src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen>
+    </iframe>
+</div>
+
+<!-- Статистика -->
+<div class="container mt-5 text-center">
+    <div class="row">
+        <div class="col-md-4">
+            <h2 class="fw-bold text-primary">{{ total_rentals }}+</h2>
+            <p>Счастливых клиентов</p>
+        </div>
+        <div class="col-md-4">
+            <h2 class="fw-bold text-primary">{{ total_cars }}+</h2>
+            <p>Автомобилей в наличии</p>
+        </div>
+        <div class="col-md-4">
+            <h2 class="fw-bold text-primary">{{ total_mileage | floatformat:0 }} км</h2>
+            <p>Пробега на всех авто</p>
+        </div>
+    </div>
+</div>
+
+<!-- Блок с преимуществами -->
+<div class="container mt-5">
+    <h2 class="fw-bold">Откройте для себя незабываемые поездки</h2>
+    <p class="text-muted">Арендуйте авто и забудьте о проблемах на дороге!</p>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <ul class="list-group">
+                <li class="list-group-item">🚗 Выбор автомобилей для любого случая</li>
+                <li class="list-group-item">📍 Удобные пункты выдачи</li>
+                <li class="list-group-item">💰 Прозрачные тарифы без скрытых платежей</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <img src="https://source.unsplash.com/500x300/?car,road" class="img-fluid rounded" alt="Car Rental">
+        </div>
+    </div>
+</div>
+
+<!-- Скачать приложение -->
+<div class="container mt-5 text-center bg-primary text-white p-5 rounded">
+    <h2 class="fw-bold">Скачайте наше приложение</h2>
+    <p>Бронируйте автомобили в пару кликов!</p>
+    <div>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" width="150">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/App_Store_badge_EN.svg" width="140">
+    </div>
+</div>
+
+<!-- Отзывы клиентов -->
+<div class="container mt-5">
+    <h2 class="fw-bold text-center">Отзывы наших клиентов</h2>
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="p-3 border rounded text-center">
+                <p>⭐⭐⭐⭐⭐</p>
+                <p>Лучший сервис аренды! Машины всегда в идеальном состоянии.</p>
+                <p><strong>Егор Смирнов</strong></p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 border rounded text-center">
+                <p>⭐⭐⭐⭐⭐</p>
+                <p>Удобное бронирование, приемлемые цены. Буду брать снова!</p>
+                <p><strong>Анна Лазарева</strong></p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 border rounded text-center">
+                <p>⭐⭐⭐⭐⭐</p>
+                <p>Реально выручили, когда нужно было срочно взять авто.</p>
+                <p><strong>Иван Петров</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FAQ -->
+<div class="container mt-5">
+    <h2 class="fw-bold text-center">Часто задаваемые вопросы</h2>
+    <div class="accordion mt-3" id="faqAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1">
+                    Как это работает?
+                </button>
+            </h2>
+            <div id="q1" class="accordion-collapse collapse show">
+                <div class="accordion-body">
+                    Просто выберите авто, дату и место аренды, и оформите заказ!
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2">
+                    Можно ли арендовать без кредитной карты?
+                </button>
+            </h2>
+            <div id="q2" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                    Да, вы можете оплатить аренду дебетовой картой.
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3">
+                    Какие документы нужны для аренды?
+                </button>
+            </h2>
+            <div id="q3" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                    Вам понадобится паспорт и водительское удостоверение.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Контактный блок -->
+<div class="container mt-5 text-center bg-dark text-white p-4 rounded">
+    <h2>Нужна машина?</h2>
+    <p class="lead">Звоните нам прямо сейчас!</p>
+    <h3 class="fw-bold">+537 547-6401</h3>
+    <button class="btn btn-warning mt-3">Забронировать</button>
+</div>
+
+{% endblock %}
