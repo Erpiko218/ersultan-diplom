@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}Home - Car Rental{% endblock %}
+{% block title %}Главная - Аренда автомобилей{% endblock %}
 
 {% block content %}
 <!-- Главный баннер -->
 <section class="bg-primary text-white text-center py-5 position-relative">
     <div class="container">
-        <h1 class="fw-bold">Experience the road like never before</h1>
-        <p class="lead">Aliquam adipiscing velit semper morbi. Purus non eu cursus porttitor tristique et gravida.</p>
-        <a href="{% url 'car_list' %}" class="btn btn-warning btn-lg">View all cars</a>
+        <h1 class="fw-bold">Ощутите дорогу, как никогда ранее</h1>
+        <p class="lead">Наслаждайтесь превосходным качеством, комфортом и стилем в каждой поездке.</p>
+        <a href="{% url 'car_list' %}" class="btn btn-warning btn-lg">Посмотреть все автомобили</a>
     </div>
 </section>
 
@@ -16,34 +16,34 @@
 <div class="container mt-5">
     <div class="row">
         <div class="col-lg-4 mx-auto p-4 bg-light shadow rounded">
-            <h4 class="text-center">Book your car</h4>
+            <h4 class="text-center">Забронируйте автомобиль</h4>
             <form>
                 <div class="mb-3">
-                    <label class="form-label">Car type</label>
+                    <label class="form-label">Тип автомобиля</label>
                     <select class="form-select">
-                        <option>Select a car</option>
-                        <option>Sedan</option>
-                        <option>SUV</option>
-                        <option>Sports</option>
+                        <option>Выберите автомобиль</option>
+                        <option>Седан</option>
+                        <option>Внедорожник</option>
+                        <option>Спортивный</option>
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Place of rental</label>
-                    <input type="text" class="form-control" placeholder="Enter location">
+                    <label class="form-label">Место аренды</label>
+                    <input type="text" class="form-control" placeholder="Введите местоположение">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Place of return</label>
-                    <input type="text" class="form-control" placeholder="Enter location">
+                    <label class="form-label">Место возврата</label>
+                    <input type="text" class="form-control" placeholder="Введите местоположение">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Rental date</label>
+                    <label class="form-label">Дата начала аренды</label>
                     <input type="date" class="form-control">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Return date</label>
+                    <label class="form-label">Дата возврата</label>
                     <input type="date" class="form-control">
                 </div>
-                <button type="submit" class="btn btn-warning w-100">Book now</button>
+                <button type="submit" class="btn btn-warning w-100">Забронировать</button>
             </form>
         </div>
     </div>
@@ -53,19 +53,19 @@
 <div class="container my-5">
     <div class="row text-center">
         <div class="col-md-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/685/685352.png" width="50" alt="Availability">
-            <h5 class="mt-2">Availability</h5>
-            <p>Diam tincidunt tincidunt erat at semper fermentum.</p>
+            <img src="https://cdn-icons-png.flaticon.com/512/685/685352.png" width="50" alt="Наличие">
+            <h5 class="mt-2">Наличие</h5>
+            <p>Доступно во всех ретейлерах.</p>
         </div>
         <div class="col-md-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/1995/1995492.png" width="50" alt="Comfort">
-            <h5 class="mt-2">Comfort</h5>
-            <p>Gravida auctor fermentum morbi vulputate.</p>
+            <img src="https://cdn-icons-png.flaticon.com/512/1995/1995492.png" width="50" alt="Комфорт">
+            <h5 class="mt-2">Комфорт</h5>
+            <p>Комфорт всегда когда хотите.</p>
         </div>
         <div class="col-md-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/2821/2821925.png" width="50" alt="Savings">
-            <h5 class="mt-2">Savings</h5>
-            <p>Pretium convallis id diam sed commodo.</p>
+            <img src="https://cdn-icons-png.flaticon.com/512/2821/2821925.png" width="50" alt="Экономия">
+            <h5 class="mt-2">Экономия</h5>
+            <p>Экономьте на топливе, что бы удешевить аренду!.</p>
         </div>
     </div>
 </div>
@@ -73,8 +73,8 @@
 <!-- Каталог автомобилей -->
 <section class="container my-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="fw-bold">Choose the car that suits you</h2>
-        <a href="{% url 'car_list' %}" class="text-decoration-none fw-bold">View All &rarr;</a>
+        <h2 class="fw-bold">Выберите автомобиль, который вам подходит</h2>
+        <a href="{% url 'car_list' %}" class="text-decoration-none fw-bold">Посмотреть все &rarr;</a>
     </div>
 
     <div class="row">
@@ -84,14 +84,14 @@
                 <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.name }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ car.brand }} - {{ car.model }}</h5>
-                    <p class="fw-bold text-primary">${{ car.price_per_hour }} per hours</p>
+                    <p class="fw-bold text-primary">${{ car.price_per_hour }} за час</p>
                     <ul class="list-inline small">
                         <li class="list-inline-item">🚗 {{ car.type }}</li>
                         <li class="list-inline-item">⚙️ {{ car.transmission }}</li>
                         <li class="list-inline-item">⛽ {{ car.fuel }}</li>
-                        <li class="list-inline-item">❄️ Air Conditioner</li>
+                        <li class="list-inline-item">❄️ Кондиционер</li>
                     </ul>
-                    <a href="{% url 'car_detail' car.id %}" class="btn btn-primary w-100">View Details</a>
+                    <a href="{% url 'car_detail' car.id %}" class="btn btn-primary w-100">Подробнее</a>
                 </div>
             </div>
         </div>
@@ -102,24 +102,24 @@
 <!-- Факты о компании -->
 <section class="bg-primary text-white py-5">
     <div class="container text-center">
-        <h2 class="fw-bold">Facts In Numbers</h2>
-        <p>Amet cras hac orci lacus. Faucibus ipsum arcu lectus nibh sapien bibendum ullamcorper.</p>
+        <h2 class="fw-bold">Факты в цифрах</h2>
+        <p>Покажем невероятные цифры работы нашей платформы.</p>
         <div class="row mt-4">
             <div class="col-md-3">
                 <h3 class="fw-bold">540+</h3>
-                <p>Cars</p>
+                <p>Автомобилей</p>
             </div>
             <div class="col-md-3">
                 <h3 class="fw-bold">20k+</h3>
-                <p>Customers</p>
+                <p>Клиентов</p>
             </div>
             <div class="col-md-3">
                 <h3 class="fw-bold">25+</h3>
-                <p>Years</p>
+                <p>Лет</p>
             </div>
             <div class="col-md-3">
                 <h3 class="fw-bold">20m+</h3>
-                <p>Miles</p>
+                <p>Миль</p>
             </div>
         </div>
     </div>

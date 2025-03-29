@@ -25,8 +25,8 @@ urlpatterns = [
     path("metrics/", exports.ExportToDjangoView, name="metrics"),
     path("", include("rental.urls")),
 
-    path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/', include("accounts.urls")),
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}История трекинга - {{ car.brand }} {{ car.model }}{% endblock %}
+
+{% block content %}
+    <h1>История трекинга машины: {{ car.brand }} {{ car.model }}</h1>
+    <div class="info-panel">
+        {% if location %}
+            <p><strong>Текущее местоположение:</strong> Широта: {{ location.latitude }}, Долгота: {{ location.longitude }}</p>
+        {% else %}
+            <p>Текущее местоположение недоступно.</p>
+        {% endif %}
+    </div>
+    <div id="map"></div>
+
+    <!-- Подключаем Google Maps API (замените YOUR_API_KEY на ваш реальный ключ) -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBHcJHOnxvzh6LnhsVtcAJoS2eiOD7qBaA"></script>
+    <script>
+        function initMap() {
+            let defaultCenter = { lat: 55.751244, lng: 37.618423 };
+            {% if location %}
+                defaultCenter = {
+                    lat: parseFloat("{{ location.latitude }}"),
+                    lng: parseFloat("{{ location.longitude }}")
+                };
+            {% endif %}
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 12,
+                center: defaultCenter
+            });
+
+            // Добавляем маркер текущего местоположения (если имеется)
+            {% if location %}
+                const currentMarker = new google.maps.Marker({
+                    position: defaultCenter,
+                    map: map,
+                    title: "Текущее местоположение"
+                });
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<strong>{{ car.brand }} {{ car.model }}</strong><br>Текущее местоположение`
+                });
+                currentMarker.addListener("click", function() {
+                    infoWindow.open(map, currentMarker);
+                });
+            {% endif %}
+
+            // Если есть история трекинга, строим полилинию маршрута
+            {% if tracking_logs %}
+                const trackingPathCoords = [
+                    {% for log in tracking_logs %}
+                        { lat: parseFloat("{{ log.latitude }}"), lng: parseFloat("{{ log.longitude }}") }{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ];
+                const trackingPath = new google.maps.Polyline({
+                    path: trackingPathCoords,
+                    geodesic: true,
+                    strokeColor: "#FF0000",
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                trackingPath.setMap(map);
+            {% else %}
+                console.log("Нет данных для истории трекинга.");
+            {% endif %}
+        }
+        window.onload = initMap;
+    </script>
+{% endblock %}

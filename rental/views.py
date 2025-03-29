@@ -1,10 +1,13 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, DetailView, ListView, CreateView
 from django.contrib import messages
 
 from .admin import RentalForm
-from .models import Car, CarReview, Rental, Transaction
+from .models import Car, CarReview, Rental, Transaction, TripTracking, CarLocation, Dealer
 
 
 class HomePageView(TemplateView):
@@ -114,3 +117,168 @@ class ActiveRentalsView(ListView):
     def get_queryset(self):
         return Rental.objects.filter(user=self.request.user, is_active=True)
 
+
+def user_is_retailer(user):
+    """
+    Проверяет, является ли пользователь суперпользователем или входит в группу "Retailers"
+    """
+    return user.is_superuser or user.groups.filter(name="Retailers").exists()
+
+
+@login_required
+def retailer_tracking_dashboard(request, retailer_id):
+    """
+    Дэшборд для просмотра трекинга машин конкретного ритейлера.
+    Фильтруется по типу автомобиля и доступности, при этом выбираются
+    только те машины, у которых car.dealer_id совпадает с retailer_id.
+    """
+    # Получаем фильтры из GET-параметров
+    car_type = request.GET.get('car_type')
+    is_available = request.GET.get('is_available')
+
+    # Выбираем объекты CarLocation с подгрузкой связанных моделей и фильтруем по дилеру
+    locations = CarLocation.objects.select_related('car', 'car__dealer').filter(car__dealer_id=retailer_id)
+    if car_type:
+        locations = locations.filter(car__type=car_type)
+    if is_available:
+        if is_available.lower() == 'true':
+            locations = locations.filter(car__is_available=True)
+        elif is_available.lower() == 'false':
+            locations = locations.filter(car__is_available=False)
+
+    # Список возможных типов автомобилей для фильтрации
+    car_types = Car.CarType.choices
+
+    context = {
+        'locations': locations,
+        'car_types': car_types,
+        'selected_car_type': car_type,
+        'selected_is_available': is_available,
+        'retailer_id': retailer_id,
+    }
+    return render(request, 'retailer_tracking_dashboard.html', context)
+
+
+@login_required
+def retailer_car_tracking_history(request, retailer_id, car_id):
+    """
+    Страница истории трекинга для конкретной машины.
+    Проверяем, что машина принадлежит ритейлеру с идентификатором retailer_id.
+    """
+    car = get_object_or_404(Car, id=car_id, dealer_id=retailer_id)
+
+    # Получаем текущее местоположение машины (если оно имеется)
+    try:
+        location = car.location
+    except CarLocation.DoesNotExist:
+        location = None
+
+    # Получаем историю трекинга (все записи по всем арендам данной машины)
+    tracking_logs = TripTracking.objects.filter(rental__car=car).order_by('timestamp')
+
+    context = {
+        'car': car,
+        'location': location,
+        'tracking_logs': tracking_logs,
+        'retailer_id': retailer_id,
+    }
+    return render(request, 'retailer_car_tracking_history.html', context)
+
+
+@login_required
+def retailers_dashboard(request):
+    """
+    Страница дэшборда, показывающая всех ритейлеров (дилерские центры).
+    При клике на ритейлера пользователь перенаправляется на страницу
+    retailer_tracking_dashboard с нужным идентификатором.
+    """
+    retailers = Dealer.objects.all().order_by('name')
+    context = {
+        'retailers': retailers,
+    }
+    return render(request, 'retailers_dashboard.html', context)
+
+
+def api_car_tracking(request, retailer_id, car_id):
+    """
+    API-эндпоинт для получения данных трекинга конкретной машины,
+    принадлежащей ритейлеру с идентификатором retailer_id.
+    """
+    car = get_object_or_404(Car, id=car_id, dealer_id=retailer_id)
+    try:
+        location = car.location
+        loc_data = {
+            'latitude': float(location.latitude),
+            'longitude': float(location.longitude),
+            'updated_at': location.updated_at.isoformat(),
+        }
+    except CarLocation.DoesNotExist:
+        loc_data = None
+
+    tracking_logs = TripTracking.objects.filter(rental__car=car).order_by('timestamp')
+    logs_data = [
+        {
+            'latitude': float(log.latitude),
+            'longitude': float(log.longitude),
+            'timestamp': log.timestamp.isoformat(),
+        }
+        for log in tracking_logs
+    ]
+    return JsonResponse({
+        'location': loc_data,
+        'tracking_logs': logs_data,
+    })
+
+
+def api_add_car_tracking(request, retailer_id, car_id):
+    if request.method != "POST":
+        return JsonResponse({'error': 'Метод не разрешен. Используйте POST.'}, status=405)
+
+    # Проверяем, что машина принадлежит ритейлеру (dealer)
+    car = get_object_or_404(Car, id=car_id, dealer_id=retailer_id)
+
+    # Получаем rental_id из POST-данных
+    rental_id = request.POST.get('rental_id')
+    if not rental_id:
+        return JsonResponse({'error': 'Параметр rental_id обязателен.'}, status=400)
+
+    try:
+        rental_id = int(rental_id)
+    except ValueError:
+        return JsonResponse({'error': 'rental_id должен быть числовым.'}, status=400)
+
+    # Проверяем, что аренда существует для этой машины
+    try:
+        rental = car.rental_set.get(id=rental_id)
+    except Rental.DoesNotExist:
+        return JsonResponse({'error': 'Аренда с данным rental_id не найдена для этой машины.'}, status=404)
+
+    # Получаем координаты из POST-данных
+    latitude = request.POST.get('latitude')
+    longitude = request.POST.get('longitude')
+
+    if latitude is None or longitude is None:
+        return JsonResponse({'error': 'Параметры latitude и longitude обязательны.'}, status=400)
+
+    try:
+        latitude = float(latitude)
+        longitude = float(longitude)
+    except ValueError:
+        return JsonResponse({'error': 'Неверный формат координат.'}, status=400)
+
+    # Создаем новую запись трекинга
+    tracking = TripTracking.objects.create(
+        rental=rental,
+        latitude=latitude,
+        longitude=longitude
+    )
+
+    return JsonResponse({
+        'status': 'success',
+        'tracking': {
+            'id': tracking.id,
+            'latitude': float(tracking.latitude),
+            'longitude': float(tracking.longitude),
+            'timestamp': tracking.timestamp.isoformat(),
+        }
+    })

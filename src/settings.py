@@ -115,6 +115,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'accounts.UserModel'
 
+ANONYMOUS_USER_ID = -1
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 

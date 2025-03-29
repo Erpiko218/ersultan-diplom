@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Дэшборд ритейлеров{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="text-center mb-4">Ритейлеры</h1>
+    <div class="row">
+        {% for retailer in retailers %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ retailer.name }}</h5>
+                    <p class="card-text">{{ retailer.address }}</p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            Координаты: {{ retailer.latitude }}, {{ retailer.longitude }}
+                        </small>
+                    </p>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'retailer_tracking_dashboard' retailer.id %}" class="btn btn-primary">Перейти к трекингу</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center">Нет доступных ритейлеров.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
