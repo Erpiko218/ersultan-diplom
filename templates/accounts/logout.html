@@ -1,0 +1,8 @@
+<!-- templates/logout.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <h2>Вы успешно вышли</h2>
+    <a href="{% url 'home' %}" class="btn btn-primary mt-3">На главную</a>
+</div>
+{% endblock %}
