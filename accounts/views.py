@@ -1,4 +1,4 @@
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
@@ -14,8 +14,14 @@ class RegisterView(CreateView):
     def form_valid(self, form):
         # Сохраняем нового пользователя
         response = super().form_valid(form)
-        # Автоматически логиним пользователя
-        login(self.request, self.object)
+        user = authenticate(
+            self.request,
+            username=self.object.username,
+            password=form.cleaned_data['password1']  # пароль из формы
+        )
+        # Если успешно — логиним
+        if user is not None:
+            login(self.request, user)
         return response
 
 

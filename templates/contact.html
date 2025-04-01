@@ -15,14 +15,14 @@
         <div class="col-md-5">
             <div class="p-4 bg-primary text-white rounded shadow">
                 <h4 class="text-center">Забронируйте автомобиль</h4>
-                <form>
+                <form id="booking-form">
                     <div class="mb-3">
                         <label class="form-label">Тип автомобиля</label>
-                        <select class="form-select">
-                            <option>Выберите автомобиль</option>
-                            <option>Седан</option>
-                            <option>Внедорожник</option>
-                            <option>Спортивный</option>
+                        <select id="car-type" class="form-select" required>
+                            <option value="">Выберите автомобиль</option>
+                            <option value="Седан">Седан</option>
+                            <option value="Внедорожник">Внедорожник</option>
+                            <option value="Спортивный">Спортивный</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -49,11 +49,12 @@
         <!-- Изображение -->
         <div class="col-md-7">
             <div class="rounded shadow overflow-hidden">
-                <img src="https://via.placeholder.com/700x350" class="img-fluid w-100" alt="Изображение контактов">
+                <img src="https://picsum.photos/300/200" class="img-fluid w-100" alt="Изображение контактов">
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Контактная информация -->
 <div class="container mt-5">
@@ -95,7 +96,7 @@
     <div class="row mt-3">
         <div class="col-md-4">
             <div class="card shadow-sm">
-                <img src="https://via.placeholder.com/350x200" class="card-img-top" alt="Блог 1">
+                <img src="https://picsum.photos/200/200" class="card-img-top" alt="Блог 1">
                 <div class="card-body">
                     <h5 class="card-title">Как выбрать подходящий автомобиль</h5>
                     <p class="text-muted">7 апреля 2024</p>
@@ -104,7 +105,7 @@
         </div>
         <div class="col-md-4">
             <div class="card shadow-sm">
-                <img src="https://via.placeholder.com/350x200" class="card-img-top" alt="Блог 2">
+                <img src="https://picsum.photos/200/200" class="card-img-top" alt="Блог 2">
                 <div class="card-body">
                     <h5 class="card-title">Какой тариф для меня подходит?</h5>
                     <p class="text-muted">7 апреля 2024</p>
@@ -113,7 +114,7 @@
         </div>
         <div class="col-md-4">
             <div class="card shadow-sm">
-                <img src="https://via.placeholder.com/350x200" class="card-img-top" alt="Блог 3">
+                <img src="https://picsum.photos/200/200" class="card-img-top" alt="Блог 3">
                 <div class="card-body">
                     <h5 class="card-title">Наслаждайтесь скоростью, выбором и полным контролем</h5>
                     <p class="text-muted">7 апреля 2024</p>
@@ -126,10 +127,23 @@
 <!-- Логотипы партнеров -->
 <section class="container my-5 text-center">
     <div class="d-flex justify-content-center align-items-center flex-wrap gap-3">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Ford_logo_flat.svg/150px-Ford_logo_flat.svg.png" width="100" alt="Ford">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Jeep_logo.svg/150px-Jeep_logo.svg.png" width="100" alt="Jeep">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Audi_Logo.svg/150px-Audi_Logo.svg.png" width="100" alt="Audi">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Ford_logo_flat.svg/800px-Ford_logo_flat.svg.png" width="100" alt="Ford">
+        <img src="https://cdn.iconscout.com/icon/free/png-512/free-jeep-icon-download-in-svg-png-gif-file-formats--logo-brand-car-brands-pack-logos-icons-202822.png?f=webp&w=256" width="100" alt="Jeep">
+        <img src="https://images.seeklogo.com/logo-png/1/1/audi-logo-png_seeklogo-13450.png" width="100" alt="Audi">
     </div>
 </section>
+
+<script>
+    document.getElementById("booking-form").addEventListener("submit", function(e) {
+        e.preventDefault();  // блокируем стандартную отправку формы
+        const carType = document.getElementById("car-type").value;
+        if (carType) {
+            const encodedType = encodeURIComponent(carType);  // кодируем на случай кириллицы
+            window.location.href = `/cars/type/${encodedType}/`;
+        } else {
+            alert("Пожалуйста, выберите тип автомобиля.");
+        }
+    });
+</script>
 
 {% endblock %}

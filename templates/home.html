@@ -17,16 +17,17 @@
     <div class="row">
         <div class="col-lg-4 mx-auto p-4 bg-light shadow rounded">
             <h4 class="text-center">Забронируйте автомобиль</h4>
-            <form>
+            <form id="booking-form">
                 <div class="mb-3">
                     <label class="form-label">Тип автомобиля</label>
-                    <select class="form-select">
-                        <option>Выберите автомобиль</option>
-                        <option>Седан</option>
-                        <option>Внедорожник</option>
-                        <option>Спортивный</option>
+                    <select id="car-type" class="form-select" required>
+                        <option value="">Выберите автомобиль</option>
+                        <option value="Седан">Седан</option>
+                        <option value="Внедорожник">Внедорожник</option>
+                        <option value="Спортивный">Спортивный</option>
                     </select>
                 </div>
+                <!-- Остальные поля просто для внешнего вида -->
                 <div class="mb-3">
                     <label class="form-label">Место аренды</label>
                     <input type="text" class="form-control" placeholder="Введите местоположение">
@@ -124,5 +125,18 @@
         </div>
     </div>
 </section>
+
+<script>
+    document.getElementById("booking-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const carType = document.getElementById("car-type").value;
+        if (carType) {
+            const encodedType = encodeURIComponent(carType);  // На случай русских символов
+            window.location.href = `/cars/type/${encodedType}/`;
+        } else {
+            alert("Пожалуйста, выберите тип автомобиля");
+        }
+    });
+</script>
 
 {% endblock %}
