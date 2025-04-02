@@ -1,8 +1,11 @@
+import stripe
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, DetailView, ListView, CreateView
 from django.contrib import messages
 
@@ -282,3 +285,29 @@ def api_add_car_tracking(request, retailer_id, car_id):
             'timestamp': tracking.timestamp.isoformat(),
         }
     })
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+def checkout_view(request, car_id):
+    car = get_object_or_404(Car, id=car_id)
+    return render(request, "rent_car.html", {
+        "car": car,
+        "stripe_pk": settings.STRIPE_PUBLISHABLE_KEY
+    })
+
+
+@csrf_exempt
+def create_payment_intent(request):
+    import json
+    data = json.loads(request.body)
+    amount = data.get("amount")
+
+    intent = stripe.PaymentIntent.create(
+        amount=int(amount * 100),  # в центах
+        currency="usd",
+        automatic_payment_methods={"enabled": True}
+    )
+
+    return JsonResponse({"clientSecret": intent.client_secret})

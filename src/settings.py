@@ -56,6 +56,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+STRIPE_SECRET_KEY = "sk_test_51R46ZQGaR6kJ96YnWf87g5JamwsmYz1JXspgncCwWOnJegAjxojGpyAsKyeqYCneBSiJ2Q2IWRU9PIu9EviXdVKy00Uty33Pc1"
+STRIPE_PUBLISHABLE_KEY = "pk_test_51R46ZQGaR6kJ96Ynh3ry6fpgzjim0OqYKDNJtBbQXqtMooEiYWvI9AhtvRpufixMtHqyqgeDRpN8uVc5cDIxo2JB00uhLP822U"
+
 ROOT_URLCONF = 'src.urls'
 
 TEMPLATES = [

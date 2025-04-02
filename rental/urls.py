@@ -3,14 +3,13 @@ from .views import (
     HomePageView, CarDetailView,
     AboutUsView, ContactUsView, RentalHistoryView, TransactionHistoryView, ActiveRentalsView, CarListView, RentCarView,
     retailer_tracking_dashboard, retailer_car_tracking_history, api_car_tracking, api_add_car_tracking,
-    retailers_dashboard
+    retailers_dashboard, checkout_view, create_payment_intent
 )
 
 urlpatterns = [
     path("", HomePageView.as_view(), name="home"),
     path("cars/type/<str:type>/", CarListView.as_view(), name="car_type_list"),
     path("cars/<int:pk>/", CarDetailView.as_view(), name="car_detail"),
-    path("cars/<int:pk>/rent/", RentCarView.as_view(), name="car_rent"),
     path("about/", AboutUsView.as_view(), name="about"),
     path("contact/", ContactUsView.as_view(), name="contact"),
     path('rental-history/', RentalHistoryView.as_view(), name='rental_history'),
@@ -23,4 +22,6 @@ urlpatterns = [
     path('api/car_tracking/<int:retailer_id>/<int:car_id>/', api_car_tracking, name='api_car_tracking'),
     path('api/car_tracking/add/<int:retailer_id>/<int:car_id>/', api_add_car_tracking, name='api_add_car_tracking'),
     path('retailers/', retailers_dashboard, name='retailers_dashboard'),
+    path("car_rent/<int:car_id>/", checkout_view, name="car_rent"),
+    path("create-payment-intent/", create_payment_intent, name="create-payment-intent"),
 ]
