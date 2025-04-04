@@ -1,10 +1,5 @@
 from django.urls import path
-from .views import (
-    HomePageView, CarDetailView,
-    AboutUsView, ContactUsView, RentalHistoryView, TransactionHistoryView, ActiveRentalsView, CarListView, RentCarView,
-    retailer_tracking_dashboard, retailer_car_tracking_history, api_car_tracking, api_add_car_tracking,
-    retailers_dashboard, checkout_view, create_payment_intent
-)
+from .views import *
 
 urlpatterns = [
     path("", HomePageView.as_view(), name="home"),
@@ -24,4 +19,10 @@ urlpatterns = [
     path('retailers/', retailers_dashboard, name='retailers_dashboard'),
     path("car_rent/<int:car_id>/", checkout_view, name="car_rent"),
     path("create-payment-intent/", create_payment_intent, name="create-payment-intent"),
+    path("processing/", processing_view, name="processing"),
+    path("check-transaction/", check_transaction, name="check_transaction"),
+    path("rental-success/", rental_success, name="rental_success"),
+    path("download-receipt/", download_receipt, name="download_receipt"),
+    path("stripe-webhook/", stripe_webhook, name="stripe_webhook"),
+    path("update-rental/", update_rental, name="update_rental"),
 ]

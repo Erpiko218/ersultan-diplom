@@ -3,13 +3,15 @@
 {% block title %}Оформление аренды{% endblock %}
 
 {% block content %}
-
 <script src="https://js.stripe.com/v3/"></script>
 
 <div class="row">
     <!-- Форма аренды -->
     <div class="col-md-8">
         <form id="checkout-form">
+            <!-- Hidden поле для передачи rental_id -->
+            <input type="hidden" name="rental_id" value="{{ rental_id }}">
+
             <!-- Billing Info -->
             <div class="card mb-4">
                 <div class="card-header">1. Личная информация</div>
@@ -94,7 +96,7 @@
                 <p class="mb-1">Трансмиссия: {{ car.get_transmission_display }}</p>
                 <p class="mb-1">Топливо: {{ car.get_fuel_type_display }}</p>
                 <p class="mb-2 text-muted">1 день аренды</p>
-                <h4>${{ car.price_per_hour|floatformat:2 }} x 24ч = <strong>${{ car.price_per_hour|floatformat:2|floatformat:"2"|add:"0"|floatformat:"2"|add:"0"|floatformat:"2"|add:"0"|add:"0"|add:"0"|floatformat:"2" }}0</strong></h4>
+                <h4>₸{{ car.price_per_day|floatformat:2 }} / день</h4>
                 <small class="text-muted">* Итоговая цена может зависеть от длительности аренды</small>
             </div>
         </div>
@@ -102,33 +104,60 @@
 </div>
 
 <script>
+    // Сохраняем rental_id, переданный из вьюхи
+    const rentalId = "{{ rental_id }}";
     const stripe = Stripe("{{ stripe_pk }}");
     let elements;
 
+    // Создаем PaymentIntent, передавая сумму и rental_id
     fetch("/create-payment-intent/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: {{ car.price_per_hour }} * 24 })
+        body: JSON.stringify({ amount: {{ car.price_per_day }}, rental_id: rentalId })
     })
     .then(res => res.json())
     .then(data => {
-        elements = stripe.elements();
+        console.log("clientSecret =", data.clientSecret);
+        elements = stripe.elements({ clientSecret: data.clientSecret });
         const paymentElement = elements.create("payment");
         paymentElement.mount("#payment-element");
 
         const form = document.getElementById("checkout-form");
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
+
+            // Собираем данные формы через FormData
+            const formData = new FormData(form);
+            // Обновляем Rental через AJAX
+            try {
+                const updateResponse = await fetch("/update-rental/", {
+                    method: "POST",
+                    body: formData
+                });
+                const updateResult = await updateResponse.json();
+                if (updateResult.status !== "success") {
+                    document.getElementById("error-message").textContent = "Ошибка обновления данных аренды.";
+                    return;
+                }
+            } catch (err) {
+                document.getElementById("error-message").textContent = "Ошибка при отправке данных аренды.";
+                return;
+            }
+
+            // После успешного обновления данных, запускаем подтверждение платежа
             const { error } = await stripe.confirmPayment({
                 elements,
                 confirmParams: {
-                    return_url: "https://example.com/success"
+                    return_url: window.location.origin + "/rental-success/?rental_id=" + rentalId
                 }
             });
             if (error) {
                 document.getElementById("error-message").textContent = error.message;
             }
         });
+    })
+    .catch(error => {
+        console.error("Ошибка создания PaymentIntent:", error);
     });
 </script>
 {% endblock %}

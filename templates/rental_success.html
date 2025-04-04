@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Аренда подтверждена{% endblock %}
+{% block extra_head %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2b0qihV2SByhJ5jE75pfN9kASAGnL6z0rYVo3e0IdD5PjGlwMZP07pR6xET2E6TZZ4n4x04g=="
+    crossorigin=""/>
+  <style>
+    #map { height: 400px; }
+  </style>
+{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h2>Аренда подтверждена!</h2>
+  <p>Ваш автомобиль <strong>{{ rental.car.brand }} {{ rental.car.model }}</strong> успешно арендован.</p>
+  <p><strong>Дилер:</strong> {{ rental.car.dealer.name }}</p>
+  <p><strong>Адрес дилера:</strong> {{ rental.car.dealer.address }}</p>
+  <p><strong>Дата получения:</strong> {{ rental.pickup_date }} <strong>Время:</strong> {{ rental.pickup_time }}</p>
+  <div id="map" class="my-4"></div>
+  <a href="{% url 'download_receipt' %}?rental_id={{ rental.id }}" class="btn btn-success">
+    Скачать квитанцию
+  </a>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-nMMMyD6pHBQ8BG1mD6Jx2HnvE5ZKkNayAZpn4BQk70rYVZ4+gPyDw0EVU8QtwZVMSNe/76k0G6iqFhO0lLV4ZQ=="
+    crossorigin=""></script>
+  <script>
+    // Центрируем карту на Астане (примерные координаты)
+    var map = L.map('map').setView([51.1694, 71.4491], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Координаты дилера (убедитесь, что они корректно передаются)
+    var dealerLat = {{ rental.car.dealer.latitude }};
+    var dealerLng = {{ rental.car.dealer.longitude }};
+
+    // Добавляем маркер дилера
+    L.marker([dealerLat, dealerLng]).addTo(map)
+      .bindPopup('{{ rental.car.dealer.name }}')
+      .openPopup();
+  </script>
+{% endblock %}

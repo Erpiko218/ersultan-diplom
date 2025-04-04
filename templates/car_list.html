@@ -34,14 +34,14 @@
             <div class="col-md-4 mb-4">
                 <div class="card shadow-sm border-0">
                     {% if car.image %}
-                        <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.brand }} {{ car.model }}">
+                        <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.brand }} {{ car.model }}" style="max-height: 250px;">
                     {% else %}
                         <div class="p-5 bg-secondary text-center text-white">Нет изображения</div>
                     {% endif %}
                     <div class="card-body">
                         <h5 class="card-title">{{ car.brand }} {{ car.model }} ({{ car.year }})</h5>
                         <p class="card-text">Тип: {{ car.get_type_display }}</p>
-                        <p class="card-text text-primary fw-bold">Цена за час: {{ car.price_per_hour }} тг</p>
+                        <p class="card-text text-primary fw-bold">Цена за час: {{ car.price_per_day }} тг</p>
                         <p class="card-text"><i class="fas fa-gas-pump"></i> {{ car.fuel_type }} | <i class="fas fa-cogs"></i> {{ car.transmission }}</p>
                         <a href="{% url 'car_detail' car.id %}" class="btn btn-primary w-100">Посмотреть детали</a>
                     </div>

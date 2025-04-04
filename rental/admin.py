@@ -123,7 +123,7 @@ class CarForm(forms.ModelForm):
             'brand': forms.TextInput(attrs={'class': 'vTextField'}),
             'model': forms.TextInput(attrs={'class': 'vTextField'}),
             'year': forms.NumberInput(attrs={'min': 2000, 'max': 2030}),
-            'price_per_hour': forms.NumberInput(attrs={'step': 0.01}),
+            'price_per_day': forms.NumberInput(attrs={'step': 0.01}),
         }
 
 
@@ -131,9 +131,9 @@ class CarForm(forms.ModelForm):
 class CarAdmin(GuardedModelAdmin):
     form = CarForm
     search_fields = ['brand', 'model']
-    list_display = ['brand', 'model', 'year', 'price_per_hour', 'is_available', 'dealer']
+    list_display = ['brand', 'model', 'year', 'price_per_day', 'is_available', 'dealer']
     list_filter = ['year', 'dealer', 'is_available']
-    list_editable = ['is_available', 'price_per_hour']
+    list_editable = ['is_available', 'price_per_day']
     autocomplete_fields = ['dealer']
 
 

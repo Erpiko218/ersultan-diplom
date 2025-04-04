@@ -49,7 +49,7 @@ class Car(models.Model):
         verbose_name="Тип"
     )
     year = models.PositiveIntegerField(verbose_name="Год выпуска")
-    price_per_hour = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена за час (тг)")
+    price_per_day = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена за день (тг)")
     is_available = models.BooleanField(default=True, verbose_name="Доступна")
     description = models.TextField(blank=True, null=True, verbose_name="Описание")
     dealer = models.ForeignKey("Dealer", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Дилер")
@@ -102,8 +102,14 @@ class Rental(models.Model):
         ("BITCOIN", "Bitcoin"),
     )
 
+    STATUS_CHOICES = (
+        ("WAITING", "Ожидание ответа от Stripe"),
+        ("COMPLETED", "Завершена"),
+        ("REJECTED", "Отказано"),
+    )
+
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE, verbose_name="Пользователь")
-    car = models.ForeignKey(Car, on_delete=models.CASCADE, verbose_name="Автомобиль")
+    car = models.ForeignKey('Car', on_delete=models.CASCADE, verbose_name="Автомобиль")
 
     start_time = models.DateTimeField(default=now, verbose_name="Начало аренды")
     end_time = models.DateTimeField(verbose_name="Окончание аренды")
@@ -125,11 +131,7 @@ class Rental(models.Model):
     dropoff_time = models.TimeField(verbose_name="Время возврата")
 
     # Оплата
-    payment_method = models.CharField(
-        max_length=10,
-        choices=PAYMENT_METHODS,
-        verbose_name="Метод оплаты"
-    )
+    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS, verbose_name="Метод оплаты")
     card_number = models.CharField(max_length=16, blank=True, null=True, verbose_name="Номер карты")
     expiration_date = models.CharField(max_length=7, blank=True, null=True, verbose_name="Срок действия карты (MM/YY)")
     card_holder = models.CharField(max_length=255, blank=True, null=True, verbose_name="Владелец карты")
@@ -137,17 +139,22 @@ class Rental(models.Model):
 
     is_paid = models.BooleanField(default=False, verbose_name="Оплачено")
     total_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name="Итоговая цена")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="WAITING", verbose_name="Статус")
 
     def save(self, *args, **kwargs):
-        """Автоматический расчет стоимости аренды"""
+        """
+        Автоматический расчет стоимости аренды. Если заданы даты получения и возврата,
+        вычисляется количество дней (минимум 1 день) и итоговая цена = количество дней * цена за час * 24.
+        """
         if self.pickup_date and self.dropoff_date:
             days = (self.dropoff_date - self.pickup_date).days
-            self.total_price = days * self.car.price_per_hour * 24  # Цена за сутки
-
+            if days < 1:
+                days = 1
+            self.total_price = days * self.car.price_per_day
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Аренда {self.car} пользователем {self.user.username}"
+        return f"Аренда {self.car} пользователем {self.user.username} (Статус: {self.get_status_display()})"
 
     class Meta:
         verbose_name = "Аренда"
@@ -160,10 +167,17 @@ class Transaction(models.Model):
         ("RENTAL", "Оплата аренды"),
     )
 
+    TRANSACTION_STATUSES = (
+        ("WAITING", "Ожидание ответа от strype"),
+        ("COMPLETED", "Закончен"),
+        ("REJECTED", "Отказано")
+    )
+
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE, verbose_name="Пользователь")
     transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES, verbose_name="Тип")
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Сумма")
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Дата")
+    status = models.CharField(max_length=20, choices=TRANSACTION_STATUSES, verbose_name="Статус")
 
     def __str__(self):
         return f"Транзакция {self.user.username}: {self.transaction_type} {self.amount}"
