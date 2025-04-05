@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
@@ -147,6 +149,11 @@ class Rental(models.Model):
         вычисляется количество дней (минимум 1 день) и итоговая цена = количество дней * цена за час * 24.
         """
         if self.pickup_date and self.dropoff_date:
+            # Если поля типа str, преобразуем их в date
+            if isinstance(self.pickup_date, str):
+                self.pickup_date = datetime.strptime(self.pickup_date, "%Y-%m-%d").date()
+            if isinstance(self.dropoff_date, str):
+                self.dropoff_date = datetime.strptime(self.dropoff_date, "%Y-%m-%d").date()
             days = (self.dropoff_date - self.pickup_date).days
             if days < 1:
                 days = 1

@@ -54,6 +54,8 @@
 
                     {# Если пользователь авторизован и имеет права ритейлера (или выше), показываем дополнительные ссылки #}
                     {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'rental_history' %}">История аренд</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'payment_history' %}">Транзакции</a></li>
                         {% if user.is_superuser or user|has_group:"Retailers" %}
                             <li class="nav-item"><a class="nav-link" href="{% url 'retailers_dashboard' %}">Дашборд</a></li>
                         {% endif %}
@@ -75,7 +77,7 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container mt-4" style="min-height: 60vh">
         {% block content %}{% endblock %}
     </div>
 

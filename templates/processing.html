@@ -10,11 +10,11 @@
 </div>
 <script>
   function checkTransactionStatus() {
-      fetch(`/check-transaction/?rental_id={{ rental_id }}`)
+      fetch(`/check-transaction/?rental_id={{ rental.id }}`)
           .then(response => response.json())
           .then(data => {
               if (data.status === "success") {
-                  window.location.href = "/rental-success/?rental_id={{ rental_id }}";
+                  window.location.href = "/rental-success/?rental_id={{ rental.id }}";
               } else {
                   setTimeout(checkTransactionStatus, 5000);
               }

@@ -79,13 +79,14 @@ class AboutUsView(TemplateView):
     template_name = "about.html"
 
 
-class RentalHistoryView(ListView):
+class RentalDetailView(LoginRequiredMixin, DetailView):
     model = Rental
-    template_name = 'rental_history.html'
-    context_object_name = 'rentals'
+    template_name = "rental_detail.html"
+    context_object_name = "rental"
 
     def get_queryset(self):
-        return Rental.objects.filter(user=self.request.user).order_by('-end_date')
+        # Ограничиваем выборку аренд только текущим пользователем
+        return Rental.objects.filter(user=self.request.user)
 
 
 class TransactionHistoryView(ListView):
@@ -94,16 +95,19 @@ class TransactionHistoryView(ListView):
     context_object_name = 'payments'
 
     def get_queryset(self):
-        return Transaction.objects.filter(user=self.request.user).order_by('-date')
+        return Transaction.objects.filter(user=self.request.user).order_by('-timestamp')
 
 
-class ActiveRentalsView(ListView):
-    model = Rental
-    template_name = 'cars/active_rentals.html'
-    context_object_name = 'rentals'
+class MyRentalsView(LoginRequiredMixin, TemplateView):
+    template_name = 'active_rentals.html'  # Можно назвать, например, my_rentals.html
 
-    def get_queryset(self):
-        return Rental.objects.filter(user=self.request.user, is_active=True)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Активные аренды – например, аренды, которые оплачены и имеют статус COMPLETED
+        context['active_rentals'] = Rental.objects.filter(user=self.request.user, is_paid=True, status="COMPLETED")
+        # История (неактивные аренды) – аренды, которые не имеют статус COMPLETED
+        context['inactive_rentals'] = Rental.objects.filter(user=self.request.user).exclude(status="COMPLETED")
+        return context
 
 
 def user_is_retailer(user):
@@ -314,7 +318,7 @@ def checkout_view(request, car_id):
         "rental_id": rental.id,
     })
 
-
+@csrf_exempt
 @login_required
 def update_rental(request):
     """
@@ -377,6 +381,8 @@ def check_transaction(request):
         return JsonResponse({"error": "Rental ID required"}, status=400)
 
     rental = get_object_or_404(Rental, id=rental_id, user=request.user)
+    if settings.DEBUG:
+        return JsonResponse({"status": "success"})
     if rental.is_paid:
         return JsonResponse({"status": "success"})
     return JsonResponse({"status": "processing"})
@@ -389,6 +395,10 @@ def rental_success(request):
     if not rental_id:
         return HttpResponseForbidden("Rental ID не передан")
     rental = get_object_or_404(Rental, id=rental_id, user=request.user)
+    if settings.DEBUG:
+        rental.is_paid = True
+        rental.save()
+
     return render(request, "rental_success.html", {"rental": rental})
 
 

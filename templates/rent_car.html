@@ -148,7 +148,11 @@
             const { error } = await stripe.confirmPayment({
                 elements,
                 confirmParams: {
-                    return_url: window.location.origin + "/rental-success/?rental_id=" + rentalId
+                    // В рабочей сборке возвращаем на страницу ожидания транзакции
+                    return_url: window.location.origin + "/processing/?rental_id=" + rentalId
+
+                    // Для тестовой сборки, чтобы сразу переходить на страницу успешной аренды, можно использовать:
+                    // return_url: window.location.origin + "/rental-success/?rental_id=" + rentalId
                 }
             });
             if (error) {
