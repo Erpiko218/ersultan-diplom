@@ -104,7 +104,7 @@ class MyRentalsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Активные аренды – например, аренды, которые оплачены и имеют статус COMPLETED
-        context['active_rentals'] = Rental.objects.filter(user=self.request.user, is_paid=True, status="COMPLETED")
+        context['active_rentals'] = Rental.objects.filter(user=self.request.user, is_paid=True, status="OWNED")
         # История (неактивные аренды) – аренды, которые не имеют статус COMPLETED
         context['inactive_rentals'] = Rental.objects.filter(user=self.request.user).exclude(status="COMPLETED")
         return context
@@ -397,6 +397,7 @@ def rental_success(request):
     rental = get_object_or_404(Rental, id=rental_id, user=request.user)
     if settings.DEBUG:
         rental.is_paid = True
+        rental.status = "OWNED"
         rental.save()
 
     return render(request, "rental_success.html", {"rental": rental})
@@ -460,6 +461,7 @@ def stripe_webhook(request):
             try:
                 rental = Rental.objects.get(id=rental_id)
                 rental.is_paid = True
+                rental.status = "OWNED"
                 rental.save()
             except Rental.DoesNotExist:
                 pass
@@ -470,6 +472,7 @@ def stripe_webhook(request):
             try:
                 rental = Rental.objects.get(id=rental_id)
                 rental.is_paid = False
+                rental.status = "REJECTED"
                 rental.save()
             except Rental.DoesNotExist:
                 pass

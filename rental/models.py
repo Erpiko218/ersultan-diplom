@@ -106,6 +106,7 @@ class Rental(models.Model):
 
     STATUS_CHOICES = (
         ("WAITING", "Ожидание ответа от Stripe"),
+        ("OWNED", "Пользватель еще пользуется услугой"),
         ("COMPLETED", "Завершена"),
         ("REJECTED", "Отказано"),
     )
