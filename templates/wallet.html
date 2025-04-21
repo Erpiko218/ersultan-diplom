@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Кошелёк{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 px-4 space-y-8">
+
+  <!-- Баланс -->
+  <div class="card bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-xl">
+    <div class="card-body p-4 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg">Ваш баланс</h2>
+        <p class="text-4xl font-bold">{{ balance }} ₸</p>
+      </div>
+      <!-- Пополнить -->
+    </div>
+  </div>
+
+  <!-- История транзакций -->
+  <div class="card bg-base-100 shadow-lg">
+    <div class="card-body p-4">
+      <h2 class="text-xl font-semibold mb-4">Последние транзакции</h2>
+
+      {% if transactions %}
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Тип</th>
+                <th>Сумма</th>
+                <th>Статус</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in transactions %}
+                <tr>
+                  <td>{{ t.timestamp|date:"d.m.Y H:i" }}</td>
+                  <td>
+                    <span class="badge badge-outline">
+                      {% if t.transaction_type == "TOP_UP" %}Пополнение
+                      {% else %}Аренда{% endif %}
+                    </span>
+                  </td>
+                  <td>{{ t.amount }} ₸</td>
+                  <td>
+                    {% if t.status == "COMPLETED" %}
+                      <span class="badge badge-success badge-outline">Успех</span>
+                    {% elif t.status == "WAITING" %}
+                      <span class="badge badge-warning badge-outline">Ожидание</span>
+                    {% else %}
+                      <span class="badge badge-error badge-outline">Отказ</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-center text-gray-500">Транзакций ещё нет.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

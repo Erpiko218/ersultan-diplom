@@ -1,94 +1,128 @@
 {% extends "base.html" %}
-{% load static %}
-
 {% block title %}Настройки профиля{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto p-4 space-y-8">
+<!-- Alpine нужен только для предпросмотра аватара -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <!-- Блок баланса -->
-    <div class="card bg-base-100 shadow p-6 flex justify-between items-center">
-        <div>
-            <h2 class="text-lg font-semibold">Ваш баланс</h2>
-            <p class="text-2xl text-primary">{{ balance }} ₸</p>
+  <!-- Карточка -->
+  <div class="card shadow-xl bg-base-100">
+    <!-- Шапка -->
+    <div class="px-6 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-t-2xl">
+      <h2 class="text-2xl font-semibold">Настройки профиля</h2>
+      <p class="text-sm opacity-80">Обновите ваши данные</p>
+    </div>
+
+    <div class="card-body">
+
+      {% if messages %}
+        {% for m in messages %}
+          <div class="alert {{ m.tags }} mb-4"><span>{{ m }}</span></div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data" class="grid md:grid-cols-2 gap-8">
+        {% csrf_token %}
+
+        <!-- Левая колонка: аватар -->
+        <div class="space-y-4">
+          <!-- Аватар‑превью -->
+        <div class="avatar">
+          <div class="w-80 mt-5 h-80 rounded-full ring ring-primary
+                      ring-offset-base-100 ring-offset-2 overflow-hidden">
+            {% if user.avatar %}
+              <img src="{{ user.avatar.url }}" alt="avatar">
+            {% else %}
+              <img src="https://i.pravatar.cc/420" alt="avatar">
+            {% endif %}
+          </div>
         </div>
-        <a href="{% url 'wallet' %}" class="btn btn-outline-primary">
-            Пополнить / История
-        </a>
+          <!-- file‑input -->
+          <label class="form-control">
+            <span class="label-text mb-1">Аватар</span>
+            <input type="file" name="avatar"
+                   @change="avatarPreview = URL.createObjectURL($event.target.files[0])"
+                   class="file-input file-input-bordered w-full" />
+          </label>
+        </div>
+
+        <!-- Правая колонка: поля -->
+        <div class="space-y-6">
+
+          <!-- Имя + Фамилия -->
+          <div class="grid sm:grid-cols-2 gap-4">
+            <label class="form-control">
+              <span class="label-text">Имя</span>
+              <div class="relative">
+                <img src="https://api.iconify.design/heroicons-outline/user.svg"
+                     class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"/>
+                <input name="first_name" value="{{ user.first_name }}"
+                       class="input input-bordered w-full pl-10" />
+              </div>
+            </label>
+
+            <label class="form-control">
+              <span class="label-text">Фамилия</span>
+              <div class="relative">
+                <img src="https://api.iconify.design/heroicons-outline/user.svg"
+                     class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"/>
+                <input name="last_name" value="{{ user.last_name }}"
+                       class="input input-bordered w-full pl-10" />
+              </div>
+            </label>
+          </div>
+
+          <!-- Email -->
+          <label class="form-control">
+            <span class="label-text">Email</span>
+            <div class="relative">
+              <img src="https://api.iconify.design/heroicons-outline/envelope.svg"
+                   class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"/>
+              <input type="email" name="email" value="{{ user.email }}"
+                     class="input input-bordered w-full pl-10" />
+            </div>
+          </label>
+
+          <!-- Телефон -->
+          <label class="form-control">
+            <span class="label-text">Телефон</span>
+            <div class="relative">
+              <img src="https://api.iconify.design/heroicons-outline/phone.svg"
+                   class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"/>
+              <input name="phone" value="{{ user.phone }}"
+                     class="input input-bordered w-full pl-10" />
+            </div>
+          </label>
+
+          <!-- Адрес -->
+          <label class="form-control">
+            <span class="label-text">Адрес</span>
+            <textarea name="address" rows="3"
+                      class="textarea textarea-bordered w-full">{{ user.address }}</textarea>
+          </label>
+
+          <!-- Дата рождения + Роли -->
+          <div class="grid sm:grid-cols-2 gap-4">
+            <label class="form-control">
+              <span class="label-text">Дата рождения</span>
+              <input type="date" name="date_of_birth"
+                     value="{{ user.date_of_birth|date:'Y-m-d' }}"
+                     class="input input-bordered w-full" />
+            </label>
+          </div>
+        </div>
+
+        <!-- Кнопка сохранить (отдельная строка full‑width) -->
+        <div class="md:col-span-2 flex justify-end m-3 ">
+          <button
+            type="submit"
+            class="btn bg-primary px-10 py-3 hover:bg-base/80 transition-colors hover:bg-grey-200 bg-black-600">
+            Сохранить изменения
+          </button>
+        </div>
+      </form>
+
     </div>
-
-    <!-- Форма настроек -->
-    <div class="card bg-base-100 shadow p-6">
-        <h1 class="text-2xl font-bold mb-4">Настройки профиля</h1>
-        <form method="post" enctype="multipart/form-data" class="space-y-6">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-
-            <!-- Аватар -->
-            <div class="form-control w-full">
-                <label class="label"><span class="label-text">{{ form.avatar.label }}</span></label>
-                {{ form.avatar }}
-                {% if user.avatar %}
-                    <img src="{{ user.avatar.url }}" alt="avatar"
-                         class="w-24 h-24 rounded-full mt-2 object-cover">
-                {% endif %}
-                {{ form.avatar.errors }}
-            </div>
-
-            <!-- Имя и Фамилия -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="form-control">
-                    <label class="label"><span class="label-text">{{ form.first_name.label }}</span></label>
-                    {{ form.first_name }}
-                    {{ form.first_name.errors }}
-                </div>
-                <div class="form-control">
-                    <label class="label"><span class="label-text">{{ form.last_name.label }}</span></label>
-                    {{ form.last_name }}
-                    {{ form.last_name.errors }}
-                </div>
-            </div>
-
-            <!-- Email -->
-            <div class="form-control w-full">
-                <label class="label"><span class="label-text">{{ form.email.label }}</span></label>
-                {{ form.email }}
-                {{ form.email.errors }}
-            </div>
-
-            <!-- Телефон -->
-            <div class="form-control w-full">
-                <label class="label"><span class="label-text">{{ form.phone.label }}</span></label>
-                {{ form.phone }}
-                {{ form.phone.errors }}
-            </div>
-
-            <!-- Адрес -->
-            <div class="form-control w-full">
-                <label class="label"><span class="label-text">{{ form.address.label }}</span></label>
-                {{ form.address }}
-                {{ form.address.errors }}
-            </div>
-
-            <!-- Дата рождения -->
-            <div class="form-control w-full">
-                <label class="label"><span class="label-text">{{ form.date_of_birth.label }}</span></label>
-                {{ form.date_of_birth }}
-                {{ form.date_of_birth.errors }}
-            </div>
-
-            <!-- Роли -->
-            <div class="form-control w-full">
-                <label class="label"><span class="label-text">{{ form.groups.label }}</span></label>
-                {{ form.groups }}
-                {{ form.groups.errors }}
-            </div>
-
-            <!-- Сохранить -->
-            <div class="form-control mt-6">
-                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-            </div>
-        </form>
-    </div>
+  </div>
 </div>
 {% endblock %}

@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 
 from accounts.forms import AccountsUserCreationForm, EmailAuthenticationForm, UserSettingsForm
+from rental.models import Rental, Transaction
 
 
 class RegisterView(CreateView):
@@ -57,4 +58,51 @@ def settings_view(request):
     return render(request, "settings.html", {
         "form": form,
         "balance": user.balance,
+    })
+
+
+@login_required
+def dashboard(request):
+    user = request.user
+    balance = user.balance
+
+    transactions = (
+        Transaction.objects
+        .filter(user=user)
+        .order_by("-timestamp")[:10]
+    )
+
+    current_rentals = (
+        Rental.objects
+        .filter(user=user, status="OWNED")
+        .select_related("car")[:10]
+    )
+
+    history_rentals = (
+        Rental.objects
+        .filter(user=user, status__in=["COMPLETED", "REJECTED"])
+        .select_related("car")
+        .order_by("-end_time")[:10]
+    )
+
+    return render(request, "accounts/dashboard.html", {
+        "balance": balance,
+        "transactions": transactions,
+        "current_rentals": current_rentals,
+        "history_rentals": history_rentals,
+    })
+
+
+@login_required
+def profile(request):
+    return render(request, "profile.html")
+
+
+@login_required
+def wallet(request):
+    balance = request.user.balance
+    txs = Transaction.objects.filter(user=request.user).order_by("-timestamp")[:20]
+    return render(request, "wallet.html", {
+        "balance": balance,
+        "transactions": txs,
     })

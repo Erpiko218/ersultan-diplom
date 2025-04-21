@@ -1,56 +1,76 @@
 <form hx-get="{% url 'car_list' %}" hx-trigger="change" class="space-y-6">
-    <!-- ТИП -->
-    <div>
-        <h3 class="font-semibold mb-2">Тип</h3>
-        {% for value, label in filter.form.type.field.choices %}
-            <label class="flex items-center gap-2 mb-1">
-                <input type="checkbox" name="type" value="{{ value }}"
-                       {% if value in filter.form.data.getlist('type') %}checked{% endif %}
-                       class="checkbox checkbox-sm checkbox-primary"/>
-                <span>{{ label }}</span>
-            </label><br/>
-        {% endfor %}
-    </div>
 
-    <!-- ВМЕСТИМОСТЬ -->
-    <div>
-        <h3 class="font-semibold mb-2">Места</h3>
-        {% for seats in "2,4,6,8"|split:"," %}
-            <label class="flex items-center gap-2 mb-1">
-                <input type="radio" name="seats" value="{{ seats }}"
-                       {% if filter.form.data.seats|default:"2" == seats %}checked{% endif %}
-                       class="radio radio-sm"/>
-                <span>
-                    {% if seats == "8" %}8 и более{% else %}{{ seats }} пассажира{% endif %}
-                </span>
-            </label><br/>
-        {% endfor %}
-    </div>
+  <!-- ТИП МАШИНЫ -->
+  <div>
+    <h3 class="font-semibold mb-2">Тип</h3>
+    {% for value,label in filter.form.fields.type.choices %}
+      <label class="flex items-center gap-2 mb-1">
+        <input
+          type="checkbox"
+          name="type"
+          value="{{ value }}"
+          class="checkbox checkbox-sm checkbox-primary"
+          {% if value in selected_types %}checked{% endif %}
+        />
+        <span>{{ label }}</span>
+      </label>
+    {% endfor %}
+  </div>
 
-    <!-- ЦЕНА -->
-    <div>
-        <h3 class="font-semibold">Цена, ₸</h3>
-        <input type="range" name="price_to" min="0" max="100000"
-               value="{{ filter.form.data.price_to|default:100000 }}"
-               class="range range-primary mt-2"/>
-        <div class="text-sm mt-1 opacity-70">
-            Макс. {{ filter.form.data.price_to|default:100000 }} ₸
-        </div>
-    </div>
+  <!-- ВМЕСТИМОСТЬ -->
+  <div>
+    <h3 class="font-semibold mb-2">Места</h3>
+    {% for seats in seats_list %}
+      <label class="flex items-center gap-2 mb-1">
+        <input
+          type="radio"
+          name="seats"
+          value="{{ seats }}"
+          class="radio radio-sm"
+          {% if selected_seats == seats|stringformat:"s" %}checked{% endif %}
+        />
+        <span>
+          {% if seats > 6 %}8 и более{% else %}{{ seats }} пассажира{% endif %}
+        </span>
+      </label>
+    {% endfor %}
+  </div>
 
-    <!-- ДИЛЕРЫ -->
-    <div>
-        <h3 class="font-semibold mb-2">Дилеры</h3>
-        {% for dealer in filter.form.fields.dealer.queryset %}
-            <label class="flex items-center gap-2 mb-1">
-                <input type="checkbox" name="dealer" value="{{ dealer.pk }}"
-                       {% if dealer.pk|stringformat:"s" in filter.form.data.getlist('dealer') %}checked{% endif %}
-                       class="checkbox checkbox-sm"/>
-                <span>{{ dealer.name }}</span>
-            </label><br/>
-        {% endfor %}
+  <!-- ЦЕНА -->
+  <div>
+    <h3 class="font-semibold">Цена, ₸</h3>
+    <input
+      type="range"
+      name="price_to"
+      min="0"
+      max="100000"
+      value="{{ price_to|default:100000 }}"
+      class="range range-primary mt-2"
+    />
+    <div class="text-sm mt-1 opacity-70">
+      Макс. {{ price_to|default:100000 }} ₸
     </div>
+  </div>
 
-    <!-- КНОПКА -->
-    <button class="btn btn-primary w-full mt-4" type="submit">Показать</button>
+  <!-- ДИЛЕРЫ -->
+  <div>
+    <h3 class="font-semibold mb-2">Дилеры</h3>
+    {% for dealer in filter.form.fields.dealer.queryset %}
+      <label class="flex items-center gap-2 mb-1">
+        <input
+          type="checkbox"
+          name="dealer"
+          value="{{ dealer.pk }}"
+          class="checkbox checkbox-sm"
+          {% if dealer.pk|stringformat:"s" in selected_dealers %}checked{% endif %}
+        />
+        <span>{{ dealer.name }}</span>
+      </label>
+    {% endfor %}
+  </div>
+
+  <!-- КНОПКА ПРИМЕНИТЬ -->
+  <button type="submit" class="btn btn-primary w-full mt-4">
+    Показать
+  </button>
 </form>

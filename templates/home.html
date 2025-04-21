@@ -2,21 +2,35 @@
 {% block content %}
 <!-- HERO – две оранжевые карточки -->
 <div class="grid md:grid-cols-2 gap-6">
-    <div class="rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow">
-        <h2 class="text-2xl font-bold mb-2">Лучшая площадка<br>для аренды авто</h2>
-        <p class="text-sm mb-4 opacity-90">Оформляйте аренду безопасно и выгодно.</p>
-        <a href="{% url 'car_list' %}" class="btn bg-white text-orange-500 border-0">Выбрать авто</a>
-        <img src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Koenigsegg-logo-1994-2048x2048.png" class="w-40 lg:w-52 absolute bottom-0 right-6"/>
-    </div>
-    <div class="rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow relative">
-        <h2 class="text-2xl font-bold mb-2">Аренда по низкой цене</h2>
-        <p class="text-sm mb-4 opacity-90">Дешёвые тарифы и комфорт.</p>
-        <a href="{% url 'car_list' %}" class="btn bg-white text-orange-500 border-0">Арендовать</a>
-        <img src="https://logos-download.com/wp-content/uploads/2016/02/Nissan_Logo_2001-2012.png" class="w-40 lg:w-52 absolute bottom-0 right-6"/>
-    </div>
+
+  <!-- КАРТОЧКА 1 -->
+  <div class="relative rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow overflow-hidden">
+    <h2 class="text-2xl font-bold mb-2">Лучшая площадка<br>для аренды авто</h2>
+    <p class="text-sm mb-4 opacity-90">Оформляйте аренду безопасно и выгодно.</p>
+    <a href="{% url 'car_list' %}" class="btn text-black-700 border-0">Выбрать авто</a>
+    <img
+      src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Koenigsegg-logo-1994-2048x2048.png"
+      alt="Koenigsegg logo"
+      class="w-40 lg:w-52 absolute bottom-0 right-6"
+    />
+  </div>
+
+  <!-- КАРТОЧКА 2 -->
+  <div class="relative rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow overflow-hidden">
+    <h2 class="text-2xl font-bold mb-2">Аренда по низкой цене</h2>
+    <p class="text-sm mb-4 opacity-90">Дешёвые тарифы и комфорт.</p>
+    <a href="{% url 'car_list' %}" class="btn text-black-700 border-0">Арендовать</a>
+    <img
+      src="https://upload.wikimedia.org/wikipedia/commons/2/23/Nissan_2020_logo.svg"
+      alt="Nissan logo"
+      class="w-40 lg:w-52 absolute bottom-0 right-0"
+    />
+  </div>
+
 </div>
 
-<!-- Форма даты/локации — reuse той, что была на скрине -->
+
+<!-- Форма даты/локации— reuse той, что была на скрине-->
 {% include "partials/pickup_form.html" %}
 
 <!-- ПОПУЛЯРНЫЕ -->

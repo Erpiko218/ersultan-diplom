@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Уведомления{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto mt-10 px-4 space-y-6">
+
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-2xl font-bold">Уведомления</h2>
+    {% if unread %}
+      <form hx-post="{% url 'notifications_mark_all' %}" hx-swap="none">
+        <button class="btn btn-sm btn-outline">Отметить всё прочитанным</button>
+      </form>
+    {% endif %}
+  </div>
+
+  {% if notifications %}
+    <div class="space-y-4">
+      {% for n in notifications %}
+          <div id="n{{ n.id }}"
+               class="card shadow {% if not n.is_read %}ring-2 ring-primary/40{% endif %}">
+            <div class="card-body py-4">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-semibold">{{ n.title }}</h3>
+                  <p class="text-sm opacity-80 break-words">{{ n.body }}</p>
+                  <p class="text-xs opacity-60 mt-1">
+                    {{ n.created_at|date:"d.m.Y H:i" }}
+                  </p>
+                </div>
+
+                {% if not n.is_read %}
+                  <form hx-post="{% url 'notifications_mark_one' n.id %}"
+                        hx-target="#n{{ n.id }}" hx-swap="outerHTML">
+                    <button class="btn btn-xs btn-primary">Прочитано</button>
+                  </form>
+                {% endif %}
+              </div>
+
+              {% if n.link %}
+                <a href="{{ n.link }}" class="link link-primary text-sm">Перейти &rarr;</a>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+
+    </div>
+  {% else %}
+    <p class="text-center text-gray-500">Уведомлений нет.</p>
+  {% endif %}
+</div>
+{% endblock %}

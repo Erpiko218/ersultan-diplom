@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Квитанция по аренде</title>
+  <style>
+    /* Подключаем шрифт DejaVu (или любой другой, установленный в системе) */
+    @font-face {
+      font-family: "DejaVu Sans";
+      src: local("DejaVu Sans"), local("DejaVuSans"),
+           url("{{ base_url }}static/fonts/DejaVuSans.ttf") format("truetype");
+    }
+    body {
+      font-family: "DejaVu Sans", sans-serif;
+      margin: 0;
+      padding: 1cm;
+      font-size: 12pt;
+      line-height: 1.4;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      font-size: 18pt;
+      margin-bottom: 0.5em;
+    }
+    .section {
+      margin-bottom: 1em;
+    }
+    .label {
+      font-weight: bold;
+      width: 150px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Квитанция по аренде</h1>
+
+  <div class="section">
+    <p><span class="label">ID аренды:</span>{{ rental.id }}</p>
+    <p><span class="label">Автомобиль:</span>{{ rental.car.brand }} {{ rental.car.model }}</p>
+    <p><span class="label">Дилер:</span>{{ rental.car.dealer.name|default:"Не указан" }}</p>
+  </div>
+
+  <div class="section">
+    <p><span class="label">Дата получения:</span>{{ rental.pickup_date }} {{ rental.pickup_time }}</p>
+    <p><span class="label">Дата возврата:</span>{{ rental.dropoff_date }} {{ rental.dropoff_time }}</p>
+  </div>
+
+  <div class="section">
+    <p><span class="label">Итоговая цена:</span>{{ rental.total_price }} ₸</p>
+    <p><span class="label">Оплачено:</span>{% if rental.is_paid %}Да{% else %}Нет{% endif %}</p>
+  </div>
+</body>
+</html>

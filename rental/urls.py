@@ -21,7 +21,7 @@ urlpatterns = [
     path("processing/", processing_view, name="processing"),
     path("check-transaction/", check_transaction, name="check_transaction"),
     path("rental-success/", rental_success, name="rental_success"),
-    path("download-receipt/", download_receipt, name="download_receipt"),
+    path("download-receipt/", download_receipt_docx, name="download_receipt"),
     path("stripe-webhook/", stripe_webhook, name="stripe_webhook"),
     path("update-rental/", update_rental, name="update_rental"),
 
@@ -31,4 +31,6 @@ urlpatterns = [
          name="notifications_dropdown"),
     path("favorites/", favorites, name="favorites"),
     path("search/", car_search, name="car_search"),
+
+    path('dealers/<int:pk>/', dealer_detail, name='dealer_detail'),
 ]

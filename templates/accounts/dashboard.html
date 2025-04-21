@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto mt-10 space-y-10 px-4">
+
+  <!-- ░░ Профиль + Баланс ░░ -->
+  <div class="grid md:grid-cols-3 gap-6">
+    <!-- Профиль -->
+    <div class="card bg-base-100 p-4 shadow">
+      <div class="card-body items-center text-center">
+        <div class="avatar">
+          <div class="w-24 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+            {% if user.avatar %}
+              <img src="{{ user.avatar.url }}" alt="avatar">
+            {% else %}
+              <img src="https://i.pravatar.cc/120" alt="avatar">
+            {% endif %}
+          </div>
+        </div>
+        <h2 class="card-title mt-4">{{ user.get_full_name|default:user.username }}</h2>
+        <p class="text-sm opacity-70">{{ user.email }}</p>
+        {% if user.phone %}
+          <p class="text-sm opacity-70">{{ user.phone }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Баланс -->
+    <div class="card bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow md:col-span-2 p-4">
+      <div class="card-body flex items-center justify-between">
+        <div>
+          <h3 class="text-lg">Баланс</h3>
+          <p class="text-4xl font-bold">{{ balance }} ₸</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░ Транзакции ░░ -->
+  <div class="card bg-base-100 shadow">
+    <div class="card-body overflow-x-auto">
+      <h3 class="text-xl font-semibold mb-4">Последние транзакции</h3>
+      {% if transactions %}
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Дата</th><th>Тип</th><th>Сумма</th><th>Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in transactions %}
+              <tr>
+                <td>{{ t.timestamp|date:"d.m.Y H:i" }}</td>
+                <td>
+                  {% if t.transaction_type == "TOP_UP" %}<span class="badge badge-outline">Пополнение</span>
+                  {% else %}<span class="badge badge-outline">Аренда</span>{% endif %}
+                </td>
+                <td>{{ t.amount }} ₸</td>
+                <td>
+                  {% if t.status == "COMPLETED" %}
+                    <span class="badge badge-success badge-outline">Успех</span>
+                  {% elif t.status == "WAITING" %}
+                    <span class="badge badge-warning badge-outline">Ожидание</span>
+                  {% else %}
+                    <span class="badge badge-error badge-outline">Отказ</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-center text-gray-500">Транзакций пока нет.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ░░ Текущие аренды ░░ -->
+  <div class="card bg-base-100 shadow">
+    <div class="card-body overflow-x-auto">
+      <h3 class="text-xl font-semibold mb-4">Текущие аренды</h3>
+      {% if current_rentals %}
+        <table class="table">
+          <thead><tr><th>Машина</th><th>Начало</th><th>Окончание</th></tr></thead>
+          <tbody>
+            {% for r in current_rentals %}
+              <tr>
+                <td>{{ r.car }}</td>
+                <td>{{ r.start_time|date:"d.m.Y H:i" }}</td>
+                <td>{{ r.end_time|date:"d.m.Y H:i" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-center text-gray-500">Нет активных аренд.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ░░ История аренд ░░ -->
+  <div class="card bg-base-100 shadow">
+    <div class="card-body overflow-x-auto">
+      <h3 class="text-xl font-semibold mb-4">История аренд</h3>
+      {% if history_rentals %}
+        <table class="table table-zebra">
+          <thead>
+            <tr><th>Машина</th><th>Период</th><th>Статус</th></tr>
+          </thead>
+          <tbody>
+            {% for r in history_rentals %}
+              <tr>
+                <td>{{ r.car }}</td>
+                <td>{{ r.start_time|date:"d.m.Y" }} — {{ r.end_time|date:"d.m.Y" }}</td>
+                <td>
+                  {% if r.status == "COMPLETED" %}
+                    <span class="badge badge-success badge-outline">Завершена</span>
+                  {% else %}
+                    <span class="badge badge-error badge-outline">Отказано</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-center text-gray-500">История пуста.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
