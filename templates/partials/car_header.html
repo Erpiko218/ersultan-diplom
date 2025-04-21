@@ -1,0 +1,43 @@
+{# «шапка» детальной страницы автомобиля – переменная car передана из вьюхи #}
+<section class="card bg-base-100 shadow overflow-hidden">
+    <div class="grid md:grid-cols-2">
+        {# === галерея === #}
+        <div class="p-6 flex flex-col gap-4">
+            <img src="{{ car.image.url }}" alt="{{ car }}"
+                 class="w-full h-60 object-contain rounded-lg bg-base-200" />
+
+            {# мини‑превью (если есть) – выводим 3 любых из media #}
+            <div class="flex gap-3">
+                {% for img in car.gallery.all|slice:":3" %}
+                    <img src="{{ img.url }}" class="h-16 w-24 object-cover rounded-lg">
+                {% empty %}
+                    {# заглушки #}
+                {% endfor %}
+            </div>
+        </div>
+
+        {# === описание / цена === #}
+        <div class="p-6 space-y-4">
+            <h1 class="text-2xl font-bold">{{ car.brand }} {{ car.model }}</h1>
+
+            <p class="text-sm opacity-80">{{ car.description|linebreaksbr }}</p>
+
+            <table class="table table-xs">
+                <tr><td>Тип</td><td>{{ car.get_type_display }}</td></tr>
+                <tr><td>Коробка</td><td>{{ car.get_transmission_display }}</td></tr>
+                <tr><td>Топливо</td><td>{{ car.fuel_type }}</td></tr>
+                <tr><td>Мест</td><td>{{ car.seats }}</td></tr>
+                <tr><td>Дилер</td><td>{{ car.dealer.name }}</td></tr>
+            </table>
+
+            <div class="flex items-end gap-4">
+                <div>
+                    <span class="text-3xl font-bold">{{ car.price_per_day }}₸</span>
+                    <span class="opacity-60 text-sm">/ день</span>
+                </div>
+                <a href="{% url 'rental_create' car.pk %}"
+                   class="btn btn-primary">Забронировать</a>
+            </div>
+        </div>
+    </div>
+</section>

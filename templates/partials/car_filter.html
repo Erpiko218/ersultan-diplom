@@ -1,0 +1,56 @@
+<form hx-get="{% url 'car_list' %}" hx-trigger="change" class="space-y-6">
+    <!-- ТИП -->
+    <div>
+        <h3 class="font-semibold mb-2">Тип</h3>
+        {% for value, label in filter.form.type.field.choices %}
+            <label class="flex items-center gap-2 mb-1">
+                <input type="checkbox" name="type" value="{{ value }}"
+                       {% if value in filter.form.data.getlist('type') %}checked{% endif %}
+                       class="checkbox checkbox-sm checkbox-primary"/>
+                <span>{{ label }}</span>
+            </label><br/>
+        {% endfor %}
+    </div>
+
+    <!-- ВМЕСТИМОСТЬ -->
+    <div>
+        <h3 class="font-semibold mb-2">Места</h3>
+        {% for seats in "2,4,6,8"|split:"," %}
+            <label class="flex items-center gap-2 mb-1">
+                <input type="radio" name="seats" value="{{ seats }}"
+                       {% if filter.form.data.seats|default:"2" == seats %}checked{% endif %}
+                       class="radio radio-sm"/>
+                <span>
+                    {% if seats == "8" %}8 и более{% else %}{{ seats }} пассажира{% endif %}
+                </span>
+            </label><br/>
+        {% endfor %}
+    </div>
+
+    <!-- ЦЕНА -->
+    <div>
+        <h3 class="font-semibold">Цена, ₸</h3>
+        <input type="range" name="price_to" min="0" max="100000"
+               value="{{ filter.form.data.price_to|default:100000 }}"
+               class="range range-primary mt-2"/>
+        <div class="text-sm mt-1 opacity-70">
+            Макс. {{ filter.form.data.price_to|default:100000 }} ₸
+        </div>
+    </div>
+
+    <!-- ДИЛЕРЫ -->
+    <div>
+        <h3 class="font-semibold mb-2">Дилеры</h3>
+        {% for dealer in filter.form.fields.dealer.queryset %}
+            <label class="flex items-center gap-2 mb-1">
+                <input type="checkbox" name="dealer" value="{{ dealer.pk }}"
+                       {% if dealer.pk|stringformat:"s" in filter.form.data.getlist('dealer') %}checked{% endif %}
+                       class="checkbox checkbox-sm"/>
+                <span>{{ dealer.name }}</span>
+            </label><br/>
+        {% endfor %}
+    </div>
+
+    <!-- КНОПКА -->
+    <button class="btn btn-primary w-full mt-4" type="submit">Показать</button>
+</form>

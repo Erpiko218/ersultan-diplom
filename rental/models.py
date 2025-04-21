@@ -247,3 +247,26 @@ class Fine(models.Model):
     class Meta:
         verbose_name = "Штраф"
         verbose_name_plural = "Штрафы"
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(UserModel,
+                             on_delete=models.CASCADE)
+    car = models.ForeignKey(Car, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'car')
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(UserModel,
+                             related_name='notifications',
+                             on_delete=models.CASCADE)
+    title = models.CharField(max_length=150)
+    message = models.TextField(blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']

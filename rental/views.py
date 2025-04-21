@@ -7,6 +7,8 @@ import stripe
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import JsonResponse, HttpResponseForbidden, FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
@@ -16,59 +18,79 @@ from django.contrib import messages
 from fpdf import FPDF
 
 from .admin import RentalForm
-from .models import Car, CarReview, Rental, Transaction, TripTracking, CarLocation, Dealer
+from .filters import CarFilter
+from .models import Car, CarReview, Rental, Transaction, TripTracking, CarLocation, Dealer, Favorite
 
 
-class HomePageView(TemplateView):
-    template_name = "home.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["cars"] = Car.objects.filter(is_available=True)[:5]
-        context["total_cars"] = Car.objects.count()
-        context["total_brands"] = Car.objects.values("brand").distinct().count()
-        context["total_reviews"] = CarReview.objects.count()
-        return context
+def home(request):
+    popular = Car.objects.order_by('-reviews__rating')[:4]
+    rec = Car.objects.filter(is_available=True)[:8]
+    return render(request, "home.html", {
+        "popular_cars": popular,
+        "recommended_cars": rec,
+    })
 
 
-class CarListView(ListView):
-    model = Car
-    template_name = 'car_list.html'
-    context_object_name = 'cars'
+def car_list(request):
+    f = CarFilter(request.GET, queryset=Car.objects.filter(is_available=True))
+    paginator = Paginator(f.qs, 12)          # 12 карточек на страницу
+    page = request.GET.get("page")
+    cars = paginator.get_page(page)
 
-    def get_queryset(self):
-        """Фильтруем машины по типу, если параметр передан"""
-        car_type = self.request.GET.get('type')  # Исправляем на GET параметр
-        if car_type:
-            return Car.objects.filter(type=car_type, is_available=True)
-        return Car.objects.filter(is_available=True)
-
-    def get_context_data(self, **kwargs):
-        """Добавляем активный фильтр в контекст"""
-        context = super().get_context_data(**kwargs)
-        context['active_filter'] = self.request.GET.get('type', 'all')
-        return context
+    context = {
+        "filter": f,
+        "cars": cars,
+    }
+    return render(request, "car_list.html", context)
 
 
-class CarDetailView(DetailView):
-    model = Car
-    template_name = "car_detail.html"
-    context_object_name = "car"
+def car_search(request):
+    """
+    Страница «/search/» — результаты поиска + тот же сайд‑бар фильтров.
+    Достаточно передать тот же CarFilter; параметр «q» уже там обрабатывается.
+    """
+    f = CarFilter(request.GET, queryset=Car.objects.filter(is_available=True))
+    paginator = Paginator(f.qs, 12)
+    cars_page = paginator.get_page(request.GET.get("page"))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    return render(request, "car_search.html", {
+        "filter": f,
+        "cars": cars_page,
+        "query": request.GET.get("q", ""),
+    })
 
-        # Получаем текущий автомобиль
-        current_car = self.get_object()
 
-        # Получаем список автомобилей того же типа (исключая текущий)
-        related_cars = Car.objects.filter(
-            type=current_car.type,
-            is_available=True
-        ).exclude(id=current_car.id)[:3]  # Ограничиваем до 3 машин
+@login_required
+def favorites(request):
+    """
+    Страница «Избранное»: показывает список машин, добавленных пользователем в избранное.
+    """
+    # вытягиваем объекты Favorite вместе с машинами одним запросом
+    fav_qs = Favorite.objects.filter(user=request.user).select_related('car')
+    # собираем список машин
+    cars = [fav.car for fav in fav_qs]
 
-        context['related_cars'] = related_cars
-        return context
+    return render(request, "car_favourites.html", {
+        "cars": cars,
+    })
+
+
+
+def car_detail(request, pk):
+    car = get_object_or_404(Car, pk=pk)
+    f = CarFilter(request.GET, queryset=Car.objects.filter(is_available=True))
+
+    # рекомендации
+    similar = Car.objects.filter(type=car.type).exclude(pk=pk)[:4]
+    by_dealer = Car.objects.filter(dealer=car.dealer).exclude(pk=pk)[:4]
+
+    context = {
+        "car": car,
+        "filter": f,              # тот же сайд‑бар
+        "similar": similar,
+        "by_dealer": by_dealer,
+    }
+    return render(request, "car_detail.html", context)
 
 
 class ContactUsView(TemplateView):
@@ -478,3 +500,38 @@ def stripe_webhook(request):
                 pass
 
     return HttpResponse(status=200)
+
+
+def search_suggestions(request):
+    q = request.GET.get('q', '').strip()
+    cars = Car.objects.none()
+    if q:
+        cars = Car.objects.filter(
+            Q(brand__icontains=q) | Q(model__icontains=q)
+        )[:5]
+
+    data = [{
+        "id": c.id,
+        "title": str(c),
+        "image": c.image.url,
+        "price": c.price_per_day,
+        "url": c.get_absolute_url(),
+    } for c in cars]
+
+    return JsonResponse(data, safe=False)
+
+
+@login_required
+def notifications_dropdown(request):
+    qs = request.user.notifications.all()[:6]
+    return render(request, "partials/notifications_dropdown.html",
+                  {"notifications": qs})
+
+
+@login_required
+def notifications_page(request):
+    qs = request.user.notifications.all()
+    qs.filter(is_read=False).update(is_read=True)
+    return render(request, "notifications/index.html",
+                  {"notifications": qs})
+

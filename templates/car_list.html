@@ -1,55 +1,53 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
 
 {% block content %}
-<div class="container py-5">
-    <h2 class="text-center mb-4">Список автомобилей</h2>
+<div class="grid md:grid-cols-[250px_1fr] gap-6">
+    <!-- САЙД‑БАР -->
+    <aside>{% include "partials/car_filter.html" %}</aside>
 
-    <!-- Фильтр по типу -->
-    <div class="d-flex justify-content-center mb-4">
-        <a href="{% url 'car_list' %}"
-           class="btn {% if active_filter == 'all' %}btn-primary{% else %}btn-outline-secondary{% endif %} mx-2">
-            Все машины
-        </a>
-        <a href="{% url 'car_list' %}?type=Sedan"
-           class="btn {% if active_filter == 'Sedan' %}btn-primary{% else %}btn-outline-secondary{% endif %} mx-2">
-            Седаны
-        </a>
-        <a href="{% url 'car_list' %}?type=SUV"
-           class="btn {% if active_filter == 'SUV' %}btn-primary{% else %}btn-outline-secondary{% endif %} mx-2">
-            Внедорожники
-        </a>
-        <a href="{% url 'car_list' %}?type=Cabriolet"
-           class="btn {% if active_filter == 'Cabriolet' %}btn-primary{% else %}btn-outline-secondary{% endif %} mx-2">
-            Кабриолеты
-        </a>
-        <a href="{% url 'car_list' %}?type=Minivan"
-           class="btn {% if active_filter == 'Minivan' %}btn-primary{% else %}btn-outline-secondary{% endif %} mx-2">
-            Минивэны
-        </a>
-    </div>
-
-    <!-- Список машин -->
-    <div class="row">
+    <!-- КАРТОЧКИ -->
+    <section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for car in cars %}
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-sm border-0">
-                    {% if car.image %}
-                        <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.brand }} {{ car.model }}" style="max-height: 250px;">
-                    {% else %}
-                        <div class="p-5 bg-secondary text-center text-white">Нет изображения</div>
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ car.brand }} {{ car.model }} ({{ car.year }})</h5>
-                        <p class="card-text">Тип: {{ car.get_type_display }}</p>
-                        <p class="card-text text-primary fw-bold">Цена за час: {{ car.price_per_day }} тг</p>
-                        <p class="card-text"><i class="fas fa-gas-pump"></i> {{ car.fuel_type }} | <i class="fas fa-cogs"></i> {{ car.transmission }}</p>
-                        <a href="{% url 'car_detail' car.id %}" class="btn btn-primary w-100">Посмотреть детали</a>
+            <div class="card bg-base-100 shadow group">
+                <figure class="p-4"><img src="{{ car.image.url }}" alt="" class="h-28 mix-blend-multiply"></figure>
+                <div class="card-body pt-0">
+                    <h2 class="card-title">{{ car.brand }} {{ car.model }}</h2>
+                    <p class="text-sm opacity-60">{{ car.get_type_display }}</p>
+
+                    <div class="flex justify-between text-xs mt-2">
+                        <span>{{ car.fuel_type }}</span>
+                        <span>{{ car.get_transmission_display }}</span>
+                        <span>{{ car.seats }} мест</span>
+                    </div>
+
+                    <div class="mt-3">
+                        <span class="font-bold text-lg">{{ car.price_per_day }} ₸</span>
+                        <span class="text-xs opacity-60">/ день</span>
+                    </div>
+
+                    <div class="card-actions justify-between items-center mt-2">
+                        <a href="{% url 'car_detail' car.pk %}" class="btn btn-primary btn-sm">Подробнее</a>
+                        {% include "partials/fav_button.html" with car=car %}
                     </div>
                 </div>
             </div>
         {% empty %}
-            <p class="text-center">Машины не найдены.</p>
+            <p class="col-span-full text-center py-16 opacity-60">Машин не найдено.</p>
         {% endfor %}
-    </div>
+    </section>
+</div>
+
+<!-- ПАГИНАЦИЯ -->
+<div class="join mt-10 flex justify-center">
+    {% if cars.has_previous %}
+        <a href="?{% querystring request GET 'page' cars.previous_page_number %}"
+           class="join-item btn">«</a>
+    {% endif %}
+    <span class="join-item btn btn-ghost">{{ cars.number }}/{{ cars.paginator.num_pages }}</span>
+    {% if cars.has_next %}
+        <a href="?{% querystring request GET 'page' cars.next_page_number %}"
+           class="join-item btn">»</a>
+    {% endif %}
 </div>
 {% endblock %}

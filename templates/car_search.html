@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Результаты поиска{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">
+    Найдено {{ cars.paginator.count }} машин
+    {% if query %}по запросу «{{ query }}»{% endif %}
+</h1>
+
+<div class="grid md:grid-cols-[250px_1fr] gap-6">
+    <!-- левый фильтр -->
+    <aside>{% include "partials/car_filter.html" %}</aside>
+    <!-- карточки -->
+    <section>{% include "partials/car_cards.html" with cars=cars %}</section>
+</div>
+
+<!-- пагинация -->
+<div class="join mt-10 flex justify-center">
+    {% if cars.has_previous %}
+        <a href="?{% querystring request GET 'page' cars.previous_page_number %}"
+           class="join-item btn">«</a>
+    {% endif %}
+    <span class="join-item btn btn-ghost">{{ cars.number }}/{{ cars.paginator.num_pages }}</span>
+    {% if cars.has_next %}
+        <a href="?{% querystring request GET 'page' cars.next_page_number %}"
+           class="join-item btn">»</a>
+    {% endif %}
+</div>
+{% endblock %}

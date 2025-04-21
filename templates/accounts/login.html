@@ -1,49 +1,88 @@
 {% extends "base.html" %}
-{% block title %}Вход в систему{% endblock %}
+{% block title %}Вход{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="mb-4 text-center">Вход в систему</h2>
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {% for error in form.non_field_errors %}
-                            <p>{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-                <form method="post" action="{% url 'login' %}">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="id_email" class="form-label">Электронная почта</label>
-                        <input type="email" class="form-control{% if form.email.errors %} is-invalid{% endif %}" id="id_email" name="email" value="{{ form.email.value|default_if_none:'' }}" placeholder="Введите электронную почту">
-                        {% for error in form.email.errors %}
-                            <div class="invalid-feedback">
-                                {{ error }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <div class="mb-3">
-                        <label for="id_password" class="form-label">Пароль</label>
-                        <input type="password" class="form-control{% if form.password.errors %} is-invalid{% endif %}" id="id_password" name="password" placeholder="Введите пароль">
-                        {% for error in form.password.errors %}
-                            <div class="invalid-feedback">
-                                {{ error }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Войти</button>
-                </form>
-                <div class="mt-3 text-center">
-                    <a href="{% url 'password_reset' %}">Забыли пароль?</a>
-                </div>
-                <div class="mt-2 text-center">
-                    <span>Нет аккаунта?</span> <a href="{% url 'register' %}">Зарегистрируйтесь</a>
-                </div>
-            </div>
-        </div>
+<div class="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-6">
+  <div class="bg-white/80 backdrop-blur-md rounded-3xl shadow-xl overflow-hidden max-w-4xl w-full md:flex">
+    <!-- Иллюстрация -->
+    <div class="hidden md:flex md:w-1/2 items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-600">
+      <img src="https://undraw.co/api/illustrations/login?color=6b21a8"
+           alt="Login Illustration"
+           class="w-3/4 h-auto animate-float"/>
     </div>
+    <!-- Форма -->
+    <div class="w-full md:w-1/2 p-8">
+      <h2 class="text-3xl font-bold text-indigo-600 animate-pulse mb-2">Добро пожаловать!</h2>
+      <p class="text-gray-700 mb-6">Пожалуйста, войдите, чтобы продолжить</p>
+
+      <form method="post" action="{% url 'login' %}" class="space-y-6">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-error">
+            {% for err in form.non_field_errors %}
+              <p>{{ err }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Email -->
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-indigo-500">
+            <img src="https://api.iconify.design/heroicons-outline/envelope.svg" class="h-5 w-5" alt="Email"/>
+          </span>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value="{{ form.email.value|default_if_none:'' }}"
+            class="input input-bordered w-full pl-12 focus:border-indigo-500"
+          />
+          {% for err in form.email.errors %}
+            <span class="text-error text-xs mt-1">{{ err }}</span>
+          {% endfor %}
+        </div>
+
+        <!-- Пароль -->
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-indigo-500">
+            <img src="https://api.iconify.design/heroicons-outline/lock-closed.svg" class="h-5 w-5" alt="Password"/>
+          </span>
+          <input
+            type="password"
+            name="password"
+            placeholder="Пароль"
+            class="input input-bordered w-full pl-12 focus:border-indigo-500"
+          />
+          {% for err in form.password.errors %}
+            <span class="text-error text-xs mt-1">{{ err }}</span>
+          {% endfor %}
+        </div>
+
+        <!-- Кнопка -->
+        <div>
+          <button
+            type="submit"
+            class="btn w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 text-lg font-semibold transition-transform transform hover:scale-105"
+          >
+            Войти
+          </button>
+        </div>
+      </form>
+
+      <div class="mt-4 flex justify-between text-sm text-gray-600">
+        <a href="{% url 'password_reset' %}" class="hover:underline">Забыли пароль?</a>
+        <a href="{% url 'register' %}" class="hover:underline">Регистрация</a>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Простая анимация для иллюстрации -->
+<style>
+@keyframes float {
+  0%,100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+.animate-float { animation: float 4s ease-in-out infinite; }
+</style>
 {% endblock %}

@@ -1,142 +1,43 @@
-{% extends 'base.html' %}
-
-{% block title %}Главная - Аренда автомобилей{% endblock %}
-
+{% extends "base.html" %}
 {% block content %}
-<!-- Главный баннер -->
-<section class="bg-primary text-white text-center py-5 position-relative">
-    <div class="container">
-        <h1 class="fw-bold">Ощутите дорогу, как никогда ранее</h1>
-        <p class="lead">Наслаждайтесь превосходным качеством, комфортом и стилем в каждой поездке.</p>
-        <a href="{% url 'car_list' %}" class="btn btn-warning btn-lg">Посмотреть все автомобили</a>
+<!-- HERO – две оранжевые карточки -->
+<div class="grid md:grid-cols-2 gap-6">
+    <div class="rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow">
+        <h2 class="text-2xl font-bold mb-2">Лучшая площадка<br>для аренды авто</h2>
+        <p class="text-sm mb-4 opacity-90">Оформляйте аренду безопасно и выгодно.</p>
+        <a href="{% url 'car_list' %}" class="btn bg-white text-orange-500 border-0">Выбрать авто</a>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Koenigsegg-logo-1994-2048x2048.png" class="w-40 lg:w-52 absolute bottom-0 right-6"/>
     </div>
-</section>
-
-<!-- Форма бронирования -->
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-lg-4 mx-auto p-4 bg-light shadow rounded">
-            <h4 class="text-center">Забронируйте автомобиль</h4>
-            <form id="booking-form">
-                <div class="mb-3">
-                    <label class="form-label">Тип автомобиля</label>
-                    <select id="car-type" class="form-select" required>
-                        <option value="">Выберите автомобиль</option>
-                        <option value="Седан">Седан</option>
-                        <option value="Внедорожник">Внедорожник</option>
-                        <option value="Спортивный">Спортивный</option>
-                    </select>
-                </div>
-                <!-- Остальные поля просто для внешнего вида -->
-                <div class="mb-3">
-                    <label class="form-label">Место аренды</label>
-                    <input type="text" class="form-control" placeholder="Введите местоположение">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Место возврата</label>
-                    <input type="text" class="form-control" placeholder="Введите местоположение">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Дата начала аренды</label>
-                    <input type="date" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Дата возврата</label>
-                    <input type="date" class="form-control">
-                </div>
-                <button type="submit" class="btn btn-warning w-100">Забронировать</button>
-            </form>
-        </div>
+    <div class="rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow relative">
+        <h2 class="text-2xl font-bold mb-2">Аренда по низкой цене</h2>
+        <p class="text-sm mb-4 opacity-90">Дешёвые тарифы и комфорт.</p>
+        <a href="{% url 'car_list' %}" class="btn bg-white text-orange-500 border-0">Арендовать</a>
+        <img src="https://logos-download.com/wp-content/uploads/2016/02/Nissan_Logo_2001-2012.png" class="w-40 lg:w-52 absolute bottom-0 right-6"/>
     </div>
 </div>
 
-<!-- Особенности сервиса -->
-<div class="container my-5">
-    <div class="row text-center">
-        <div class="col-md-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/685/685352.png" width="50" alt="Наличие">
-            <h5 class="mt-2">Наличие</h5>
-            <p>Доступно во всех ретейлерах.</p>
-        </div>
-        <div class="col-md-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/1995/1995492.png" width="50" alt="Комфорт">
-            <h5 class="mt-2">Комфорт</h5>
-            <p>Комфорт всегда когда хотите.</p>
-        </div>
-        <div class="col-md-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/2821/2821925.png" width="50" alt="Экономия">
-            <h5 class="mt-2">Экономия</h5>
-            <p>Экономьте на топливе, что бы удешевить аренду!.</p>
-        </div>
+<!-- Форма даты/локации — reuse той, что была на скрине -->
+{% include "partials/pickup_form.html" %}
+
+<!-- ПОПУЛЯРНЫЕ -->
+<section class="mt-10">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-semibold">Популярные</h3>
+        <a href="{% url 'car_list' %}" class="link">Смотреть всё</a>
     </div>
+    {% include "partials/car_cards.html" with cars=popular_cars %}
+</section>
+
+<!-- Рекомендованные -->
+<section class="mt-10">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-semibold">Рекомендуем</h3>
+        <a href="{% url 'car_list' %}?order=recommended" class="link">Смотреть всё</a>
+    </div>
+    {% include "partials/car_cards.html" with cars=recommended_cars %}
+</section>
+
+<div class="flex justify-center mt-10">
+    <a href="{% url 'car_list' %}" class="btn btn-primary">Показать больше</a>
 </div>
-
-<!-- Каталог автомобилей -->
-<section class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="fw-bold">Выберите автомобиль, который вам подходит</h2>
-        <a href="{% url 'car_list' %}" class="text-decoration-none fw-bold">Посмотреть все &rarr;</a>
-    </div>
-
-    <div class="row">
-        {% for car in cars %}
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.name }}">
-                <div class="card-body">
-                    <h5 class="card-title">{{ car.brand }} - {{ car.model }}</h5>
-                    <p class="fw-bold text-primary">₸{{ car.price_per_day }} за день</p>
-                    <ul class="list-inline small">
-                        <li class="list-inline-item">🚗 {{ car.type }}</li>
-                        <li class="list-inline-item">⚙️ {{ car.transmission }}</li>
-                        <li class="list-inline-item">⛽ {{ car.fuel }}</li>
-                        <li class="list-inline-item">❄️ Кондиционер</li>
-                    </ul>
-                    <a href="{% url 'car_detail' car.id %}" class="btn btn-primary w-100">Подробнее</a>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</section>
-
-<!-- Факты о компании -->
-<section class="bg-primary text-white py-5">
-    <div class="container text-center">
-        <h2 class="fw-bold">Факты в цифрах</h2>
-        <p>Покажем невероятные цифры работы нашей платформы.</p>
-        <div class="row mt-4">
-            <div class="col-md-3">
-                <h3 class="fw-bold">540+</h3>
-                <p>Автомобилей</p>
-            </div>
-            <div class="col-md-3">
-                <h3 class="fw-bold">20k+</h3>
-                <p>Клиентов</p>
-            </div>
-            <div class="col-md-3">
-                <h3 class="fw-bold">25+</h3>
-                <p>Лет</p>
-            </div>
-            <div class="col-md-3">
-                <h3 class="fw-bold">20m+</h3>
-                <p>Миль</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<script>
-    document.getElementById("booking-form").addEventListener("submit", function(e) {
-        e.preventDefault();
-        const carType = document.getElementById("car-type").value;
-        if (carType) {
-            const encodedType = encodeURIComponent(carType);  // На случай русских символов
-            window.location.href = `/cars/type/${encodedType}/`;
-        } else {
-            alert("Пожалуйста, выберите тип автомобиля");
-        }
-    });
-</script>
-
 {% endblock %}

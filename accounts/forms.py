@@ -39,3 +39,37 @@ class EmailAuthenticationForm(forms.Form):
 
 	def get_user(self):
 		return self.user_cache
+
+
+class UserSettingsForm(forms.ModelForm):
+	class Meta:
+		model = UserModel
+		fields = (
+			"avatar",
+			"first_name",
+			"last_name",
+			"email",
+			"phone",
+			"address",
+			"date_of_birth",
+			"groups",
+		)
+		widgets = {
+			"date_of_birth": forms.DateInput(attrs={"type": "date", "class": "input input-bordered"}),
+			"groups": forms.SelectMultiple(attrs={"class": "select select-bordered"}),
+			"first_name": forms.TextInput(attrs={"class": "input input-bordered"}),
+			"last_name": forms.TextInput(attrs={"class": "input input-bordered"}),
+			"email": forms.EmailInput(attrs={"class": "input input-bordered"}),
+			"phone": forms.TextInput(attrs={"class": "input input-bordered"}),
+			"address": forms.Textarea(attrs={"class": "textarea textarea-bordered", "rows": 3}),
+		}
+		labels = {
+			"avatar": "Аватар",
+			"first_name": "Имя",
+			"last_name": "Фамилия",
+			"email": "Email",
+			"phone": "Телефон",
+			"address": "Адрес",
+			"date_of_birth": "Дата рождения",
+			"groups": "Роли",
+		}
