@@ -11,25 +11,25 @@
   </aside>
 
   <!-- Секции карточек машин -->
-  <section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  <section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
     {% for car in cars %}
-      <div class="card bg-base-100 shadow group">
-        <figure class="p-4">
+    <div class="card bg-base-100 shadow group self-start">
+      <figure class="p-4">
           {% if car.image %}
             <img src="{{ car.image.url }}" alt="{{ car }}" class="h-28 object-cover rounded">
           {% endif %}
         </figure>
         <div class="card-body pt-0">
-          <h2 class="card-title">{{ car.brand }} {{ car.model }}</h2>
+          <h2 class="card-title">{{ car.brand }} {{ car.model }}</h2>
           <p class="text-sm opacity-60">{{ car.get_type_display }}</p>
           <div class="flex justify-between text-xs mt-2">
             <span>{{ car.fuel_type }}</span>
             <span>{{ car.get_transmission_display }}</span>
-            <span>{{ car.seats }} мест</span>
+            <span>{{ car.seats }} мест</span>
           </div>
           <div class="mt-3">
-            <span class="font-bold text-lg">{{ car.price_per_day }} ₸</span>
-            <span class="text-xs opacity-60">/ день</span>
+            <span class="font-bold text-lg">{{ car.price_per_day }} ₸</span>
+            <span class="text-xs opacity-60">/ день</span>
           </div>
           <div class="card-actions justify-between items-center mt-2">
             <a href="{% url 'car_detail' car.pk %}" class="btn btn-primary btn-sm">Подробнее</a>

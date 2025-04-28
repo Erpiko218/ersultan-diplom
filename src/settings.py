@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'accounts',
 
     'guardian',
+    'django_filters'
 ]
 
 AUTHENTICATION_BACKENDS = (

@@ -129,6 +129,42 @@
         />
       </a>
 
+      <div x-data="{ helpOpen: false }" class="relative">
+        <button @click="helpOpen = !helpOpen" class="p-2 rounded-full hover:bg-gray-100">
+          <img
+            src="https://api.iconify.design/heroicons-outline/question-mark-circle.svg"
+            class="h-6 w-6 text-gray-600"
+            alt="Помощь"
+          />
+        </button>
+        <div
+          x-show="helpOpen"
+          @click.away="helpOpen = false"
+          class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50 overflow-hidden"
+        >
+          <ul class="py-1">
+            <li>
+              <a href="#"
+                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                FAQ
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'about' %}"
+                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                О нас
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'contact' %}"
+                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                Контакты
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
       <!-- USER AVATAR -->
       <div x-data="{open:false}" class="relative">
         <button @click="open = !open" class="p-1 rounded-full hover:bg-gray-100">
