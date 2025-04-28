@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
@@ -87,17 +87,55 @@ def favorites(request):
 
 def car_detail(request, pk):
 	car = get_object_or_404(Car, pk=pk)
-	f = CarFilter(request.GET, queryset=Car.objects.filter(is_available=True))
 
-	# рекомендации
-	similar = Car.objects.filter(car_type=car.car_type).exclude(pk=pk)[:4]
-	by_dealer = Car.objects.filter(dealer=car.dealer).exclude(pk=pk)[:4]
+	rating = car.reviews.aggregate(avg=Avg("rating")).get("avg") or 4
+
+	similar = Car.objects.filter(car_type=car.car_type).exclude(pk=pk)[:6]
+	recent_cars = Car.objects.order_by("-id")[:6]
+	recommend_cars = (
+		Car.objects.filter(dealer=car.dealer).exclude(pk=pk)[:6]
+		if car.dealer else []
+	)
+
+	reviews = car.reviews.select_related("user").order_by("-created_at")  # все отзывы
+
+	images = []
+	if car.main_image:  # главное фото
+		images.append(car.main_image.url)
+
+	# Many-to-Many → queryset; берём поле image, превращаем в список URL-ов
+	images.extend(
+		car.photos.values_list("image", flat=True)  # ('/media/cars/…', …)
+	)
+
+	# views.py  ─ внутри car_detail
+	characteristics = [
+		("Тип", car.get_car_type_display()),
+		("Трансмиссия", car.get_transmission_display()),
+		("Топливо", car.get_fuel_type_display()),
+		("Мест", car.seats),
+		("Дверей", car.doors),
+		("Пробег", f"{car.mileage} км"),
+		("Кондиционер", "Да" if car.air_conditioner else "Нет"),
+		("Год выпуска", car.year),
+	]
+
+	# если в JSON-features есть дополнительные пункты, добавим их
+	if car.features:
+		for key, val in car.features.items():
+			characteristics.append((key, "Да" if val is True else val))
+	fil = CarFilter(request.GET, queryset=Car.objects.filter(is_available=True))
 
 	context = {
 		"car": car,
-		"filter": f,  # тот же сайд‑бар
+		"images": images,
+		"filter": fil,
+		"rating": rating,
 		"similar": similar,
-		"by_dealer": by_dealer,
+		"recent_cars": recent_cars,
+		"recommend_cars": recommend_cars,
+		"reviews": reviews,
+		"characteristics": characteristics,
 	}
 	return render(request, "car_detail.html", context)
 

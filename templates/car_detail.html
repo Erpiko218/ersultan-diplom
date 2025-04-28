@@ -4,152 +4,187 @@
 {% block title %}{{ car.brand }} {{ car.model }}{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
 
-<div class="max-w-7xl mx-auto grid lg:grid-cols-[260px_1fr] gap-8 px-4 py-10">
+<div class="max-w-7xl mx-auto px-4 py-10 flex flex-col lg:flex-row gap-10">
 
-  {# ------------------ ░  Сайд-бар фильтров ░ ------------------ #}
-  <aside class="hidden lg:block">
+  {# ░░ Сайд-бар фильтров (виден на lg) ░░ #}
+  <aside class="hidden lg:block w-64 flex-shrink-0">
     {% include "partials/car_filter.html" %}
   </aside>
 
-  {# ------------------ ░  Основная колонка ░ ------------------ #}
-  <main class="space-y-10">
+  {# ░░ Основная колонка ░░ #}
+  <main class="flex-1 space-y-12">
 
-    {# ====== Слайдер фото ====== #}
-    <div class="space-y-4">
-      <!-- основной -->
+    <!-- ▒▒▒ Галерея + Информация ▒▒▒ -->
+    <div class="flex flex-col lg:flex-row gap-2">
+
+      <!-- Галерея -->
+      <div class="flex flex-col gap-3 flex-shrink-0 w-full lg:max-w-[420px]">
+
       <div class="swiper mainSwiper rounded-lg overflow-hidden shadow">
         <div class="swiper-wrapper">
-          {% if car.main_image %}
+          {% for src in images %}           {# main_image + photos #}
             <div class="swiper-slide">
-              <img src="{{ car.main_image.url }}" class="w-full h-80 object-cover" alt="{{ car }}">
-            </div>
-          {% endif %}
-          {% for p in car.photos.all %}
-            <div class="swiper-slide">
-              <img src="{{ p.image.url }}" class="w-full h-80 object-cover" alt="Фото {{ car }}">
+              <img src="{{ src }}" class="w-full h-72 object-cover">
             </div>
           {% endfor %}
         </div>
-        <div class="swiper-button-next text-primary"></div>
-        <div class="swiper-button-prev text-primary"></div>
+
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
       </div>
 
-      <!-- миниатюры -->
-      <div class="swiper thumbSwiper">
-        <div class="swiper-wrapper">
-          {% if car.main_image %}
+      <div class="swiper thumbsSwiper mt-2 !justify-start !flex">
+        <div class="swiper-wrapper !justify-start flex">
+          {% for src in images %}
             <div class="swiper-slide cursor-pointer">
-              <img src="{{ car.main_image.url }}" class="h-20 w-full object-cover rounded">
-            </div>
-          {% endif %}
-          {% for p in car.photos.all %}
-            <div class="swiper-slide cursor-pointer">
-              <img src="{{ p.image.url }}" class="h-20 w-full object-cover rounded">
+              <img src="{{ src }}" class="h-20 w-full object-cover rounded">
             </div>
           {% endfor %}
         </div>
       </div>
-    </div>
 
-    {# ====== Карточка с основной инфой ====== #}
-    <div class="card bg-base-100 shadow-lg p-6">
-      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+      </div>
 
-        <!-- Левый блок -->
-        <div class="flex-1 space-y-4">
+      <!-- Информация -->
+      <div class="flex-1 space-y-6 bg-gray-100 p-3 rounded-xl">
+        <div class="flex items-start justify-between">
           <h1 class="text-3xl font-bold">{{ car.brand }} {{ car.model }}</h1>
+          {% include "partials/fav_button.html" with car=car %}
+        </div>
 
-          <!-- рейтинг + избранное -->
-          <div class="flex items-center gap-4">
-            <div class="flex gap-0.5">
-              {% for _ in "12345" %}
-                {% if forloop.counter <= rating %}
-                  <svg class="w-5 h-5 fill-orange-400"><use href="#star"/></svg>
-                {% else %}
-                  <svg class="w-5 h-5 fill-gray-300"><use href="#star"/></svg>
-                {% endif %}
-              {% endfor %}
-            </div>
-            {% include "partials/fav_button.html" with car=car %}
+        <!-- Рейтинг -->
+        <div class="flex gap-0.5">
+          {% for _ in "12345" %}
+            <svg class="w-5 h-5 {% if forloop.counter <= rating %}fill-orange-400{% else %}fill-gray-300{% endif %}">
+              <use href="#star"></use>
+            </svg>
+          {% endfor %}
+        </div>
+
+
+
+        {# Характеристики из view (список tuples) #}
+        <ul class="space-y-1 text-sm">
+          {% for label, value in characteristics %}
+            <li class="flex justify-between">
+              <span class="text-gray-500">{{ label }}:</span>
+              <span class="font-medium">{{ value }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+
+         <div class="flex flex-col sm:flex-row sm:items-baseline gap-4">
+          <div class="flex items-baseline gap-2">
+            <p class="text-primary text-2xl font-semibold whitespace-nowrap">
+              ₸{{ car.price_per_day }} / день
+            </p>
           </div>
-
-          <p class="text-2xl text-primary font-semibold">
-            ₸{{ car.price_per_day }} <span class="text-base font-normal">/ день</span>
-          </p>
 
           {% if user.is_authenticated %}
-            <a href="{% url 'car_rent' car.id %}" class="btn btn-primary w-full md:w-auto">Арендовать</a>
+            <a
+              href="{% url 'car_rent' car.id %}"
+              class="btn btn-success w-full max-w-xs text-white p-2 hover:bg-blue-500 font-semibold text-center bg-blue-400 rounded-sm"
+            >
+              Арендовать сейчас!
+            </a>
           {% else %}
-            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary w-full md:w-auto">Войдите, чтобы арендовать</a>
+            <a
+              href="{% url 'login' %}?next={{ request.path }}"
+              class="btn btn-success w-full max-w-xs font-semibold text-center rounded-sm bg-blue-400 text-white"
+            >
+              Войдите, чтобы арендовать
+            </a>
           {% endif %}
         </div>
 
-        <!-- Правый блок (характеристики) -->
-        <div class="w-full md:w-72 space-y-2">
-          <table class="table text-sm">
-            <tr><td>Тип</td><td>{{ car.get_type_display }}</td></tr>
-            <tr><td>Трансмиссия</td><td>{{ car.get_transmission_display }}</td></tr>
-            <tr><td>Топливо</td><td>{{ car.get_fuel_type_display }}</td></tr>
-            <tr><td>Мест</td><td>{{ car.seats }}</td></tr>
-            <tr><td>Дверей</td><td>{{ car.doors }}</td></tr>
-            <tr><td>Кондиционер</td><td>{% if car.air_conditioner_available %}Да{% else %}Нет{% endif %}</td></tr>
-            <tr><td>Пробег</td><td>{{ car.mileage }} км</td></tr>
-            <tr>
-              <td>Дилер</td>
-              <td>
-                {% if car.dealer %}
-                  <a class="link link-primary" href="{% url 'dealer_detail' car.dealer.id %}">{{ car.dealer.name }}</a>
-                {% else %}-{% endif %}
-              </td>
-            </tr>
-            <tr><td>Год выпуска</td><td>{{ car.year }}</td></tr>
-          </table>
-        </div>
       </div>
     </div>
 
-    {# ====== Другие авто ====== #}
-    <div>
-      <h2 class="text-2xl font-semibold mb-4">Похожие автомобили</h2>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for oc in related_cars %}
-          <div class="card bg-base-100 shadow hover:shadow-lg">
-            <figure><img src="{{ oc.main_image.url|default:oc.image.url }}" class="h-40 w-full object-cover"/></figure>
-            <div class="p-4 space-y-1">
-              <h3 class="font-medium">{{ oc.brand }} {{ oc.model }}</h3>
-              <p class="text-primary font-semibold">₸{{ oc.price_per_day }}/день</p>
-              <a href="{% url 'car_detail' oc.id %}" class="btn btn-outline btn-sm w-full">Подробнее</a>
+    <!-- ▒▒▒ Отзывы ▒▒▒ -->
+    <div class="card bg-base-100 shadow p-4">
+      <div class="card-body">
+        <h2 class="text-xl font-semibold flex items-center gap-2">
+          Reviews <span class="badge badge-warning bg-orange-400 text-white p-[4px] rounded-sm">{{ reviews|length }}</span>
+        </h2>
+
+        {% if reviews %}
+          {% for rv in reviews|slice:":2" %}
+            <div class="py-4 border-b last:border-0 flex flex-col sm:flex-row gap-4">
+              <img src="{{ rv.user.avatar.url|default:'https://i.pravatar.cc/60' }}"
+                   class="w-14 h-14 rounded-full object-cover ring ring-primary ring-offset-2">
+              <div class="flex-1">
+                <div class="flex justify-between">
+                  <p class="font-medium">{{ rv.user.get_full_name|default:rv.user.username }}</p>
+                  <p class="text-xs text-gray-400">{{ rv.created_at|date:"d M Y" }}</p>
+                </div>
+                <p class="text-sm mt-1">{{ rv.comment }}</p>
+              </div>
             </div>
+          {% endfor %}
+          <div class="text-center mt-4">
+            <a href="{% url 'car_reviews' car.pk %}" class="link link-primary">Show All</a>
           </div>
-        {% empty %}
-          <p class="text-gray-500">Нет похожих машин.</p>
-        {% endfor %}
+        {% else %}
+          <p class="text-center text-gray-500">Отзывов пока нет.</p>
+        {% endif %}
       </div>
     </div>
+
+  <!-- ПОПУЛЯРНЫЕ -->
+  <section class="mt-10">
+      <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold">Рекомендуемые</h3>
+          <a href="{% url 'car_list' %}" class="link">Смотреть всё</a>
+      </div>
+      {% include "partials/car_cards.html" with cars=recent_cars %}
+  </section>
+
+  <!-- ПОПУЛЯРНЫЕ -->
+  <section class="mt-10">
+      <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold">Популярные</h3>
+          <a href="{% url 'car_list' %}" class="link">Смотреть всё</a>
+      </div>
+      {% include "partials/car_cards.html" with cars=recommend_cars %}
+  </section>
 
   </main>
 </div>
 
 <!-- SVG-иконка звезды -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-  <symbol id="star" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 17.3l6.18 3.9-1.64-7.03 5.46-4.73-7.19-.62L12 2 9.19 8.82l-7.19.62 5.46 4.73L5.82 21.2z"/></symbol>
+  <symbol id="star" viewBox="0 0 24 24"><path d="M12 17.3l6.18 3.9-1.64-7.03 5.46-4.73-7.19-.62L12 2 9.19 8.82l-7.19.62 5.46 4.73L5.82 21.2z"/></symbol>
 </svg>
 
-<script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script>
+
+<style>
+  /* стрелки компактнее */
+  .swiper-button-prev::after,
+  .swiper-button-next::after { font-size: 18px; }
+  /* мини-карточки выровнены слева, без авто-центрирования */
+  .thumbsSwiper .swiper-wrapper { justify-content: flex-start; }
+</style>
+
+
 <script>
-  const thumbSwiper = new Swiper(".thumbSwiper", {
-    spaceBetween: 10,
-    slidesPerView: 4,
-    freeMode: true,
-    watchSlidesProgress: true,
-  });
-  new Swiper(".mainSwiper", {
+  /* 👉 вариант из официальной docs (thumbs как объект, без отдельного new Swiper) */
+  const mainSwiper = new Swiper('.mainSwiper', {
     loop: true,
-    navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" },
-    pagination: { el: ".swiper-pagination", clickable: true },
-    thumbs: { swiper: thumbSwiper },
+    spaceBetween: 10,
+    navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+    thumbs: {
+      swiper: {
+        el: '.thumbsSwiper',
+        slidesPerView: 4,
+        spaceBetween: 8,
+        watchSlidesProgress: true,
+        slideToClickedSlide: true,
+        breakpoints: { 1024: { slidesPerView: 5 } }
+      }
+    }
   });
 </script>
 {% endblock %}
