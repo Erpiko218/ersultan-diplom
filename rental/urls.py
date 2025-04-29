@@ -35,5 +35,18 @@ urlpatterns = [
     path("search/", car_search, name="car_search"),
 
     path('dealers/<int:pk>/', dealer_detail, name='dealer_detail'),
-    path('faq/', faq, name='faq')
+    path('faq/', faq, name='faq'),
+
+    # список всех дилеров для админа
+    path(
+        'control/dealers/',
+        admin_dealers_list,
+        name='admin_dealers_list'
+    ),
+    # детальная страница дилера
+    path(
+        'control/dealers/<int:pk>/',
+        admin_dealer_detail,
+        name='admin_dealer_detail'
+    ),
 ]

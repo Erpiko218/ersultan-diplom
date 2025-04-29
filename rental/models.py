@@ -17,6 +17,13 @@ class Dealer(models.Model):
 	address = models.TextField(verbose_name="Адрес")
 	latitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name="Широта")
 	longitude = models.DecimalField(max_digits=9, decimal_places=6, verbose_name="Долгота")
+	is_active = models.BooleanField(
+		default=True,
+		verbose_name="Активен",
+		help_text="Снимите галочку, чтобы заблокировать дилера"
+	)
+	created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
+	updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
 
 	def __str__(self):
 		return self.name
@@ -210,6 +217,9 @@ class Rental(models.Model):
 	total_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True,
 	                                  verbose_name="Итоговая цена")
 	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="WAITING", verbose_name="Статус")
+
+	created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
+	updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
 
 	def save(self, *args, **kwargs):
 		"""

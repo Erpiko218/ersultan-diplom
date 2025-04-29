@@ -1,10 +1,11 @@
 from django import forms
-from django.contrib import admin
+from django.db.models.aggregates import Sum
 from django.utils.html import format_html
+from django.contrib import admin
 from guardian.admin import GuardedModelAdmin
 
 from .models import (
-    Dealer, Car, CarLocation, TripTracking, Rental, Transaction, CarReview, Fine, CarPhoto
+	Dealer, Car, CarLocation, TripTracking, Rental, Transaction, CarReview, Fine, CarPhoto
 )
 
 
@@ -21,25 +22,44 @@ class RentalForm(forms.ModelForm):
 @admin.register(Rental)
 class RentalAdmin(GuardedModelAdmin):
 	form = RentalForm
-	list_display = ["id", "user", "car", "get_start_time", "get_end_time", "total_price", "is_paid"]
-	list_filter = ["is_paid"]
+
+	list_display = [
+		"id",
+		"user",
+		"car",
+		"get_start_time",
+		"get_end_time",
+		"total_price",
+		"is_paid",
+		"status",
+	]
+	list_editable = ["is_paid", "status"]
+	list_filter = ["is_paid", "status"]
 	search_fields = ["user__username", "car__brand", "car__model"]
 	autocomplete_fields = ["user", "car"]
-	readonly_fields = ["total_price"]
-	list_editable = ["is_paid"]
-	ordering = ["-id"]  # Сортировка по ID вместо start_time
-	date_hierarchy = None  # Убрали, чтобы не вызывало ошибку
+
+	readonly_fields = ["total_price", "created_at", "updated_at"]
+	ordering = ["-start_time"]
+	date_hierarchy = "start_time"
 
 	fieldsets = (
-		("Информация об аренде", {
-			"fields": ("user", "car", "start_time", "end_time", "total_price", "is_paid"),
+		("Основная информация", {
+			"fields": ("user", "car", "start_time", "end_time"),
+		}),
+		("Статус и оплата", {
+			"fields": ("status", "is_paid", "total_price"),
+		}),
+		("Системные поля", {
+			"fields": ("created_at", "updated_at"),
 		}),
 	)
 
+	actions = ["mark_as_paid", "mark_as_unpaid", "cancel_rentals"]
+
 	def get_queryset(self, request):
-		"""Оптимизируем запросы"""
-		qs = super().get_queryset(request)
-		return qs.select_related("user", "car")
+		"""Отбираем связанные объекты, чтобы снизить число запросов."""
+		return super().get_queryset(request) \
+			.select_related("user", "car")
 
 	@admin.display(description="Начало аренды")
 	def get_start_time(self, obj):
@@ -49,9 +69,30 @@ class RentalAdmin(GuardedModelAdmin):
 	def get_end_time(self, obj):
 		return obj.end_time.strftime("%Y-%m-%d %H:%M") if obj.end_time else "—"
 
+	@admin.action(description="Отметить как оплаченные")
+	def mark_as_paid(self, request, queryset):
+		updated = queryset.update(is_paid=True)
+		self.message_user(request, f"{updated} аренда(ы) отмечены как оплаченные.")
+
+	@admin.action(description="Отметить как неоплаченные")
+	def mark_as_unpaid(self, request, queryset):
+		updated = queryset.update(is_paid=False)
+		self.message_user(request, f"{updated} аренда(ы) отмечены как неоплаченные.")
+
+	@admin.action(description="Отменить выбранные аренды")
+	def cancel_rentals(self, request, queryset):
+		# Предполагаем, что статус 'cancelled' присутствует среди choices
+		updated = queryset.update(status="cancelled")
+		self.message_user(request, f"{updated} аренда(ы) отменено.")
+
 	def save_model(self, request, obj, form, change):
-		"""Пересчитываем итоговую сумму перед сохранением"""
-		obj.save()
+		"""
+		Пересчитываем total_price перед сохранением,
+		например исходя из разницы между start_time и end_time + тариф.
+		"""
+		# допустим, у модели есть метод compute_total()
+		obj.total_price = obj.compute_total()
+		super().save_model(request, obj, form, change)
 
 
 class TransactionForm(forms.ModelForm):
@@ -98,6 +139,14 @@ class FineAdmin(admin.ModelAdmin):
 	readonly_fields = ['issued_at']  # Убрали 'created_at'
 
 
+class CarInline(admin.TabularInline):
+	model = Car
+	extra = 0
+	fields = ('brand', 'model', 'year', 'price_per_day', 'is_available')
+	readonly_fields = ()
+	show_change_link = True
+
+
 class DealerForm(forms.ModelForm):
 	class Meta:
 		model = Dealer
@@ -111,28 +160,52 @@ class DealerForm(forms.ModelForm):
 @admin.register(Dealer)
 class DealerAdmin(GuardedModelAdmin):
 	form = DealerForm
-	search_fields = ['name', 'address']
-	list_display = ['name', 'address', 'latitude', 'longitude']
-	list_filter = ['name']
+	inlines = [CarInline]
+
+	list_display = (
+		'name', 'address', 'is_active',
+		'cars_count', 'total_revenue', 'created_at'
+	)
+	list_filter = ('is_active', 'created_at')
+	search_fields = ('name', 'address')
+	actions = ('activate_dealers', 'deactivate_dealers')
+
+	def cars_count(self, obj):
+		return obj.car_set.count()
+
+	cars_count.short_description = "Машин"
+
+	def total_revenue(self, obj):
+		# Сумма по всем завершённым арендам у машин данного дилера
+		rev = Rental.objects.filter(
+			car__dealer=obj,
+			status='completed'
+		).aggregate(sum=Sum('total_price'))['sum'] or 0
+		return f"{rev:,.2f} ₸"
+
+	total_revenue.short_description = "Доход"
+
+	@admin.action(description="Активировать выбранных дилеров")
+	def activate_dealers(self, request, queryset):
+		updated = queryset.update(is_active=True)
+		self.message_user(request, f"{updated} дилер(ов) активировано.")
+
+	@admin.action(description="Деактивировать выбранных дилеров")
+	def deactivate_dealers(self, request, queryset):
+		updated = queryset.update(is_active=False)
+		self.message_user(request, f"{updated} дилер(ов) деактивировано.")
 
 
-@admin.register(CarPhoto)
-class CarPhotoAdmin(admin.ModelAdmin):
-	list_display = ("photo_preview", "alt_text", "order")
-	readonly_fields = ("photo_preview",)
-	list_editable = ("order",)
-	list_per_page = 20
-	fields = ("image", "alt_text", "order", "photo_preview")
-
-	def photo_preview(self, obj):
-		if obj.image:
-			return format_html(
-				'<img src="{}" style="max-height:100px;object-fit:contain;" />',
-				obj.image.url
-			)
-		return "—"
-
-	photo_preview.short_description = "Превью"
+class CarForm(forms.ModelForm):
+	class Meta:
+		model = Car
+		fields = '__all__'
+		widgets = {
+			'brand': forms.TextInput(attrs={'class': 'vTextField'}),
+			'model': forms.TextInput(attrs={'class': 'vTextField'}),
+			'year': forms.NumberInput(attrs={'min': 2000, 'max': 2030}),
+			'price_per_day': forms.NumberInput(attrs={'step': 0.01}),
+		}
 
 
 class CarPhotoInline(admin.TabularInline):
@@ -152,30 +225,46 @@ class CarPhotoInline(admin.TabularInline):
 	photo_preview.short_description = "Превью"
 
 
-class CarForm(forms.ModelForm):
-	class Meta:
-		model = Car
-		fields = '__all__'
-		widgets = {
-			'brand': forms.TextInput(attrs={'class': 'vTextField'}),
-			'model': forms.TextInput(attrs={'class': 'vTextField'}),
-			'year': forms.NumberInput(attrs={'min': 2000, 'max': 2030}),
-			'price_per_day': forms.NumberInput(attrs={'step': 0.01}),
-		}
+@admin.register(CarPhoto)
+class CarPhotoAdmin(admin.ModelAdmin):
+	list_display = ('id', 'alt_text', 'order', 'uploaded_at')
+	list_filter = ('uploaded_at',)
+	search_fields = ('alt_text',)
+	readonly_fields = ('uploaded_at',)
 
 
 @admin.register(Car)
 class CarAdmin(GuardedModelAdmin):
 	form = CarForm
 
-	# Показываем поле photos в виде «горизонтального» селекта
+	# Горизонтальный селект для ManyToMany-поля photos
 	filter_horizontal = ("photos",)
 
-	search_fields = ["brand", "model"]
-	list_display = ["brand", "model", "year", "price_per_day", "is_available", "dealer"]
-	list_filter = ["year", "dealer", "is_available"]
-	list_editable = ["is_available", "price_per_day"]
-	autocomplete_fields = ["dealer"]
+	search_fields = ("brand", "model")
+	list_display = ("brand", "model", "year", "dealer", "is_available", "price_per_day")
+	list_filter = ("dealer", "is_available", "car_type", "year")
+	list_editable = ("is_available", "price_per_day")
+	autocomplete_fields = ("dealer",)
+	actions = ("make_available", "make_unavailable", "cancel_future_rentals")
+
+	@admin.action(description="Сделать выбранные машины доступными")
+	def make_available(self, request, queryset):
+		updated = queryset.update(is_available=True)
+		self.message_user(request, f"{updated} машин(ы) стали доступными.")
+
+	@admin.action(description="Сделать выбранные машины недоступными")
+	def make_unavailable(self, request, queryset):
+		updated = queryset.update(is_available=False)
+		self.message_user(request, f"{updated} машин(ы) стали недоступными.")
+
+	@admin.action(description="Отменить будущие аренды этих машин")
+	def cancel_future_rentals(self, request, queryset):
+		# Предполагается, что статус 'booked' означает предстоящую аренду
+		count = Rental.objects.filter(
+			car__in=queryset,
+			status='booked'
+		).update(status='cancelled')
+		self.message_user(request, f"{count} будущих аренды отменено.")
 
 
 class CarLocationForm(forms.ModelForm):

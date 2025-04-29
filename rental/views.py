@@ -3,10 +3,11 @@ from datetime import datetime, timedelta
 
 import stripe
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Q, Avg
+from django.db.models.aggregates import Sum
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
@@ -17,6 +18,10 @@ from docx.shared import Pt
 
 from .filters import CarFilter
 from .models import Car, Rental, Transaction, TripTracking, CarLocation, Dealer, Favorite
+
+
+def superuser_required(view_func):
+	return user_passes_test(lambda u: u.is_superuser)(view_func)
 
 
 def home(request):
@@ -139,58 +144,78 @@ def favorite_toggle(request, pk):
 
 
 def car_detail(request, pk):
-	car = get_object_or_404(Car, pk=pk)
+    car = get_object_or_404(Car, pk=pk)
 
-	rating = car.reviews.aggregate(avg=Avg("rating")).get("avg") or 4
+    # рейтинг
+    rating = car.reviews.aggregate(avg=Avg("rating"))["avg"] or 4
 
-	similar = Car.objects.filter(car_type=car.car_type).exclude(pk=pk)[:6]
-	recent_cars = Car.objects.order_by("-id")[:6]
-	recommend_cars = (
-		Car.objects.filter(dealer=car.dealer).exclude(pk=pk)[:6]
-		if car.dealer else []
-	)
+    # «Похожие» по типу, без текущей
+    similar = (
+        Car.objects
+           .filter(car_type=car.car_type, is_available=True)
+           .exclude(pk=car.pk)[:6]
+    )
 
-	reviews = car.reviews.select_related("user").order_by("-created_at")  # все отзывы
+    # «Недавние», без текущей
+    recent_cars = (
+        Car.objects
+           .filter(is_available=True)
+           .exclude(pk=car.pk)
+           .order_by("-id")[:6]
+    )
 
-	images = []
-	if car.main_image:  # главное фото
-		images.append(car.main_image.url)
+    # «Рекомендуемые» у того же дилера
+    recommend_cars = []
+    if car.dealer:
+        recommend_cars = (
+            Car.objects
+               .filter(dealer=car.dealer, is_available=True)
+               .exclude(pk=car.pk)[:6]
+        )
 
-	# Many-to-Many → queryset; берём поле image, превращаем в список URL-ов
-	images.extend(
-		car.photos.values_list("image", flat=True)  # ('/media/cars/…', …)
-	)
+    # Все отзывы
+    reviews = car.reviews.select_related("user").order_by("-created_at")
 
-	# views.py  ─ внутри car_detail
-	characteristics = [
-		("Тип", car.get_car_type_display()),
-		("Трансмиссия", car.get_transmission_display()),
-		("Топливо", car.get_fuel_type_display()),
-		("Мест", car.seats),
-		("Дверей", car.doors),
-		("Пробег", f"{car.mileage} км"),
-		("Кондиционер", "Да" if car.air_conditioner else "Нет"),
-		("Год выпуска", car.year),
-	]
+    # Собираем галерею
+    images = []
+    if car.main_image:
+        images.append(car.main_image.url)
+    images += list(car.photos.values_list("image", flat=True))
 
-	# если в JSON-features есть дополнительные пункты, добавим их
-	if car.features:
-		for key, val in car.features.items():
-			characteristics.append((key, "Да" if val is True else val))
-	fil = CarFilter(request.GET, queryset=Car.objects.filter(is_available=True))
+    # Характеристики
+    characteristics = [
+        ("Тип", car.get_car_type_display()),
+        ("Трансмиссия", car.get_transmission_display()),
+        ("Топливо", car.get_fuel_type_display()),
+        ("Мест", car.seats),
+        ("Дверей", car.doors),
+        ("Пробег", f"{car.mileage} км"),
+        ("Кондиционер", "Да" if car.air_conditioner else "Нет"),
+        ("Год выпуска", car.year),
+    ]
+    if car.features:
+        for key, val in car.features.items():
+            characteristics.append((key, "Да" if val is True else val))
 
-	context = {
-		"car": car,
-		"images": images,
-		"filter": fil,
-		"rating": rating,
-		"similar": similar,
-		"recent_cars": recent_cars,
-		"recommend_cars": recommend_cars,
-		"reviews": reviews,
-		"characteristics": characteristics,
-	}
-	return render(request, "car_detail.html", context)
+    # Фильтр — убираем текущую машину из исходного qs
+    fil = CarFilter(
+        request.GET,
+        queryset=Car.objects.filter(is_available=True)
+                             .exclude(pk=car.pk)
+    )
+
+    context = {
+        "car": car,
+        "images": images,
+        "filter": fil,
+        "rating": rating,
+        "similar": similar,
+        "recent_cars": recent_cars,
+        "recommend_cars": recommend_cars,
+        "reviews": reviews,
+        "characteristics": characteristics,
+    }
+    return render(request, "car_detail.html", context)
 
 
 class ContactUsView(TemplateView):
@@ -658,3 +683,39 @@ def notifications_page(request):
 def dealer_detail(request, pk):
 	dealer = get_object_or_404(Dealer, pk=pk)
 	return render(request, "dealers_detail.html", {"dealer": dealer})
+
+
+@login_required
+@superuser_required
+def admin_dealers_list(request):
+	"""
+	Список всех дилеров для суперпользователя.
+	"""
+	dealers = Dealer.objects.order_by('name')
+	return render(request, 'admin/dealers_list.html', {
+		'dealers': dealers,
+	})
+
+
+@login_required
+@superuser_required
+def admin_dealer_detail(request, pk):
+	"""
+	Детальная страница дилера:
+	- основная информация,
+	- список машин,
+	- список аренд,
+	- суммарный доход.
+	"""
+	dealer = get_object_or_404(Dealer, pk=pk)
+	cars = Car.objects.filter(dealer=dealer)
+	rentals = Rental.objects.filter(car__dealer=dealer).select_related('car', 'user')
+	total_revenue = rentals.filter(status='completed') \
+		                .aggregate(sum=Sum('total_price'))['sum'] or 0
+
+	return render(request, 'admin/dealer_detail.html', {
+		'dealer': dealer,
+		'cars': cars,
+		'rentals': rentals,
+		'total_revenue': total_revenue,
+	})

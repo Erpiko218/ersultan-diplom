@@ -11,20 +11,44 @@
             <!-- Hidden поле -->
             <input type="hidden" name="rental_id" value="{{ rental_id }}">
 
-            <!-- Личная информация -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h3 class="font-bold text-xl mb-4">1. Личная информация</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" name="full_name" placeholder="ФИО" required
-                           class="input input-bordered w-full"/>
-                    <input type="text" name="phone_number" placeholder="Телефон" required
-                           class="input input-bordered w-full"/>
-                    <input type="text" name="address" placeholder="Адрес" required
-                           class="input input-bordered w-full"/>
-                    <input type="text" name="city" placeholder="Город" required
-                           class="input input-bordered w-full"/>
-                </div>
+              <h3 class="font-bold text-xl mb-4">1. Личная информация</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  name="full_name"
+                  placeholder="ФИО"
+                  required
+                  class="input input-bordered w-full"
+                  value="{{ user.first_name }} {{ user.last_name }}"
+                />
+                <input
+                  type="text"
+                  name="phone_number"
+                  placeholder="Телефон"
+                  required
+                  class="input input-bordered w-full"
+                  value="{{ user.phone|default:'' }}"
+                />
+                <input
+                  type="text"
+                  name="address"
+                  placeholder="Адрес"
+                  required
+                  class="input input-bordered w-full"
+                  value="{{ user.address|default:'' }}"
+                />
+                <input
+                  type="text"
+                  name="city"
+                  placeholder="Город"
+                  required
+                  class="input input-bordered w-full"
+                  value="{{ user.city|default:'' }}"
+                />
+              </div>
             </div>
+
 
             <!-- Даты аренды -->
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -74,7 +98,11 @@
     <!-- Карточка авто -->
     <div class="bg-white rounded-lg shadow-md p-6 self-start">
         {% if car.main_image %}
-            <img src="{{ car.main_image.url }}" alt="{{ car.model }}" class="w-full rounded-lg shadow-md mb-4">
+          <img
+            src="{{ car.main_image.url }}"
+            alt="{{ car.model }}"
+            class="w-full rounded-lg shadow-md mb-4 h-40 object-contain"
+          >
         {% endif %}
         <h4 class="font-bold text-lg mb-2">{{ car.brand }} {{ car.model }}</h4>
         <ul class="text-gray-600 space-y-1">

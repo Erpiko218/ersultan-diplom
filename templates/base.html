@@ -80,7 +80,7 @@
             <ul>
               {% for fav in favorites|slice:":5" %}
                 <li class="p-2 hover:bg-gray-50 flex items-center gap-2">
-                  <img src="{{ fav.car.image.url }}" class="h-8 w-12 object-cover rounded">
+                  <img src="{{ fav.car.main_image.url }}" class="h-8 w-12 object-cover rounded">
                   <span class="truncate">{{ fav.car }}</span>
                 </li>
               {% endfor %}
@@ -201,9 +201,48 @@
         >
           <ul class="py-1">
             {% if user.is_authenticated %}
-              <li><a href="{% url 'profile' %}"    class="block px-4 py-2 hover:bg-gray-50">Профиль</a></li>
+              <li><a href="{% url 'dashboard' %}"  class="block px-4 py-2 hover:bg-gray-50">Профиль</a></li>
               <li><a href="{% url 'wallet' %}"     class="block px-4 py-2 hover:bg-gray-50">Кошелёк</a></li>
-              <li><a href="{% url 'dashboard' %}"  class="block px-4 py-2 hover:bg-gray-50">Информация</a></li>
+              <!-- Если суперпользователь — ссылка в админку -->
+              {% if user.is_superuser %}
+                <li><a href="{% url 'admin:index' %}"
+                       class="block px-4 py-2 hover:bg-gray-50">
+                  Админка
+                </a></li>
+                <li><a href="{% url 'admin_dealers_list' %}"
+                       class="block px-4 py-2 hover:bg-gray-50">
+                  Дилеры
+                </a></li>
+              {% endif %}
+
+              <!-- Если дилер — своя панель -->
+              {% if is_dealer %}
+                <li>
+                  <a href="{% url 'retailers_dashboard' %}"
+                     class="block px-4 py-2 hover:bg-gray-50">
+                    Панель дилера
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'retailer_tracking_dashboard' dealer_id=dealer_id %}"
+                     class="block px-4 py-2 hover:bg-gray-50">
+                    Отслеживание авто
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'dealer_detail' dealer_id=dealer_id %}"
+                     class="block px-4 py-2 hover:bg-gray-50">
+                    Мой профиль дилера
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'car_rent' car_id=0 %}"  {# тут замените на линки создания #}
+                     class="block px-4 py-2 hover:bg-gray-50">
+                    Добавить авто
+                  </a>
+                </li>
+              {% endif %}
+
               <li><a href="{% url 'logout' %}"     class="block px-4 py-2 text-red-600 hover:bg-gray-50">Выйти</a></li>
             {% else %}
               <li><a href="{% url 'login' %}"      class="block px-4 py-2 hover:bg-gray-50">Войти</a></li>

@@ -51,16 +51,18 @@
       <div class="flex-1 space-y-6 bg-gray-100 p-3 rounded-xl">
         <div class="flex items-start justify-between">
           <h1 class="text-3xl font-bold">{{ car.brand }} {{ car.model }}</h1>
-          {% include "partials/fav_button.html" with car=car %}
         </div>
 
         <!-- Рейтинг -->
-        <div class="flex gap-0.5">
-          {% for _ in "12345" %}
-            <svg class="w-5 h-5 {% if forloop.counter <= rating %}fill-orange-400{% else %}fill-gray-300{% endif %}">
-              <use href="#star"></use>
-            </svg>
-          {% endfor %}
+        <div class="flex gap-3 content-center">
+          <div class="flex mt-0.5">
+            {% for _ in "12345" %}
+              <svg class="w-5 h-5 {% if forloop.counter <= rating %}fill-orange-400{% else %}fill-gray-300{% endif %}">
+                <use href="#star"></use>
+              </svg>
+            {% endfor %}
+          </div>
+          <span class="badge badge-warning bg-orange-400 text-white p-[4px] rounded-sm">{{ reviews|length }}</span>
         </div>
 
 
@@ -75,7 +77,7 @@
           {% endfor %}
         </ul>
 
-         <div class="flex flex-col sm:flex-row sm:items-baseline gap-4">
+         <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
           <div class="flex items-baseline gap-2">
             <p class="text-primary text-2xl font-semibold whitespace-nowrap">
               ₸{{ car.price_per_day }} / день
@@ -85,7 +87,7 @@
           {% if user.is_authenticated %}
             <a
               href="{% url 'car_rent' car.id %}"
-              class="btn btn-success w-full max-w-xs text-white p-2 hover:bg-blue-500 font-semibold text-center bg-blue-400 rounded-sm"
+              class="btn max-w-xs text-white p-2 hover:bg-orange-500 font-semibold text-center bg-orange-400 rounded-sm"
             >
               Арендовать сейчас!
             </a>
