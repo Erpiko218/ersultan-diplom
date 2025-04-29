@@ -30,7 +30,10 @@ urlpatterns = [
     path("notifications/dropdown/", notifications_dropdown,
          name="notifications_dropdown"),
     path("favorites/", favorites, name="favorites"),
+    path('cars/<int:pk>/favorite-toggle/', favorite_toggle, name='favorite_toggle'),
+
     path("search/", car_search, name="car_search"),
 
     path('dealers/<int:pk>/', dealer_detail, name='dealer_detail'),
+    path('faq/', faq, name='faq')
 ]

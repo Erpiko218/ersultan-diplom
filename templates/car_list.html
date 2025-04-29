@@ -1,3 +1,4 @@
+{# templates/car_list.html #}
 {% extends "base.html" %}
 {% load static %}
 
@@ -5,54 +6,48 @@
 
 {% block content %}
 <div class="grid md:grid-cols-[250px_1fr] gap-6 px-4 py-8">
-  <!-- Сайд‑бар с фильтрами -->
+
+  <!-- Сайд-бар с фильтрами -->
   <aside>
     {% include "partials/car_filter.html" %}
   </aside>
 
-  <!-- Секции карточек машин -->
-  <section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
-    {% for car in cars %}
-    <div class="card bg-base-100 shadow group self-start">
-      <figure class="p-4">
-          {% if car.image %}
-            <img src="{{ car.image.url }}" alt="{{ car }}" class="h-28 object-cover rounded">
-          {% endif %}
-        </figure>
-        <div class="card-body pt-0">
-          <h2 class="card-title">{{ car.brand }} {{ car.model }}</h2>
-          <p class="text-sm opacity-60">{{ car.get_type_display }}</p>
-          <div class="flex justify-between text-xs mt-2">
-            <span>{{ car.fuel_type }}</span>
-            <span>{{ car.get_transmission_display }}</span>
-            <span>{{ car.seats }} мест</span>
-          </div>
-          <div class="mt-3">
-            <span class="font-bold text-lg">{{ car.price_per_day }} ₸</span>
-            <span class="text-xs opacity-60">/ день</span>
-          </div>
-          <div class="card-actions justify-between items-center mt-2">
-            <a href="{% url 'car_detail' car.pk %}" class="btn btn-primary btn-sm">Подробнее</a>
-            {% include "partials/fav_button.html" with car=car %}
-          </div>
-        </div>
-      </div>
-    {% empty %}
-      <p class="col-span-full text-center py-16 opacity-60">Машин не найдено.</p>
-    {% endfor %}
-  </section>
-</div>
+  <!-- Контейнер для карточек (HTMX будет перезаписывать именно его) -->
+  <main id="car-results">
+    {% include "partials/car_cards.html" with cars=cars %}
 
-<!-- Пагинация -->
-<div class="join mt-10 flex justify-center">
-  {% if cars.has_previous %}
-    <a href="?page={{ cars.previous_page_number }}&{{ params }}" class="join-item btn">«</a>
-  {% endif %}
-  <span class="join-item btn btn-ghost">
-    {{ cars.number }} / {{ cars.paginator.num_pages }}
-  </span>
-  {% if cars.has_next %}
-    <a href="?page={{ cars.next_page_number }}&{{ params }}" class="join-item btn">»</a>
-  {% endif %}
+    {# Пагинация через HTMX #}
+    <div class="join mt-10 flex justify-center">
+      {% if cars.has_previous %}
+        <a
+          href="?page={{ cars.previous_page_number }}&{{ params }}"
+          hx-get="?page={{ cars.previous_page_number }}&{{ params }}"
+          hx-target="#car-results"
+          hx-swap="innerHTML"
+          hx-push-url="true"
+          class="join-item btn"
+        >
+          «
+        </a>
+      {% endif %}
+
+      <span class="join-item btn btn-ghost">
+        {{ cars.number }} / {{ cars.paginator.num_pages }}
+      </span>
+
+      {% if cars.has_next %}
+        <a
+          href="?page={{ cars.next_page_number }}&{{ params }}"
+          hx-get="?page={{ cars.next_page_number }}&{{ params }}"
+          hx-target="#car-results"
+          hx-swap="innerHTML"
+          hx-push-url="true"
+          class="join-item btn"
+        >
+          »
+        </a>
+      {% endif %}
+    </div>
+  </main>
 </div>
 {% endblock %}

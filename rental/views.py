@@ -10,6 +10,7 @@ from django.db.models import Q, Avg
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView, DetailView, ListView
 from docx import Document
 from docx.shared import Pt
@@ -28,29 +29,54 @@ def home(request):
 
 
 def car_list(request):
+	# 1) Фильтрация через django-filter
 	f = CarFilter(request.GET, queryset=Car.objects.filter(is_available=True))
+	qs = f.qs
 
+	# 2) Собираем параметры для формы (могут понадобиться в шаблоне)
 	selected_types = request.GET.getlist("type")
 	selected_seats = request.GET.get("seats", "")
 	selected_dealers = request.GET.getlist("dealer")
 	price_to = request.GET.get("price_to", "")
 	query = request.GET.get("q", "")
 
-	paginator = Paginator(f.qs, 12)
-	cars = paginator.get_page(request.GET.get("page"))
+	# 3) Пагинация
+	paginator = Paginator(qs, 12)
+	page_num = request.GET.get("page")
+	cars_page = paginator.get_page(page_num)
 
+	# 4) Избранные авто текущего пользователя
+	if request.user.is_authenticated:
+		favorite_car_ids = set(
+			Favorite.objects
+			.filter(user=request.user, car__in=cars_page.object_list)
+			.values_list("car_id", flat=True)
+		)
+	else:
+		favorite_car_ids = set()
+
+	for car in cars_page:
+		car.is_favorited = (car.pk in favorite_car_ids)
+
+	# 5) Контекст для шаблона
 	context = {
 		"filter": f,
-		"cars": cars,
+		"cars": cars_page,
 		"selected_types": selected_types,
 		"selected_seats": selected_seats,
 		"selected_dealers": selected_dealers,
 		"price_to": price_to,
 		"query": query,
 		"params": request.GET.urlencode(),
-		# Вот этот список вместо split в шаблоне
 		"seats_list": [2, 4, 6, 8],
+		"favorite_car_ids": favorite_car_ids,
 	}
+
+	# 6) Если это HTMX-запрос — возвращаем только карточки
+	if request.headers.get("Hx-Request") == "true":
+		return render(request, "partials/car_cards.html", context)
+
+	# 7) Иначе — полный рендер с сайдбаром + карточками
 	return render(request, "car_list.html", context)
 
 
@@ -82,6 +108,33 @@ def favorites(request):
 
 	return render(request, "car_favourites.html", {
 		"cars": cars,
+	})
+
+
+def faq(request):
+	"""
+	Статическая страница FAQ по каршерингу
+	"""
+	return render(request, 'faq.html')
+
+
+@login_required
+@require_POST
+@csrf_exempt
+def favorite_toggle(request, pk):
+	car = get_object_or_404(Car, pk=pk)
+	fav_qs = Favorite.objects.filter(user=request.user, car=car)
+	if fav_qs.exists():
+		fav_qs.delete()
+		favorited = False
+	else:
+		Favorite.objects.create(user=request.user, car=car)
+		favorited = True
+
+	# вернуть обновлённую кнопку
+	return render(request, 'partials/fav_button.html', {
+		'car': car,
+		'favorited': favorited,
 	})
 
 

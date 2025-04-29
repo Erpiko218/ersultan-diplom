@@ -3,7 +3,7 @@
   <!-- ТИП МАШИНЫ -->
   <div>
     <h3 class="font-semibold mb-2">Тип</h3>
-    {% for value,label in filter.form.fields.type.choices %}
+    {% for value,label in filter.form.fields.car_type.choices %}
       <label class="flex items-center gap-2 mb-1">
         <input
           type="checkbox"
@@ -17,23 +17,13 @@
     {% endfor %}
   </div>
 
-  <!-- ВМЕСТИМОСТЬ -->
+  <!-- Слайдер Места -->
   <div>
-    <h3 class="font-semibold mb-2">Места</h3>
-    {% for seats in seats_list %}
-      <label class="flex items-center gap-2 mb-1">
-        <input
-          type="radio"
-          name="seats"
-          value="{{ seats }}"
-          class="radio radio-sm"
-          {% if selected_seats == seats|stringformat:"s" %}checked{% endif %}
-        />
-        <span>
-          {% if seats > 6 %}8 и более{% else %}{{ seats }} пассажира{% endif %}
-        </span>
-      </label>
-    {% endfor %}
+    <h3 class="font-semibold mb-2">Мин. мест</h3>
+    {{ filter.form.seats }}
+    <div class="text-sm mt-1 opacity-70">
+      {{ selected_seats|default:2 }} мест
+    </div>
   </div>
 
   <!-- ЦЕНА -->

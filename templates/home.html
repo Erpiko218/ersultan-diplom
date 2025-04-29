@@ -1,29 +1,41 @@
 {% extends "base.html" %}
 {% block content %}
-<!-- HERO – две оранжевые карточки -->
+{% load static %}
 <div class="grid md:grid-cols-2 gap-6">
 
   <!-- КАРТОЧКА 1 -->
-  <div class="relative rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow overflow-hidden">
-    <h2 class="text-2xl font-bold mb-2">Лучшая площадка<br>для аренды авто</h2>
-    <p class="text-sm mb-4 opacity-90">Оформляйте аренду безопасно и выгодно.</p>
-    <a href="{% url 'car_list' %}" class="btn text-black-700 border-0">Выбрать авто</a>
+  <div class="relative rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow-lg overflow-hidden">
+    <h2 class="text-2xl font-bold mb-2">
+      Лучшая площадка<br>для аренды авто
+    </h2>
+    <p class="text-sm mb-4 opacity-90">
+      Оформляйте аренду безопасно и выгодно.
+    </p>
+    <a href="{% url 'car_list' %}" class="btn btn-sm btn-error">
+      Выбрать авто
+    </a>
     <img
-      src="https://upload.wikimedia.org/wikipedia/commons/0/0a/Koenigsegg-logo-1994-2048x2048.png"
-      alt="Koenigsegg logo"
-      class="w-40 lg:w-52 absolute bottom-0 right-6"
+      src="{% static 'images/koenigsegg_supercar.png' %}"
+      alt="Koenigsegg"
+      class="absolute bottom-0 right-6 w-72 lg:w-80 object-contain pointer-events-none"
     />
   </div>
 
   <!-- КАРТОЧКА 2 -->
-  <div class="relative rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow overflow-hidden">
-    <h2 class="text-2xl font-bold mb-2">Аренда по низкой цене</h2>
-    <p class="text-sm mb-4 opacity-90">Дешёвые тарифы и комфорт.</p>
-    <a href="{% url 'car_list' %}" class="btn text-black-700 border-0">Арендовать</a>
+  <div class="relative rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow-lg overflow-hidden">
+    <h2 class="text-2xl font-bold mb-2">
+      Аренда по низкой цене
+    </h2>
+    <p class="text-sm mb-4 opacity-90">
+      Дешёвые тарифы и комфорт.
+    </p>
+    <a href="{% url 'car_list' %}" class="btn btn-sm btn-error">
+      Арендовать
+    </a>
     <img
-      src="https://upload.wikimedia.org/wikipedia/commons/2/23/Nissan_2020_logo.svg"
-      alt="Nissan logo"
-      class="w-40 lg:w-52 absolute bottom-0 right-0"
+      src="{% static 'images/nissan_gtr.png' %}"
+      alt="Nissan GT-R"
+      class="absolute bottom-0 right-6 w-64 lg:w-72 object-contain pointer-events-none"
     />
   </div>
 

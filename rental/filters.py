@@ -30,17 +30,25 @@ class CarFilter(django_filters.FilterSet):
         widget=forms.TextInput(attrs={'placeholder': 'Марка или модель…'})
     )
 
-    type = django_filters.MultipleChoiceFilter(
+    car_type = django_filters.MultipleChoiceFilter(
         choices=Car.CarType.choices,
         widget=forms.CheckboxSelectMultiple,
         label='Тип'
     )
 
+    # Слайдер “минимум мест”
     seats = django_filters.NumberFilter(
-        method='filter_seats',
-        label='Места'
+        field_name='seats',
+        lookup_expr='gte',
+        label='Мин. мест',
+        widget=forms.NumberInput(attrs={
+            'type': 'range',
+            'min': '2',
+            'max': '10',
+            'step': '1',
+            'class': 'range range-primary w-full'
+        })
     )
-
     price_to = django_filters.NumberFilter(
         field_name='price_per_day',
         lookup_expr='lte',
