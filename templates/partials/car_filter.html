@@ -1,4 +1,4 @@
-<form hx-get="{% url 'car_list' %}" hx-trigger="change" class="space-y-6">
+<form hx-get="{% url 'car_list' %}" hx-trigger="change" class="space-y-6" hx-target="#car-results"  hx-swap="innerHTML">
 
   <!-- ТИП МАШИНЫ -->
   <div>
