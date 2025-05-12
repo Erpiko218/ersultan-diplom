@@ -37,6 +37,7 @@ urlpatterns = [
     path('dealers/<int:pk>/', dealer_detail, name='dealer_detail'),
     path('faq/', faq, name='faq'),
 
+
     # список всех дилеров для админа
     path(
         'control/dealers/',
