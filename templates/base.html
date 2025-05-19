@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="ru" data-theme="light"> {# daisyUI поддерживает темы через data‑theme #}
+<html lang="ru" x-data="themeSwitcher()" :data-theme="theme"> {# daisyUI поддерживает темы через data‑theme #}
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -15,10 +15,21 @@
     {% block additional_head %} {% endblock %}
 
     {% load custom_tags %}
+    <script>
+    function themeSwitcher(){
+      return {
+        theme: localStorage.getItem('theme') || 'light',
+        toggle(){
+          this.theme = this.theme === 'light' ? 'dark' : 'light'
+          localStorage.setItem('theme', this.theme)
+        }
+      }
+    }
+    </script>
 </head>
 <body class="min-h-screen flex flex-col bg-base-200">
 
-<nav class="bg-white border-b border-gray-200">
+<nav class="bg-base-100 border-b border-gray-200">
   <div class="container mx-auto px-4 py-3 flex items-center">
 
     <!-- LOGO -->
@@ -163,7 +174,9 @@
 
       <label class="swap swap-rotate">
         <!-- this hidden checkbox controls the state -->
-        <input type="checkbox" class="theme-controller" value="synthwave" />
+        <button @click="toggle()" class="btn btn-ghost">
+
+        </button>
 
         <!-- sun icon -->
         <svg
@@ -197,7 +210,7 @@
         <div
           x-show="open"
           @click.away="open = false"
-          class="absolute right-0 mt-2 w-56 bg-white border rounded-lg shadow-lg z-50"
+          class="absolute right-0 mt-2 w-56 bg-base-100 border rounded-lg shadow-lg z-50"
         >
           <ul class="py-1">
             {% if user.is_authenticated %}

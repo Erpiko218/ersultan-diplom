@@ -1,4 +1,7 @@
-<form hx-get="{% url 'car_list' %}" hx-trigger="change" class="space-y-6" hx-target="#car-results"  hx-swap="innerHTML">
+<form hx-get="{% url 'car_list' %}"
+      hx-target="#car-results"
+      hx-swap="innerHTML"
+      class="space-y-6">
 
   <!-- ТИП МАШИНЫ -->
   <div>
@@ -61,6 +64,6 @@
 
   <!-- КНОПКА ПРИМЕНИТЬ -->
   <button type="submit" class="btn btn-primary w-full mt-4">
-    Показать
+      Показать
   </button>
 </form>
