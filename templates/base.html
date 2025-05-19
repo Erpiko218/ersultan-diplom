@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru" x-data="themeSwitcher()" :data-theme="theme"> {# daisyUI поддерживает темы через data‑theme #}
 <head>
@@ -7,7 +6,6 @@
     <title>{% block title %}RentCur – каршеринг автомобилей{% endblock %}</title>
 
     {% load static %}
-    <!-- Alpine.js & HTMX  -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
     <style>[x-cloak] { display: none !important; }</style>
@@ -27,17 +25,15 @@
     }
     </script>
 </head>
-<body class="min-h-screen flex flex-col bg-base-200">
+<body class="min-h-screen flex flex-col bg-base-200 text-base-content">
 
-<nav class="bg-base-100 border-b border-gray-200">
+<nav class="bg-base-100 border-b border-base-300">
   <div class="container mx-auto px-4 py-3 flex items-center">
 
-    <!-- LOGO -->
     <a href="{% url 'home' %}" class="text-2xl font-extrabold text-orange-500">
       RentCURCar
     </a>
 
-    <!-- SEARCH -->
     <div class="flex-1 mx-6">
       <form action="{% url 'car_list' %}" method="get" class="relative">
         <input
@@ -47,15 +43,13 @@
           @input.debounce.300ms="fetchSuggestions"
           placeholder="Найдите машину…"
           value="{{ query }}"
-          class="w-full h-10 pl-10 pr-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
+          class="w-full h-10 pl-10 pr-10 input input-bordered focus:outline-none focus:ring-2 focus:ring-primary"
         />
-        <!-- иконка лупы -->
         <img
           src="https://api.iconify.design/heroicons-outline/magnifying-glass.svg"
-          class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+          class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-base-content opacity-60"
           alt="Поиск"
         />
-        <!-- кнопка фильтра -->
         <button
           type="button"
           @click="openFilter = true"
@@ -63,19 +57,17 @@
         >
           <img
             src="https://api.iconify.design/heroicons-outline/funnel.svg"
-            class="h-5 w-5 opacity-60 hover:opacity-80"
+            class="h-5 w-5 text-base-content opacity-60 hover:opacity-80"
             alt="Фильтры"
           />
         </button>
       </form>
     </div>
 
-    <!-- ICONS -->
     <div class="flex items-center space-x-4">
 
-      <!-- FAVORITES -->
       <div x-data="{open:false}" class="relative">
-        <button @click="open = !open" class="p-2 rounded-full hover:bg-gray-100">
+        <button @click="open = !open" class="p-2 rounded-full hover:bg-base-300">
           <img
             src="https://api.iconify.design/heroicons-outline/heart.svg"
             class="h-6 w-6"
@@ -85,19 +77,19 @@
         <div
           x-show="open"
           @click.away="open = false"
-          class="absolute right-0 mt-2 w-64 bg-white border rounded-lg shadow-lg z-50 overflow-hidden"
+          class="absolute right-0 mt-2 w-64 bg-base-100 border border-base-300 rounded-lg shadow-lg z-50 overflow-hidden"
         >
           {% if favorites %}
             <ul>
               {% for fav in favorites|slice:":5" %}
-                <li class="p-2 hover:bg-gray-50 flex items-center gap-2">
+                <li class="p-2 hover:bg-base-200 flex items-center gap-2">
                   <img src="{{ fav.car.main_image.url }}" class="h-8 w-12 object-cover rounded">
                   <span class="truncate">{{ fav.car }}</span>
                 </li>
               {% endfor %}
             </ul>
           {% else %}
-            <div class="p-4 text-center text-gray-500">Пусто</div>
+            <div class="p-4 text-center text-base-content opacity-60">Пусто</div>
           {% endif %}
           <a href="{% url 'favorites' %}"
              class="block text-center py-2 bg-orange-500 text-white hover:bg-orange-600">
@@ -106,29 +98,27 @@
         </div>
       </div>
 
-      <!-- NOTIFICATIONS -->
       <div x-data="{open:false}" class="relative">
-        <button @click="open = !open" class="p-2 rounded-full hover:bg-gray-100 relative">
+        <button @click="open = !open" class="p-2 rounded-full hover:bg-base-300 relative">
           <img
             src="https://api.iconify.design/heroicons-outline/bell.svg"
             class="h-6 w-6"
             alt="Notifications"
           />
           {% if unread_notifications_count %}
-            <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500"></span>
+            <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500"></span> {# Or use bg-error from DaisyUI #}
           {% endif %}
         </button>
         <div
           x-show="open"
           @click.away="open = false"
-          class="absolute right-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-50 overflow-hidden list-none"
+          class="absolute right-0 mt-2 w-80 bg-base-100 border border-base-300 rounded-lg shadow-lg z-50 overflow-hidden list-none"
         >
           {% include "partials/notifications_dropdown.html" %}
         </div>
       </div>
 
-      <!-- SETTINGS (gear) -->
-      <a href="{% url 'settings' %}" class="p-2 rounded-full hover:bg-gray-100">
+      <a href="{% url 'settings' %}" class="p-2 rounded-full hover:bg-base-300">
         <img
           src="https://api.iconify.design/heroicons-outline/cog.svg"
           class="h-6 w-6"
@@ -137,34 +127,34 @@
       </a>
 
       <div x-data="{ helpOpen: false }" class="relative">
-        <button @click="helpOpen = !helpOpen" class="p-2 rounded-full hover:bg-gray-100">
+        <button @click="helpOpen = !helpOpen" class="p-2 rounded-full hover:bg-base-300">
           <img
             src="https://api.iconify.design/heroicons-outline/question-mark-circle.svg"
-            class="h-6 w-6 text-gray-600"
+            class="h-6 w-6 text-base-content opacity-80"
             alt="Помощь"
           />
         </button>
         <div
           x-show="helpOpen"
           @click.away="helpOpen = false"
-          class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50 overflow-hidden"
+          class="absolute right-0 mt-2 w-48 bg-base-100 border border-base-300 rounded-lg shadow-lg z-50 overflow-hidden"
         >
           <ul class="py-1">
             <li>
               <a href="{% url 'faq' %}"
-                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                 class="block px-4 py-2 text-sm hover:bg-base-300">
                 FAQ
               </a>
             </li>
             <li>
               <a href="{% url 'about' %}"
-                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                 class="block px-4 py-2 text-sm hover:bg-base-300">
                 О нас
               </a>
             </li>
             <li>
               <a href="{% url 'contact' %}"
-                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                 class="block px-4 py-2 text-sm hover:bg-base-300">
                 Контакты
               </a>
             </li>
@@ -173,12 +163,9 @@
       </div>
 
       <label class="swap swap-rotate">
-        <!-- this hidden checkbox controls the state -->
         <button @click="toggle()" class="btn btn-ghost">
+          </button>
 
-        </button>
-
-        <!-- sun icon -->
         <svg
           class="swap-off h-7 w-7 fill-current"
           xmlns="http://www.w3.org/2000/svg"
@@ -187,7 +174,6 @@
             d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z" />
         </svg>
 
-        <!-- moon icon -->
         <svg
           class="swap-on h-6 w-7 fill-current"
           xmlns="http://www.w3.org/2000/svg"
@@ -197,9 +183,8 @@
         </svg>
       </label>
 
-      <!-- ваш аватар + дропдаун -->
       <div x-data="{open:false}" class="relative">
-        <button @click="open = !open" class="p-1 rounded-full hover:bg-gray-100">
+        <button @click="open = !open" class="p-1 rounded-full hover:bg-base-300">
           {% if user.is_authenticated and user.avatar %}
             <img src="{{ user.avatar.url }}" class="h-8 w-8 rounded-full object-cover" alt="User avatar">
           {% else %}
@@ -210,59 +195,55 @@
         <div
           x-show="open"
           @click.away="open = false"
-          class="absolute right-0 mt-2 w-56 bg-base-100 border rounded-lg shadow-lg z-50"
+          class="absolute right-0 mt-2 w-56 bg-base-100 border border-base-300 rounded-lg shadow-lg z-50"
         >
           <ul class="py-1">
             {% if user.is_authenticated %}
-              <li><a href="{% url 'dashboard' %}"  class="block px-4 py-2 hover:bg-gray-50">Профиль</a></li>
-              <li><a href="{% url 'wallet' %}"     class="block px-4 py-2 hover:bg-gray-50">Кошелёк</a></li>
-              <!-- Если суперпользователь — ссылка в админку -->
+              <li><a href="{% url 'dashboard' %}"  class="block px-4 py-2 hover:bg-base-200">Профиль</a></li>
+              <li><a href="{% url 'wallet' %}"     class="block px-4 py-2 hover:bg-base-200">Кошелёк</a></li>
               {% if user.is_superuser %}
                 <li><a href="{% url 'admin:index' %}"
-                       class="block px-4 py-2 hover:bg-gray-50">
+                       class="block px-4 py-2 hover:bg-base-200">
                   Админка
                 </a></li>
                 <li><a href="{% url 'admin_dealers_list' %}"
-                       class="block px-4 py-2 hover:bg-gray-50">
+                       class="block px-4 py-2 hover:bg-base-200">
                   Дилеры
                 </a></li>
               {% endif %}
 
-              <!-- Если дилер — своя панель -->
               {% if is_dealer %}
                 <li>
                   <a href="{% url 'retailers_dashboard' %}"
-                     class="block px-4 py-2 hover:bg-gray-50">
+                     class="block px-4 py-2 hover:bg-base-200">
                     Панель дилера
                   </a>
                 </li>
                 <li>
                   <a href="{% url 'retailer_tracking_dashboard' dealer_id=dealer_id %}"
-                     class="block px-4 py-2 hover:bg-gray-50">
+                     class="block px-4 py-2 hover:bg-base-200">
                     Отслеживание авто
                   </a>
                 </li>
                 <li>
                   <a href="{% url 'dealer_detail' dealer_id=dealer_id %}"
-                     class="block px-4 py-2 hover:bg-gray-50">
+                     class="block px-4 py-2 hover:bg-base-200">
                     Мой профиль дилера
                   </a>
                 </li>
                 <li>
                   <a href="{% url 'car_rent' car_id=0 %}"  {# тут замените на линки создания #}
-                     class="block px-4 py-2 hover:bg-gray-50">
+                     class="block px-4 py-2 hover:bg-base-200">
                     Добавить авто
                   </a>
                 </li>
               {% endif %}
 
-              <li><a href="{% url 'logout' %}"     class="block px-4 py-2 text-red-600 hover:bg-gray-50">Выйти</a></li>
+              <li><a href="{% url 'logout' %}"     class="block px-4 py-2 text-red-600 hover:bg-base-200">Выйти</a></li> {# Consider text-error for DaisyUI themes #}
             {% else %}
-              <li><a href="{% url 'login' %}"      class="block px-4 py-2 hover:bg-gray-50">Войти</a></li>
-              <li><a href="{% url 'register' %}"   class="block px-4 py-2 hover:bg-gray-50">Регистрация</a></li>
+              <li><a href="{% url 'login' %}"      class="block px-4 py-2 hover:bg-base-200">Войти</a></li>
+              <li><a href="{% url 'register' %}"   class="block px-4 py-2 hover:bg-base-200">Регистрация</a></li>
             {% endif %}
-
-
           </ul>
         </div>
       </div>
@@ -271,26 +252,24 @@
   </div>
 </nav>
 
-<!-- МОДАЛКА ФИЛЬТРОВ -->
 <div
   x-show="openFilter"
   x-cloak
   x-transition.opacity
   class="fixed inset-0 z-50 flex items-center justify-center"
 >
-  <div @click="openFilter = false" class="absolute inset-0 bg-black bg-opacity-50"></div>
+  <div @click="openFilter = false" class="absolute inset-0 bg-black bg-opacity-50"></div> {# This overlay can remain dark, or use e.g. bg-neutral bg-opacity-75 #}
   <div
-    class="relative bg-white rounded-lg shadow-lg w-full max-w-lg mx-4 p-6"
+    class="relative bg-base-100 rounded-lg shadow-lg w-full max-w-lg mx-4 p-6"
     @keydown.escape.window="openFilter = false"
   >
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold">Фильтры поиска</h2>
-      <button @click="openFilter = false" class="text-gray-500 hover:text-gray-700">✕</button>
+      <button @click="openFilter = false" class="text-base-content opacity-70 hover:opacity-100">✕</button>
     </div>
 
     <form action="{% url 'car_list' %}" method="get" class="space-y-4">
 
-      <!-- Поиск -->
       <div>
         <label class="block text-sm font-medium mb-1">Поиск</label>
         <input
@@ -302,7 +281,6 @@
         />
       </div>
 
-      <!-- Тип машины -->
       <div>
         <label class="block text-sm font-medium mb-2">Тип</label>
         <div class="flex flex-wrap gap-2">
@@ -321,7 +299,6 @@
         </div>
       </div>
 
-      <!-- Коробка -->
       <div>
         <label class="block text-sm font-medium mb-2">Коробка</label>
         <div class="flex flex-wrap gap-2">
@@ -340,7 +317,6 @@
         </div>
       </div>
 
-      <!-- Цена -->
       <div>
         <label class="block text-sm font-medium mb-1">Макс. цена (₸)</label>
         <input
@@ -351,12 +327,11 @@
           value="{{ price_to }}"
           class="range range-primary w-full"
         />
-        <div class="text-xs text-gray-600 mt-1">
+        <div class="text-xs opacity-70 mt-1">
           {{ price_to|default:"0" }} ₸
         </div>
       </div>
 
-      <!-- Дилер -->
       <div>
         <label class="block text-sm font-medium mb-2">Дилер</label>
         <div class="flex flex-wrap gap-2">
@@ -375,7 +350,6 @@
         </div>
       </div>
 
-      <!-- Кнопки -->
       <div class="flex justify-end gap-2 mt-6">
         <button type="button" @click="openFilter = false" class="btn btn-ghost">Отмена</button>
         <button type="submit" class="btn btn-primary">Показать</button>
@@ -386,22 +360,19 @@
 
 
 
-<!-- ░░░░░░░░░░░░░░░  MAIN  ░░░░░░░░░░░░░░░ -->
 <main class="flex-1 container mx-auto p-4">{% block content %}{% endblock %}</main>
 
-<!-- ░░░░░░░░░░░░░░░  FOOTER  ░░░░░░░░░░░░░░░ -->
-<footer class="footer p-10 bg-base-200 text-base-content">
+<footer class="footer p-10 bg-base-300 text-base-content"> {# Changed to bg-base-300 for more distinction from body bg-base-200 #}
     {% include "partials/footer.html" %}
 </footer>
 
-<!-- Alpine helpers -->
 <script>
-function searchBar () {
+function searchBar () { // This function seems unused in the provided template snippet for <nav>, but kept it in case it's used elsewhere
     return {
-        query: '',
+        query: '', // This is locally scoped, the x-model="query" in the search bar is tied to the themeSwitcher's scope if not defined there
         results: [],
         open: false,
-        openFilter: false,
+        // openFilter: false, // openFilter is globally available from themeSwitcher scope or if defined on a parent Alpine component
         fetchSuggestions() {
             if (!this.query.trim()) { this.open=false; return }
             fetch(`/search_suggestions/?q=${encodeURIComponent(this.query)}`)
@@ -413,6 +384,42 @@ function searchBar () {
         }
     }
 }
+
+// Modified themeSwitcher to include openFilter if it's meant to be global for Alpine components
+// However, your current setup seems to imply openFilter is part of a different Alpine component or will be initialized on the fly.
+// For clarity, if openFilter is used by multiple components and controlled globally, it should be in a shared store or initialized on a root component.
+// The provided HTML uses `x-data="themeSwitcher()"` only on the <html> tag.
+// The filter modal button `@click="openFilter = true"` implies `openFilter` should be reactive.
+// Let's adjust `themeSwitcher` to include `openFilter` so it's globally available via the root `<html>` data.
+
+function themeSwitcher(){
+  return {
+    theme: localStorage.getItem('theme') || 'light',
+    openFilter: false, // Added openFilter here
+    query: '', // Added query for the search bar if it's meant to be globally accessible or shared
+    // results: [], // If suggestions dropdown is also controlled here
+    // openSearchSuggestions: false, // If suggestions dropdown is also controlled here
+    toggle(){
+      this.theme = this.theme === 'light' ? 'dark' : 'light'
+      localStorage.setItem('theme', this.theme)
+    },
+    // fetchSuggestions() { // if you move search logic here
+    //     if (!this.query.trim()) { this.openSearchSuggestions=false; return }
+    //     fetch(`/search_suggestions/?q=${encodeURIComponent(this.query)}`)
+    //         .then(r=>r.json())
+    //         .then(data => {
+    //             this.results = data
+    //             this.openSearchSuggestions = true
+    //         })
+    // }
+  }
+}
+// If `query` in the search bar and `openFilter` are meant to be globally managed by the root Alpine instance:
+// 1. Ensure `x-model="query"` in the search input refers to `query` in `themeSwitcher`.
+// 2. Ensure `@click="openFilter = true"` and `x-show="openFilter"` correctly refer to `openFilter` in `themeSwitcher`.
+// The current `x-model="query"` will create a local `query` variable in its own scope if not present in `themeSwitcher`.
+// I've added `query` and `openFilter` to `themeSwitcher` for this example.
+
 </script>
 </body>
 </html>

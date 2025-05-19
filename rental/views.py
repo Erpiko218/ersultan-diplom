@@ -231,6 +231,8 @@ def car_detail(request, pk):
 	                         .exclude(pk=car.pk)
 	)
 
+	print(images)
+
 	context = {
 		"car": car,
 		"images": images,  # Передаем исправленный список URL
