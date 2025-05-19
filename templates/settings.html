@@ -18,18 +18,39 @@
 
     <div class="card-body space-y-6">
 
-      <!-- Табы -->
-      <div class="tabs">
-        <a @click.prevent="tab='main'"
-           :class="{'tab-active': tab==='main'}"
-           class="tab tab-lifted">Основное</a>
-        <a @click.prevent="tab='security'"
-           :class="{'tab-active': tab==='security'}"
-           class="tab tab-lifted">Безопасность</a>
-        <a @click.prevent="tab='notifications'"
-           :class="{'tab-active': tab==='notifications'}"
-           class="tab tab-lifted">Уведомления</a>
-      </div>
+      <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
+          <li class="me-2">
+              <a href="#"
+                 @click.prevent="tab='main'"
+                 :class="{
+                     'text-blue-600 bg-gray-100 dark:bg-gray-800 dark:text-blue-500': tab === 'main',
+                     'hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300': tab !== 'main'
+                 }"
+                 class="inline-block p-4 rounded-t-lg">Основное</a>
+          </li>
+          <li class="me-2">
+              <a href="#"
+                 @click.prevent="tab='security'"
+                 :class="{
+                     'text-blue-600 bg-gray-100 dark:bg-gray-800 dark:text-blue-500': tab === 'security',
+                     'hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300': tab !== 'security'
+                 }"
+                 class="inline-block p-4 rounded-t-lg">Безопасность</a>
+          </li>
+          <li class="me-2">
+              <a href="#"
+                 @click.prevent="tab='notifications'"
+                 :class="{
+                     'text-blue-600 bg-gray-100 dark:bg-gray-800 dark:text-blue-500': tab === 'notifications',
+                     'hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:hover:text-gray-300': tab !== 'notifications'
+                 }"
+                 class="inline-block p-4 rounded-t-lg">Уведомления</a>
+          </li>
+          <li>
+              <a class="inline-block p-4 text-gray-400 rounded-t-lg cursor-not-allowed dark:text-gray-500">Отключено</a>
+          </li>
+      </ul>
+
 
       <!-- 1) Основная информация -->
       <form x-show="tab==='main'"
