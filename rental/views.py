@@ -144,78 +144,106 @@ def favorite_toggle(request, pk):
 
 
 def car_detail(request, pk):
-    car = get_object_or_404(Car, pk=pk)
+	car = get_object_or_404(Car, pk=pk)
 
-    # рейтинг
-    rating = car.reviews.aggregate(avg=Avg("rating"))["avg"] or 4
+	# Рейтинг
+	# Убедитесь, что 'reviews' это правильный related_name от вашей модели Review к Car
+	rating_data = car.reviews.aggregate(avg=Avg("rating"))
+	# Если нет отзывов, aggregate вернет {'avg': None}
+	rating = rating_data["avg"] if rating_data["avg"] is not None else 0  # Ставим 0 или другое значение по умолчанию
 
-    # «Похожие» по типу, без текущей
-    similar = (
-        Car.objects
-           .filter(car_type=car.car_type, is_available=True)
-           .exclude(pk=car.pk)[:6]
-    )
+	# «Похожие» по типу, без текущей
+	similar = (
+		Car.objects
+		.filter(car_type=car.car_type, is_available=True)
+		.exclude(pk=car.pk)[:6]
+	)
 
-    # «Недавние», без текущей
-    recent_cars = (
-        Car.objects
-           .filter(is_available=True)
-           .exclude(pk=car.pk)
-           .order_by("-id")[:6]
-    )
+	# «Недавние», без текущей
+	recent_cars = (
+		Car.objects
+		.filter(is_available=True)
+		.exclude(pk=car.pk)
+		.order_by("-id")[:6]  # или -created_at, если есть такое поле
+	)
 
-    # «Рекомендуемые» у того же дилера
-    recommend_cars = []
-    if car.dealer:
-        recommend_cars = (
-            Car.objects
-               .filter(dealer=car.dealer, is_available=True)
-               .exclude(pk=car.pk)[:6]
-        )
+	# «Рекомендуемые» у того же дилера
+	recommend_cars = []
+	if hasattr(car, 'dealer') and car.dealer:  # Проверка, есть ли у машины дилер
+		recommend_cars = (
+			Car.objects
+			.filter(dealer=car.dealer, is_available=True)
+			.exclude(pk=car.pk)[:6]
+		)
 
-    # Все отзывы
-    reviews = car.reviews.select_related("user").order_by("-created_at")
+	# Все отзывы
+	reviews = car.reviews.select_related("user").order_by("-created_at")
 
-    # Собираем галерею
-    images = []
-    if car.main_image:
-        images.append(car.main_image.url)
-    images += list(car.photos.values_list("image", flat=True))
+	# Собираем галерею - ИСПРАВЛЕННАЯ ЛОГИКА
+	images = []
+	# 1. Добавляем URL главного изображения, если оно есть и у него есть URL
+	if car.main_image and hasattr(car.main_image, 'url'):
+		images.append(car.main_image.url)
 
-    # Характеристики
-    characteristics = [
-        ("Тип", car.get_car_type_display()),
-        ("Трансмиссия", car.get_transmission_display()),
-        ("Топливо", car.get_fuel_type_display()),
-        ("Мест", car.seats),
-        ("Дверей", car.doors),
-        ("Пробег", f"{car.mileage} км"),
-        ("Кондиционер", "Да" if car.air_conditioner else "Нет"),
-        ("Год выпуска", car.year),
-    ]
-    if car.features:
-        for key, val in car.features.items():
-            characteristics.append((key, "Да" if val is True else val))
+	# 2. Добавляем URL'ы из ManyToMany поля photos
+	# car.photos.all() возвращает QuerySet связанных объектов CarPhoto
+	# Сортируем согласно Meta.ordering в модели CarPhoto
+	additional_photos = car.photos.all().order_by('order', 'uploaded_at')
+	for photo_obj in additional_photos:
+		# Проверяем, что у объекта CarPhoto есть файл в поле image и у него есть URL
+		if photo_obj.image and hasattr(photo_obj.image, 'url'):
+			images.append(photo_obj.image.url)
 
-    # Фильтр — убираем текущую машину из исходного qs
-    fil = CarFilter(
-        request.GET,
-        queryset=Car.objects.filter(is_available=True)
-                             .exclude(pk=car.pk)
-    )
+	# Если список изображений пуст (нет ни главного, ни дополнительных),
+	# можно добавить URL изображения-заглушки:
+	if not images:
+		from django.templatetags.static import static  # или {% static 'path/to/placeholder.png' %} в шаблоне
+		images.append(static('images/car_placeholder.png'))  # Укажите ваш путь к заглушке
 
-    context = {
-        "car": car,
-        "images": images,
-        "filter": fil,
-        "rating": rating,
-        "similar": similar,
-        "recent_cars": recent_cars,
-        "recommend_cars": recommend_cars,
-        "reviews": reviews,
-        "characteristics": characteristics,
-    }
-    return render(request, "car_detail.html", context)
+	# Характеристики
+	characteristics = []
+	if hasattr(car, 'get_car_type_display'):  # Проверка существования метода
+		characteristics.append(("Тип", car.get_car_type_display()))
+	if hasattr(car, 'get_transmission_display'):
+		characteristics.append(("Трансмиссия", car.get_transmission_display()))
+	if hasattr(car, 'get_fuel_type_display'):
+		characteristics.append(("Топливо", car.get_fuel_type_display()))
+	if hasattr(car, 'seats'):
+		characteristics.append(("Мест", car.seats))
+	if hasattr(car, 'doors'):
+		characteristics.append(("Дверей", car.doors))
+	if hasattr(car, 'mileage'):
+		characteristics.append(("Пробег", f"{car.mileage} км" if car.mileage is not None else "N/A"))
+	if hasattr(car, 'air_conditioner'):
+		characteristics.append(("Кондиционер", "Да" if car.air_conditioner else "Нет"))
+	if hasattr(car, 'year'):
+		characteristics.append(("Год выпуска", car.year))
+
+	if hasattr(car, 'features') and car.features:  # Проверяем, что car.features существует и не None
+		for key, val in car.features.items():
+			characteristics.append((key, "Да" if val is True else str(val)))  # Приводим val к строке для безопасности
+
+	# Фильтр — убираем текущую машину из исходного qs
+	# Убедитесь, что CarFilter правильно определен и импортирован
+	fil = CarFilter(
+	    request.GET,
+	    queryset=Car.objects.filter(is_available=True)
+	                         .exclude(pk=car.pk)
+	)
+
+	context = {
+		"car": car,
+		"images": images,  # Передаем исправленный список URL
+		"filter": fil,
+		"rating": int(rating),  # Передаем рейтинг как целое число для цикла в шаблоне
+		"similar": similar,
+		"recent_cars": recent_cars,
+		"recommend_cars": recommend_cars,
+		"reviews": reviews,
+		"characteristics": characteristics,
+	}
+	# Убедитесь, что имя шаблона "car_detail.html" указано верно
+	return render(request, "car_detail.html", context)
 
 
 class ContactUsView(TemplateView):

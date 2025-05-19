@@ -11,7 +11,7 @@
             <!-- Hidden поле -->
             <input type="hidden" name="rental_id" value="{{ rental_id }}">
 
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="bg-base-100 rounded-lg shadow-md p-6">
               <h3 class="font-bold text-xl mb-4">1. Личная информация</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
@@ -51,7 +51,7 @@
 
 
             <!-- Даты аренды -->
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="bg-base-100 rounded-lg shadow-md p-6">
                 <h3 class="font-bold text-xl mb-4">2. Даты аренды</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <input type="text" name="pickup_location" placeholder="Место получения" required
@@ -72,7 +72,7 @@
             </div>
 
             <!-- Оплата -->
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="bg-base-100 rounded-lg shadow-md p-6">
                 <div class="font-bold text-xl mb-4">3. Метод оплаты</div>
                 <div class="card-body">
                     <div id="payment-element"></div>
@@ -80,7 +80,7 @@
             </div>
 
             <!-- Подтверждение -->
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="bg-base-100 rounded-lg shadow-md p-6">
                 <h3 class="font-bold text-xl mb-4">4. Подтверждение</h3>
                 <label class="flex items-center gap-2">
                     <input type="checkbox" required class="checkbox checkbox-primary"/>
@@ -96,7 +96,7 @@
     </div>
 
     <!-- Карточка авто -->
-    <div class="bg-white rounded-lg shadow-md p-6 self-start">
+    <div class="bg-base-100 rounded-lg shadow-md p-6 self-start">
         {% if car.main_image %}
           <img
             src="{{ car.main_image.url }}"

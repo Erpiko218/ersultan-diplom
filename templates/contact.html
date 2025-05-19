@@ -4,160 +4,157 @@
 {% block title %}Контакты - Аренда автомобилей{% endblock %}
 
 {% block content %}
-<!-- Заголовок и навигация -->
-<div class="container mx-auto px-4 mt-6 text-center">
-  <h1 class="text-3xl font-bold">Контакты</h1>
-  <p class="text-gray-500 mt-1">Главная / Контакты</p>
+<div class="container mx-auto px-4 mt-10 mb-6 text-center">
+  <h1 class="text-4xl font-bold text-gray-800">Свяжитесь с Нами</h1>
+  <p class="text-gray-500 mt-2 text-sm">Главная / Контакты</p>
 </div>
 
-<!-- Форма бронирования и изображение -->
-<div class="container mx-auto px-4 mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-  <!-- Форма -->
-  <div>
-    <div class="bg-primary text-white rounded-lg shadow-lg p-6">
-      <h2 class="text-xl font-semibold text-center mb-4">Забронируйте автомобиль</h2>
-      <form id="booking-form" class="space-y-4">
-        <!-- Тип автомобиля -->
-        <div>
-          <label class="label">
-            <span class="label-text text-white">Тип автомобиля</span>
-          </label>
-          <select id="car-type" class="select select-bordered w-full" required>
-            <option value="">Выберите автомобиль</option>
-            <option>Седан</option>
-            <option>Внедорожник</option>
-            <option>Спортивный</option>
-          </select>
-        </div>
-        <!-- Место аренды -->
-        <div>
-          <label class="label">
-            <span class="label-text text-white">Место аренды</span>
-          </label>
-          <input type="text" placeholder="Введите место" class="input input-bordered w-full" />
-        </div>
-        <!-- Место возврата -->
-        <div>
-          <label class="label">
-            <span class="label-text text-white">Место возврата</span>
-          </label>
-          <input type="text" placeholder="Введите место" class="input input-bordered w-full" />
-        </div>
-        <!-- Даты -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="label">
-              <span class="label-text text-white">Дата начала аренды</span>
-            </label>
-            <input type="date" class="input input-bordered w-full" />
-          </div>
-          <div>
-            <label class="label">
-              <span class="label-text text-white">Дата возврата</span>
-            </label>
-            <input type="date" class="input input-bordered w-full" />
-          </div>
-        </div>
-        <button type="submit" class="btn btn-warning w-full mt-2">Забронировать</button>
-      </form>
-    </div>
+<div class="container mx-auto px-4 mt-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+  <div class="bg-primary text-white rounded-xl shadow-2xl p-8">
+    <h2 class="text-2xl font-semibold text-center mb-6">Остались вопросы? Напишите нам!</h2>
+    <form id="contact-us-form" class="space-y-5">
+      <div>
+        <label for="contact-name" class="label">
+          <span class="label-text text-white text-sm font-medium">Ваше имя</span>
+        </label>
+        <input id="contact-name" type="text" placeholder="Например, Иван Иванов" class="input input-bordered w-full bg-white text-gray-700 placeholder-gray-400 focus:ring-warning focus:border-warning" required />
+      </div>
+      <div>
+        <label for="contact-email" class="label">
+          <span class="label-text text-white text-sm font-medium">Ваш Email</span>
+        </label>
+        <input id="contact-email" type="email" placeholder="example@mail.com" class="input input-bordered w-full bg-white text-gray-700 placeholder-gray-400 focus:ring-warning focus:border-warning" required />
+      </div>
+      <div>
+        <label for="contact-phone" class="label">
+          <span class="label-text text-white text-sm font-medium">Ваш телефон (необязательно)</span>
+        </label>
+        <input id="contact-phone" type="tel" placeholder="+7 (XXX) XXX-XX-XX" class="input input-bordered w-full bg-white text-gray-700 placeholder-gray-400 focus:ring-warning focus:border-warning" />
+      </div>
+      <div>
+        <label for="contact-message" class="label">
+          <span class="label-text text-white text-sm font-medium">Ваше сообщение</span>
+        </label>
+        <textarea id="contact-message" class="textarea textarea-bordered w-full h-28 bg-white text-gray-700 placeholder-gray-400 focus:ring-warning focus:border-warning" placeholder="Задайте ваш вопрос или оставьте комментарий..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-warning w-full mt-4 text-primary-content hover:bg-yellow-500 transition duration-300 ease-in-out transform hover:scale-105">Отправить сообщение</button>
+    </form>
   </div>
 
-  <!-- Изображение -->
-  <div>
-    <div class="rounded-lg overflow-hidden shadow-lg">
-      <img
-        src="https://picsum.photos/600/400"
-        alt="Изображение контактов"
-        class="w-full h-full object-cover"
-      />
+  <div class="rounded-xl overflow-hidden shadow-2xl">
+    <img
+      src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2FyJTIwcmVudGFsJTIwY29udGFjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=700&q=80"
+      alt="Свяжитесь с нами - Аренда авто"
+      class="w-full h-full object-cover min-h-[400px] md:min-h-[570px]"
+    />
     </div>
-  </div>
 </div>
 
-<!-- Контактная информация -->
-<section class="container mx-auto px-4 mt-12">
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-center">
-    <div class="flex flex-col items-center gap-2">
-      <img src="https://cdn-icons-png.flaticon.com/512/684/684809.png" class="h-10 w-10" alt="Адрес">
-      <h6 class="text-lg font-semibold">Адрес</h6>
-      <p class="text-gray-600">Oxford Ave. Cary, NC 27511</p>
+<section class="container mx-auto px-4 mt-20 mb-16">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 text-center">
+    <div class="flex flex-col items-center p-4 bg-base-100 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-orange-500 p-3 rounded-full mb-3">
+        <img src="https://cdn-icons-png.flaticon.com/512/684/684809.png" class="h-8 w-8" alt="Адрес">
+      </div>
+      <h6 class="text-xl font-semibold text-gray-700 mb-1">Адрес</h6>
+      <p class="text-gray-500 text-sm">Oxford Ave. Cary, NC 27511</p>
     </div>
-    <div class="flex flex-col items-center gap-2">
-      <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" class="h-10 w-10" alt="Электронная почта">
-      <h6 class="text-lg font-semibold">Email</h6>
-      <p class="text-blue-600"><a href="mailto:nwiger@yahoo.com">nwiger@yahoo.com</a></p>
+    <div class="flex flex-col items-center p-4 bg-base-100 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-orange-500 p-3 rounded-full mb-3">
+        <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" class="h-8 w-8" alt="Электронная почта">
+      </div>
+      <h6 class="text-xl font-semibold text-gray-700 mb-1">Email</h6>
+      <p class="text-blue-600 hover:text-blue-700 text-sm"><a href="mailto:nwiger@yahoo.com">nwiger@yahoo.com</a></p>
     </div>
-    <div class="flex flex-col items-center gap-2">
-      <img src="https://cdn-icons-png.flaticon.com/512/724/724664.png" class="h-10 w-10" alt="Телефон">
-      <h6 class="text-lg font-semibold">Телефон</h6>
-      <p class="text-gray-600"><a href="tel:+5375476401">+537 547-6401</a></p>
+    <div class="flex flex-col items-center p-4 bg-base-100 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-orange-500 p-3 rounded-full mb-3">
+        <img src="https://cdn-icons-png.flaticon.com/512/724/724664.png" class="h-8 w-8" alt="Телефон">
+      </div>
+      <h6 class="text-xl font-semibold text-gray-700 mb-1">Телефон</h6>
+      <p class="text-gray-500 hover:text-gray-700 text-sm"><a href="tel:+5375476401">+537 547-6401</a></p>
     </div>
-    <div class="flex flex-col items-center gap-2">
-      <img src="https://cdn-icons-png.flaticon.com/512/2922/2922804.png" class="h-10 w-10" alt="Режим работы">
-      <h6 class="text-lg font-semibold">Режим работы</h6>
-      <p class="text-gray-600">Вс-Пн: 10:00 – 22:00</p>
+    <div class="flex flex-col items-center p-4 bg-base-100 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300">
+      <div class="bg-orange-500 p-3 rounded-full mb-3">
+        <img src="https://cdn-icons-png.flaticon.com/512/2922/2922804.png" class="h-8 w-8" alt="Режим работы">
+      </div>
+      <h6 class="text-xl font-semibold text-gray-700 mb-1">Режим работы</h6>
+      <p class="text-gray-500 text-sm">Вс-Пн: 10:00 – 22:00</p>
     </div>
   </div>
 </section>
 
-<!-- Последние записи блога -->
-<section class="container mx-auto px-4 mt-16">
-  <h2 class="text-2xl font-bold text-center mb-8">Последние записи блога и новости</h2>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-    <div class="card bg-base-100 shadow-lg rounded-lg overflow-hidden">
-      <figure>
-        <img src="https://picsum.photos/400/300" alt="Блог 1" class="w-full h-48 object-cover" />
-      </figure>
-      <div class="p-4">
-        <h3 class="font-semibold mb-2">Как выбрать подходящий автомобиль</h3>
-        <p class="text-gray-500 text-sm">7 апреля 2024</p>
+<section class="bg-slate-50 py-16">
+  <div class="container mx-auto px-4">
+    <h2 class="text-3xl font-bold text-gray-800 text-center mb-12">Последние записи блога и новости</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="card bg-white shadow-xl rounded-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+        <figure class="h-56 overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGNhcnN8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" alt="Блог 1" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300" />
+        </figure>
+        <div class="p-6">
+          <p class="text-orange-500 text-xs font-semibold uppercase mb-1">Советы</p>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2 hover:text-primary transition-colors">Как выбрать подходящий автомобиль для вашего путешествия</h3>
+          <p class="text-gray-500 text-sm mb-3">Узнайте ключевые факторы при выборе идеального авто для комфортной и безопасной поездки.</p>
+          <p class="text-gray-400 text-xs">7 апреля 2024</p>
+        </div>
       </div>
-    </div>
-    <div class="card bg-base-100 shadow-lg rounded-lg overflow-hidden">
-      <figure>
-        <img src="https://picsum.photos/400/300?2" alt="Блог 2" class="w-full h-48 object-cover" />
-      </figure>
-      <div class="p-4">
-        <h3 class="font-semibold mb-2">Какой тариф для меня подходит?</h3>
-        <p class="text-gray-500 text-sm">7 апреля 2024</p>
+      <div class="card bg-white shadow-xl rounded-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+        <figure class="h-56 overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y2Fyc3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Блог 2" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300" />
+        </figure>
+        <div class="p-6">
+          <p class="text-orange-500 text-xs font-semibold uppercase mb-1">Тарифы</p>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2 hover:text-primary transition-colors">Какой тариф для меня подходит? Разбираемся в опциях</h3>
+          <p class="text-gray-500 text-sm mb-3">От эконом до премиум – поможем выбрать оптимальный тарифный план для ваших нужд.</p>
+          <p class="text-gray-400 text-xs">7 апреля 2024</p>
+        </div>
       </div>
-    </div>
-    <div class="card bg-base-100 shadow-lg rounded-lg overflow-hidden">
-      <figure>
-        <img src="https://picsum.photos/400/300?3" alt="Блог 3" class="w-full h-48 object-cover" />
-      </figure>
-      <div class="p-4">
-        <h3 class="font-semibold mb-2">Наслаждайтесь скоростью, выбором и полным контролем</h3>
-        <p class="text-gray-500 text-sm">7 апреля 2024</p>
+      <div class="card bg-white shadow-xl rounded-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+        <figure class="h-56 overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8Y2Fyc3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Блог 3" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300" />
+        </figure>
+        <div class="p-6">
+          <p class="text-orange-500 text-xs font-semibold uppercase mb-1">Преимущества</p>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2 hover:text-primary transition-colors">Наслаждайтесь скоростью, выбором и полным контролем</h3>
+          <p class="text-gray-500 text-sm mb-3">Основные преимущества аренды автомобиля с нашей компанией для вашего удобства.</p>
+          <p class="text-gray-400 text-xs">7 апреля 2024</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Логотипы партнеров -->
-<section class="container mx-auto px-4 mt-16 text-center">
-  <div class="flex flex-wrap justify-center items-center gap-6">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Ford_logo_flat.svg/800px-Ford_logo_flat.svg.png"
-         class="h-12" alt="Ford">
-    <img src="https://cdn.iconscout.com/icon/free/png-512/free-jeep-icon-download-in-svg-png-gif-file-formats--logo-brand-car-brands-pack-logos-icons-202822.png?f=webp&w=256"
-         class="h-12" alt="Jeep">
-    <img src="https://images.seeklogo.com/logo-png/1/1/audi-logo-png_seeklogo-13450.png"
-         class="h-12" alt="Audi">
+<section class="container mx-auto px-4 py-16 text-center">
+  <h2 class="text-2xl font-semibold text-gray-700 mb-8">Наши Партнеры</h2>
+  <div class="flex flex-wrap justify-center items-center gap-x-12 gap-y-6">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Ford_logo_flat.svg/200px-Ford_logo_flat.svg.png"
+         class="h-10 sm:h-12 opacity-70 hover:opacity-100 transition-opacity" alt="Ford">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Jeep_logo.svg/200px-Jeep_logo.svg.png"
+         class="h-10 sm:h-12 opacity-70 hover:opacity-100 transition-opacity" alt="Jeep">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Audi_logo.svg/200px-Audi_logo.svg.png"
+         class="h-10 sm:h-12 opacity-70 hover:opacity-100 transition-opacity" alt="Audi">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/BMW.svg/200px-BMW.svg.png"
+         class="h-10 sm:h-12 opacity-70 hover:opacity-100 transition-opacity" alt="BMW">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Mercedes-Benz_logo_2.svg/200px-Mercedes-Benz_logo_2.svg.png"
+         class="h-10 sm:h-12 opacity-70 hover:opacity-100 transition-opacity" alt="Mercedes-Benz">
   </div>
 </section>
 
-<!-- Скрипт для формы бронирования -->
 <script>
-  document.getElementById("booking-form").addEventListener("submit", function(e) {
+  document.getElementById("contact-us-form").addEventListener("submit", function(e) {
     e.preventDefault();
-    const carType = document.getElementById("car-type").value;
-    if (!carType) {
-      alert("Пожалуйста, выберите тип автомобиля.");
+    const name = document.getElementById("contact-name").value;
+    const email = document.getElementById("contact-email").value;
+    const message = document.getElementById("contact-message").value;
+
+    if (!name || !email || !message) {
+      alert("Пожалуйста, заполните все обязательные поля (Имя, Email, Сообщение).");
       return;
     }
-    const encoded = encodeURIComponent(carType);
-    window.location.href = `/cars/type/${encoded}/`;
+    // Здесь должна быть логика отправки данных формы (например, через AJAX)
+    alert(`Спасибо, ${name}! Ваше сообщение отправлено. Мы свяжемся с вами по адресу ${email} в ближайшее время.`);
+    // Очистка формы (опционально)
+    // document.getElementById("contact-us-form").reset();
   });
 </script>
 {% endblock %}

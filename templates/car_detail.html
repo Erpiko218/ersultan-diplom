@@ -16,10 +16,8 @@
   {# ░░ Основная колонка ░░ #}
   <main class="flex-1 space-y-12">
 
-    <!-- ▒▒▒ Галерея + Информация ▒▒▒ -->
     <div class="flex flex-col lg:flex-row gap-2">
 
-      <!-- Галерея -->
       <div class="flex flex-col gap-3 flex-shrink-0 w-full lg:max-w-[420px]">
 
       <div class="swiper mainSwiper rounded-lg overflow-hidden shadow">
@@ -47,13 +45,11 @@
 
       </div>
 
-      <!-- Информация -->
       <div class="flex-1 space-y-6 bg-gray-100 p-3 rounded-xl">
         <div class="flex items-start justify-between">
           <h1 class="text-3xl font-bold">{{ car.brand }} {{ car.model }}</h1>
         </div>
 
-        <!-- Рейтинг -->
         <div class="flex gap-3 content-center">
           <div class="flex mt-0.5">
             {% for _ in "12345" %}
@@ -104,11 +100,19 @@
       </div>
     </div>
 
-    <!-- ▒▒▒ Отзывы ▒▒▒ -->
+    {% if car.description %}
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="text-xl font-semibold">Описание</h2>
+        <p class="mt-2 text-gray-700">{{ car.description|linebreaksbr }}</p>
+      </div>
+    </div>
+    {% endif %}
+
     <div class="card bg-base-100 shadow">
       <div class="card-body">
         <h2 class="text-xl font-semibold flex items-center gap-2">
-          Reviews <span class="badge badge-warning bg-orange-400 text-white p-[4px] rounded-sm">{{ reviews|length }}</span>
+          Отзывы <span class="badge badge-warning bg-orange-400 text-white p-[4px] rounded-sm">{{ reviews|length }}</span>
         </h2>
 
         {% if reviews %}
@@ -134,7 +138,6 @@
       </div>
     </div>
 
-  <!-- ПОПУЛЯРНЫЕ -->
   <section class="mt-10">
       <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-semibold">Рекомендуемые</h3>
@@ -143,7 +146,6 @@
       {% include "partials/car_cards.html" with cars=recent_cars %}
   </section>
 
-  <!-- ПОПУЛЯРНЫЕ -->
   <section class="mt-10">
       <div class="flex justify-between items-center mb-4">
           <h3 class="text-xl font-semibold">Популярные</h3>
@@ -155,7 +157,6 @@
   </main>
 </div>
 
-<!-- SVG-иконка звезды -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
   <symbol id="star" viewBox="0 0 24 24"><path d="M12 17.3l6.18 3.9-1.64-7.03 5.46-4.73-7.19-.62L12 2 9.19 8.82l-7.19.62 5.46 4.73L5.82 21.2z"/></symbol>
 </svg>
