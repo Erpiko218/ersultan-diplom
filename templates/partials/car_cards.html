@@ -1,70 +1,75 @@
 {# templates/partials/car_cards.html #}
 <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
   {% for car in cars %}
-    <div class="card bg-base-100 shadow-lg rounded-xl overflow-hidden group relative">
-      <a
-        href="{% url 'car_detail' car.pk %}"
-        class="absolute inset-0 z-10"
-        aria-label="Перейти к {{ car.brand }} {{ car.model }}"
-      ></a>
-      <!-- Изображение + фаворит -->
-      {% include "partials/fav_button.html" with car=car %}
+    <a  href="{% url 'car_detail' car.pk %}"
+        class="block card bg-base-100 shadow-lg rounded-xl overflow-hidden group relative transition-transform hover:scale-[1.02]">
 
-      <figure class="">
-        <img
-          src="{{ car.main_image.url }}"
-          alt="{{ car }}"
-          class="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-      </figure>
+        {# --- КНОПКА «ИЗБРАННОЕ» --- #}
+        {% include "partials/fav_button.html" with car=car favorited=car.is_favorited %}
 
-      <!-- Контент карточки -->
-      <div class="p-4 space-y-2">
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold">{{ car.brand }} {{ car.model }}</h3>
-          <span class="text-sm text-gray-500">{{ car.get_car_type_display }}</span>
-        </div>
-        <p class="text-sm text-gray-400">{{ car.get_fuel_type_display }}</p>
+        {# --- ФОТО --- #}
+        <figure>
+          <img src="{{ car.main_image.url }}"
+               alt="{{ car }}"
+               class="w-full h-40 object-cover"/>
+        </figure>
 
-        <div class="mt-2 justify-between flex items-center text-gray-500 text-sm space-x-6">
-          <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M3 3h18v18H3V3z" />
-            </svg>
+        {# --- КОНТЕНТ --- #}
+        <div class="p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">
+              {{ car.brand }} {{ car.model }}
+            </h3>
+            <span class="text-sm text-gray-500">
+              {{ car.get_car_type_display }}
+            </span>
+          </div>
+
+          <p class="text-sm text-gray-400">
             {{ car.get_fuel_type_display }}
-          </div>
-          <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M5 12h14" />
-            </svg>
-            {{ car.get_transmission_display }}
-          </div>
-          <div class="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M16 21v-2a4 4 0 00-8 0v2" />
-            </svg>
-            {{ car.seats }} чел.
-          </div>
-        </div>
+          </p>
 
-        <div class="mt-4 flex items-center justify-between">
-          <div>
-            <span class="text-xl font-bold">{{ car.price_per_day }} ₸</span>
-            <span class="text-sm text-gray-500">/day</span>
+          <div class="mt-2 flex justify-between text-gray-500 text-sm">
+            <div class="flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+                   viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                         d="M3 3h18v18H3V3z"/>
+              </svg>
+              {{ car.get_fuel_type_display }}
+            </div>
+            <div class="flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+                   viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                         d="M5 12h14"/>
+              </svg>
+              {{ car.get_transmission_display }}
+            </div>
+            <div class="flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+                   viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                         d="M16 21v-2a4 4 0 00-8 0v2"/>
+              </svg>
+              {{ car.seats }} чел.
+            </div>
           </div>
-          <a href="{% url 'car_detail' car.pk %}"
-             class="btn btn-warning btn-sm bg-orange-500 pr-2 pl-2 pt-1 pb-1 rounded-md text-white">
-            Арендовать
-          </a>
+
+          <div class="mt-4 flex items-center justify-between">
+            <div>
+              <span class="text-xl font-bold">{{ car.price_per_day }} ₸</span>
+              <span class="text-sm text-gray-500">/день</span>
+            </div>
+            <span class="btn btn-warning btn-sm bg-orange-500 px-3 py-1 rounded-md text-white">
+              Арендовать
+            </span>
+          </div>
         </div>
-      </div>
-    </div>
+    </a>
   {% empty %}
-    <p class="col-span-full text-center py-16 opacity-60">
-      Машин не найдено.
-    </p>
+      <p class="col-span-full text-center py-16 opacity-60">
+        Машин не найдено.
+      </p>
   {% endfor %}
 </section>

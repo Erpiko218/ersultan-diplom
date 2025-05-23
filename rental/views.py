@@ -25,12 +25,35 @@ def superuser_required(view_func):
 
 
 def home(request):
-	popular = Car.objects.order_by('-reviews__rating')[:4]
-	rec = Car.objects.filter(is_available=True)[:8]
-	return render(request, "home.html", {
-		"popular_cars": popular,
-		"recommended_cars": rec,
-	})
+    # Используем ваш способ получения популярных и рекомендованных машин
+    # Если '-reviews__rating' вызывает ошибку (например, нет такой связи/поля),
+    # замените на другой способ сортировки, например, '-created_at'
+    try:
+        popular_qs = Car.objects.order_by('-reviews__rating').filter(is_available=True)[:4]
+    except Exception: # Откат к простой сортировке, если '-reviews__rating' не работает
+        popular_qs = Car.objects.filter(is_available=True).order_by('-created_at')[:4]
+
+    recommended_qs = Car.objects.filter(is_available=True).order_by('?')[:8] # '?' для случайного порядка, если БД поддерживает
+
+    favorite_car_ids = set()
+    if request.user.is_authenticated:
+        favorite_car_ids = set(
+            Favorite.objects.filter(user=request.user).values_list("car_id", flat=True)
+        )
+
+    popular_cars_list = list(popular_qs) # Преобразуем queryset в список для добавления атрибута
+    for car_obj in popular_cars_list:
+        car_obj.is_favorited = car_obj.pk in favorite_car_ids
+
+    recommended_cars_list = list(recommended_qs) # Преобразуем queryset в список
+    for car_obj in recommended_cars_list:
+        car_obj.is_favorited = car_obj.pk in favorite_car_ids
+
+    context = {
+       "popular_cars": popular_cars_list,
+       "recommended_cars": recommended_cars_list,
+    }
+    return render(request, "home.html", context)
 
 
 def car_list(request):
@@ -103,17 +126,21 @@ def car_search(request):
 
 @login_required
 def favorites(request):
-	"""
-	Страница «Избранное»: показывает список машин, добавленных пользователем в избранное.
-	"""
-	# вытягиваем объекты Favorite вместе с машинами одним запросом
-	fav_qs = Favorite.objects.filter(user=request.user).select_related('car')
-	# собираем список машин
-	cars = [fav.car for fav in fav_qs]
+    """
+    Страница «Избранное»: показывает список машин, добавленных пользователем в избранное.
+    """
+    fav_qs = Favorite.objects.filter(user=request.user).select_related('car')
+    cars_list = []
+    for fav in fav_qs:
+        car_obj = fav.car
+        car_obj.is_favorited = True # Все машины на этой странице по определению в избранном
+        cars_list.append(car_obj)
 
-	return render(request, "car_favourites.html", {
-		"cars": cars,
-	})
+    # Убедитесь, что имя шаблона "car_favourites.html" (или какое у вас на самом деле) верное
+    return render(request, "car_favourites.html", {
+       "cars": cars_list,
+    })
+
 
 
 def faq(request):
@@ -124,23 +151,28 @@ def faq(request):
 
 
 @login_required
-@require_POST
+@require_POST  # Убеждаемся, что принимаем только POST запросы
 @csrf_exempt
 def favorite_toggle(request, pk):
-	car = get_object_or_404(Car, pk=pk)
-	fav_qs = Favorite.objects.filter(user=request.user, car=car)
-	if fav_qs.exists():
-		fav_qs.delete()
-		favorited = False
-	else:
-		Favorite.objects.create(user=request.user, car=car)
-		favorited = True
+    car = get_object_or_404(Car, pk=pk)
+    user = request.user
 
-	# вернуть обновлённую кнопку
-	return render(request, 'partials/fav_button.html', {
-		'car': car,
-		'favorited': favorited,
-	})
+    favorite_instance = Favorite.objects.filter(user=user, car=car).first()
+    is_now_favorited: bool
+
+    if favorite_instance:
+       favorite_instance.delete()
+       is_now_favorited = False
+    else:
+       Favorite.objects.create(user=user, car=car)
+       is_now_favorited = True
+
+    context = {
+       'car': car, # car объект нужен для {% url 'favorite_toggle' car.pk %} в fav_button.html
+       'favorited': is_now_favorited, # Передаем АКТУАЛЬНОЕ состояние
+    }
+
+    return render(request, 'partials/fav_button.html', context)
 
 
 def car_detail(request, pk):

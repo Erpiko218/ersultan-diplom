@@ -367,6 +367,55 @@
 </footer>
 
 <script>
+/* Обновляем подписи у бегунков (цена и места) */
+(function () {
+  const pairs = [
+    {
+      sliderId : 'price-range',
+      outputId : 'price-value',
+      format   : v => v.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₸'
+    },
+    {
+      sliderId : 'seats-range',
+      outputId : 'seats-value',
+      format   : v => v                          // просто число мест
+    }
+  ];
+
+  pairs.forEach(({sliderId, outputId, format}) => {
+    const s = document.getElementById(sliderId);
+    const o = document.getElementById(outputId);
+    if (!s || !o) return;
+
+    const render = () => { o.textContent = format(String(s.value)); };
+    render();                // первое отображение при загрузке
+    s.addEventListener('input', render);
+  });
+})();
+</script>
+
+<script>
+/* Показываем актуальное значение слайдера «Цена» */
+(function () {
+  const slider = document.getElementById('price-range');
+  const output = document.getElementById('price-value');
+
+  if (!slider || !output) return;
+
+  /* Функция форматирует 1000000 → 1 000 000 */
+  const fmt = n => n.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+  /* начальное отображение при первой загрузке */
+  output.textContent = fmt(slider.value) + ' ₸';
+
+  /* обновляем при каждом перемещении бегунка */
+  slider.addEventListener('input', () => {
+    output.textContent = fmt(slider.value) + ' ₸';
+  });
+})();
+</script>
+
+<script>
 function searchBar () { // This function seems unused in the provided template snippet for <nav>, but kept it in case it's used elsewhere
     return {
         query: '', // This is locally scoped, the x-model="query" in the search bar is tied to the themeSwitcher's scope if not defined there
