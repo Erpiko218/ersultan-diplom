@@ -1,0 +1,235 @@
+
+{# templates/faq.html #}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}FAQ — Каршеринг{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+  <div class="grid md:grid-cols-2 gap-6">
+
+  <!-- КАРТОЧКА 1 -->
+  <div class="relative rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow-lg overflow-hidden">
+    <h2 class="text-2xl font-bold mb-2">
+      Лучшая площадка<br>для аренды авто
+    </h2>
+    <p class="text-sm mb-4 opacity-90">
+      Оформляйте аренду безопасно и выгодно.
+    </p>
+    <a href="{% url 'car_list' %}" class="btn btn-sm btn-error">
+      Выбрать авто
+    </a>
+    <img
+      src="{% static 'images/koenigsegg_supercar.png' %}"
+      alt="Koenigsegg"
+      class="absolute bottom-0 right-6 w-48 lg:w-80 object-contain pointer-events-none"
+    />
+  </div>
+
+  <!-- КАРТОЧКА 2 -->
+  <div class="relative rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow-lg overflow-hidden">
+    <h2 class="text-2xl font-bold mb-2">
+      Аренда по низкой цене
+    </h2>
+    <p class="text-sm mb-4 opacity-90">
+      Дешёвые тарифы и комфорт.
+    </p>
+    <a href="{% url 'car_list' %}" class="btn btn-sm btn-error">
+      Арендовать
+    </a>
+    <img
+      src="{% static 'images/nissan_gtr.png' %}"
+      alt="Nissan GT-R"
+      class="absolute bottom-0 right-6 w-64 lg:w-72 object-contain pointer-events-none"
+    />
+  </div>
+
+</div>
+
+
+
+  <!-- FAQ Item 1 -->
+  <div class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box">
+    <input type="checkbox" />
+    <div class="collapse-title text-xl font-semibold">
+      1. Что такое каршеринг?
+    </div>
+    <div class="collapse-content space-y-4">
+      <p>
+        Каршеринг — это сервис краткосрочной аренды автомобилей посуточно, покомпонентно
+        или посемейно, без необходимости владеть собственным авто.
+        Пользователь регистрируется в системе, бронирует автомобиль через приложение,
+        находит его в указанном месте и открывает электронным ключом.
+      </p>
+      <img
+        src="https://www.autostat.ru/application/includes/blocks/big_photo/images/cache/000/104/110/da8351a0-670-0.jpg"
+        alt="Пример авто каршеринга"
+        class="w-full rounded-lg"
+      />
+      <p class="italic text-sm opacity-70">Пример парковки машин каршеринга в городе.</p>
+    </div>
+  </div>
+
+  <!-- FAQ Item 2 -->
+  <div class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box">
+    <input type="checkbox" />
+    <div class="collapse-title text-xl font-semibold">
+      2. Как работает процесс от регистрации до возврата?
+    </div>
+    <div class="collapse-content space-y-4">
+      <ol class="list-decimal list-inside space-y-2">
+        <li><strong>Регистрация:</strong> онлайн-анкета, проверка водительских прав.</li>
+        <li><strong>Бронирование:</strong> выбираете дату/время и место через приложение.</li>
+        <li><strong>Доступ:</strong> открываете авто по Bluetooth/QR-коду через мобильное приложение.</li>
+        <li><strong>Эксплуатация:</strong> оплачиваете время езды и пробег.</li>
+        <li><strong>Возврат:</strong> ставите в исходную зону парковки, закрываете и завершаете поездку.</li>
+      </ol>
+      <iframe
+        class="w-full aspect-video rounded-lg"
+        src="https://www.youtube.com/embed/uJIgjXTscuo"
+        title="How Zipcar Works"
+        allowfullscreen
+      ></iframe>
+      <p class="text-xs italic">Видео: «How Zipcar Works» :contentReference[oaicite:1]{index=1}</p>
+    </div>
+  </div>
+
+  <!-- FAQ Item 3 -->
+  <div class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box">
+    <input type="checkbox" />
+    <div class="collapse-title text-xl font-semibold">
+      3. Как формируется цена и какие существуют тарифы?
+    </div>
+    <div class="collapse-content space-y-4">
+      <p>
+        Обычно действуют следующие модели ценообразования:
+      </p>
+      <ul class="list-disc list-inside space-y-1">
+        <li><strong>Помесячная подписка + тариф за минуту/час:</strong> минимальный ежемесячный взнос и почасовая ставка;</li>
+        <li><strong>Почасовой:</strong> оплата только за фактическое время пользования;</li>
+        <li><strong>Посуточный:</strong> фиксированная цена за 24 ч;</li>
+        <li><strong>Разовый депозит:</strong> небольшая сумма при брони и единоразовый платеж.</li>
+      </ul>
+      <img
+        src="https://truesharing.ru/wp-content/uploads/2020/10/photo_2020-10-14_19-26-44-1024x902.jpg"
+        alt="Пример тарифов каршеринга"
+        class="w-full rounded-lg"
+      />
+    </div>
+  </div>
+
+  <!-- FAQ Item 4 -->
+  <div class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box">
+    <input type="checkbox" />
+    <div class="collapse-title text-xl font-semibold">
+      4. Преимущества и недостатки каршеринга
+    </div>
+    <div class="collapse-content space-y-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <ul class="list-disc list-inside space-y-1">
+          <li>Экономия на покупке и содержании авто;</li>
+          <li>Гибкость и доступность 24/7;</li>
+          <li>Меньше машин на дорогах и парковках;</li>
+          <li>Нет расходов на страховку и ТО.</li>
+        </ul>
+        <ul class="list-disc list-inside space-y-1">
+          <li>Зависимость от наличия авто поблизости;</li>
+          <li>Потенциальные очереди в пиковые часы;</li>
+          <li>Ограничения по пробегу;</li>
+          <li>Необходимость соблюдать правила возврата.</li>
+        </ul>
+      </div>
+      <iframe
+        class="w-full aspect-video rounded-lg"
+        src="https://www.youtube.com/embed/wsr4CFztQXg"
+        title="What is a Zipcar and How Does It Work?"
+        allowfullscreen
+      ></iframe>
+      <p class="text-xs italic">Видео: «What is a Zipcar and How Does It Work?» :contentReference[oaicite:2]{index=2}</p>
+    </div>
+  </div>
+
+  <!-- FAQ Item 5 -->
+  <div class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box">
+    <input type="checkbox" />
+    <div class="collapse-title text-xl font-semibold">
+      5. Экологическое влияние и устойчивость
+    </div>
+    <div class="collapse-content space-y-4">
+      <p>
+        Каршеринг снижает количество приватных авто в городах и стимулирует
+        использование электромобилей. Согласно исследованиям, один каршеринг-авто
+        заменяет до 10–15 личных машин, уменьшая выбросы CO₂ и
+        загруженность дорог.
+      </p>
+      <img
+        src="https://a.d-cd.net/tUAAAgA4jeA-960.jpg"
+        alt="График выбросов CO₂"
+        class="w-full rounded-lg"
+      />
+    </div>
+  </div>
+
+  <!-- FAQ Item 6 -->
+  <div class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box">
+    <input type="checkbox" />
+    <div class="collapse-title text-xl font-semibold">
+      6. Основные игроки рынка
+    </div>
+    <div class="collapse-content space-y-4">
+      <ul class="list-disc list-inside space-y-1">
+        <li><strong>Zipcar</strong> — лидер с круглосуточным доступом в 500+ городах;</li>
+        <li><strong>Share Now</strong> (ранее Car2Go + DriveNow) — европейский и северо-американский сервис;</li>
+        <li><strong>Getaround</strong> (Drivy) — фокус на пиринговом каршеринге;</li>
+        <li><strong>Citymobil</strong>, <strong>YouDrive</strong> и др. локальные операторы.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FAQ Item 7 -->
+  <div class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box">
+    <input type="checkbox" />
+    <div class="collapse-title text-xl font-semibold">
+      7. Требования к водителю и страховка
+    </div>
+    <div class="collapse-content space-y-4">
+      <p>
+        Чтобы стать участником каршеринга, нужно:
+        <ul class="list-disc list-inside">
+          <li>Возраст ≥ 21 года (или 18 для студентов);</li>
+          <li>Водительское удостоверение категории B с минимум 1 годом стажа;</li>
+          <li>Позитивная кредитная история (для некоторых сервисов).</li>
+        </ul>
+        В стоимость поездки чаще всего включена базовая КАСКО и ОСАГО,
+        а также круглосуточная техпомощь.
+      </p>
+    </div>
+  </div>
+
+  <!-- FAQ Item 8 -->
+  <div class="collapse collapse-arrow border border-base-300 bg-base-100 rounded-box">
+    <input type="checkbox" />
+    <div class="collapse-title text-xl font-semibold">
+      8. Мобильные приложения и технологии
+    </div>
+    <div class="collapse-content space-y-4">
+      <p>
+        Современные каршеринговые платформы используют:
+      </p>
+      <ul class="list-disc list-inside space-y-1">
+        <li>GPS/ГЛОНАСС-трекеры для отслеживания машин;</li>
+        <li>Bluetooth или NFC для разблокировки дверей;</li>
+        <li>API для интеграции с картами и платёжными системами;</li>
+        <li>Мобильные приложения на iOS/Android — список лучших сервисов:
+          <a href="https://www.youtube.com/watch?v=TeEpXI3GTT4"
+             class="link link-primary" target="_blank">
+            обзор Zipcar UK :contentReference[oaicite:3]{index=3}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

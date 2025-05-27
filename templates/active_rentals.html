@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Мои аренды{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Активные аренды -->
+  <h2 class="mb-4">Ваши активные аренды</h2>
+  {% if active_rentals %}
+    <div class="row">
+      {% for rental in active_rentals %}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100">
+            {% if rental.car.image %}
+              <img src="{{ rental.car.image.url }}" class="card-img-top" alt="{{ rental.car.brand }} {{ rental.car.model }}">
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{ rental.car.brand }} {{ rental.car.model }}</h5>
+              <p class="card-text">
+                <strong>Период аренды:</strong><br>
+                {{ rental.start_time|date:"d.m.Y H:i" }} – {{ rental.end_time|date:"d.m.Y H:i" }}
+              </p>
+            </div>
+            <div class="card-footer">
+              <a href="{% url 'rental_detail' rental.id %}" class="btn btn-primary btn-sm">Подробнее</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info">У вас нет активных аренд.</div>
+  {% endif %}
+
+  <hr class="my-5">
+
+  <!-- История аренды -->
+  <h2 class="mb-4">История аренды</h2>
+  {% if inactive_rentals %}
+    <div class="row">
+      {% for rental in inactive_rentals %}
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card h-100">
+            {% if rental.car.image %}
+              <img src="{{ rental.car.image.url }}" class="card-img-top" alt="{{ rental.car.brand }} {{ rental.car.model }}">
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{ rental.car.brand }} {{ rental.car.model }}</h5>
+              <p class="card-text">
+                <strong>Период аренды:</strong><br>
+                {{ rental.start_time|date:"d.m.Y H:i" }} – {{ rental.end_time|date:"d.m.Y H:i" }}
+              </p>
+              <p class="card-text">
+                <strong>Статус:</strong> {{ rental.get_status_display }}
+              </p>
+            </div>
+            <div class="card-footer">
+              <a href="{% url 'rental_detail' rental.id %}" class="btn btn-secondary btn-sm">Подробнее</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info">У вас нет завершённых аренд.</div>
+  {% endif %}
+</div>
+{% endblock %}

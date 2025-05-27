@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ car.brand }} {{ car.model }}{% endblock %}
+
+{% block content %}
+{# Splide.js CSS - подключаем вместо Swiper #}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+{# Или можно выбрать одну из тем, например splide-skyblue.min.css #}
+{# <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/themes/splide-skyblue.min.css"> #}
+
+
+<div class="max-w-7xl mx-auto px-4 py-10 flex flex-col lg:flex-row gap-10">
+
+  {# ░░ Сайд-бар фильтров (виден на lg) ░░ #}
+  <aside class="hidden lg:block w-64 flex-shrink-0 bg-base-100 p-4 rounded-xl shadow-lg">
+    {% include "partials/car_filter.html" %}
+  </aside>
+
+  {# ░░ Основная колонка ░░ #}
+  <main class="flex-1 space-y-12">
+
+    <div class="flex flex-col lg:flex-row gap-6"> {# Увеличил gap немного #}
+
+      <div class="flex flex-col gap-3 flex-shrink-0 w-full lg:max-w-[420px]">
+        <section id="main-carousel" class="splide rounded-lg overflow-hidden shadow-lg" aria-label="Основная галерея изображений автомобиля">
+          <div class="splide__track">
+            <ul class="splide__list">
+              {% for src in images %}
+                <li class="splide__slide">
+                  <img src="{{ src }}" class="w-full h-72 object-cover" alt="Изображение {{ car.brand }} {{ car.model }} номер {{ forloop.counter }}">
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {# Стрелки Splide добавит автоматически, если arrows: true (по умолчанию) #}
+        </section>
+
+        <section id="thumbnail-carousel" class="splide" aria-label="Миниатюры изображений автомобиля">
+          <div class="splide__track">
+            <ul class="splide__list">
+              {% for src in images %}
+                <li class="splide__slide cursor-pointer rounded overflow-hidden">
+                  <img src="{{ src }}" class="h-20 w-full object-cover" alt="Миниатюра {{ forloop.counter }}">
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </section>
+      </div>
+
+      <div class="flex-1 space-y-6 bg-base-100 p-4 rounded-xl shadow-lg"> {# Немного увеличил padding #}
+        <div class="flex items-start justify-between">
+          <h1 class="text-3xl font-bold text-base-content">{{ car.brand }} {{ car.model }}</h1>
+        </div>
+
+        <div class="flex gap-3 content-center">
+          <div class="flex mt-0.5">
+            {% for _ in "12345" %}
+              <svg class="w-5 h-5 {% if forloop.counter <= rating %}text-warning{% else %}text-base-content opacity-30{% endif %}">
+                <use href="#star"></use>
+              </svg>
+            {% endfor %}
+          </div>
+          <span class="badge badge-warning">{{ reviews|length }}</span>
+        </div>
+
+        {# Характеристики из view (список tuples) #}
+        <ul class="space-y-1 text-sm">
+          {% for label, value in characteristics %}
+            <li class="flex justify-between">
+              <span class="text-base-content opacity-70">{{ label }}:</span>
+              <span class="font-medium text-base-content">{{ value }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+
+         <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4">
+          <div class="flex items-baseline gap-2">
+            <p class="text-orange-500 text-2xl font-semibold whitespace-nowrap">
+              ₸{{ car.price_per_day }} / день
+            </p>
+          </div>
+
+          {% if user.is_authenticated %}
+            <a
+              href="{% url 'car_rent' car.id %}"
+              class="btn btn-warning max-w-xs font-semibold text-center rounded-sm"
+            >
+              Арендовать сейчас!
+            </a>
+          {% else %}
+            <a
+              href="{% url 'login' %}?next={{ request.path }}"
+              class="btn info max-w-xs font-semibold text-center rounded-sm"
+            >
+              Войдите, чтобы арендовать
+            </a>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+
+    {% if car.description %}
+    <div class="card bg-base-100 shadow-lg">
+      <div class="card-body">
+        <h2 class="text-xl font-semibold text-base-content">Описание</h2>
+        <p class="mt-2 text-base-content">{{ car.description|linebreaksbr }}</p>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card bg-base-100 shadow-lg">
+      <div class="card-body">
+        <h2 class="text-xl font-semibold flex items-center gap-2 text-base-content">
+          Отзывы <span class="badge badge-warning">{{ reviews|length }}</span>
+        </h2>
+
+        {% if reviews %}
+          {% for rv in reviews|slice:":2" %}
+            <div class="py-4 border-b border-base-300 last:border-0 flex flex-col sm:flex-row gap-4">
+              <img src="{{ rv.user.avatar.url|default:'https://i.pravatar.cc/60' }}"
+                   class="w-14 h-14 rounded-full object-cover ring ring-primary ring-offset-base-100 ring-offset-2">
+              <div class="flex-1">
+                <div class="flex justify-between">
+                  <p class="font-medium text-base-content">{{ rv.user.get_full_name|default:rv.user.username }}</p>
+                  <p class="text-xs text-base-content opacity-60">{{ rv.created_at|date:"d M Y" }}</p>
+                </div>
+                <p class="text-sm mt-1 text-base-content">{{ rv.comment }}</p>
+              </div>
+            </div>
+          {% endfor %}
+          <div class="text-center mt-4">
+            <a href="{% url 'car_reviews' car.pk %}" class="link link-primary">Show All</a>
+          </div>
+        {% else %}
+          <p class="text-center text-base-content opacity-70">Отзывов пока нет.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  <section class="mt-10">
+      <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold text-base-content">Рекомендуемые</h3>
+          <a href="{% url 'car_list' %}" class="link link-primary">Смотреть всё</a>
+      </div>
+      {% include "partials/car_cards.html" with cars=recent_cars %}
+  </section>
+
+  <section class="mt-10">
+      <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold text-base-content">Популярные</h3>
+          <a href="{% url 'car_list' %}" class="link link-primary">Смотреть всё</a>
+      </div>
+      {% include "partials/car_cards.html" with cars=recommend_cars %}
+  </section>
+
+  </main>
+</div>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="star" viewBox="0 0 24 24"><path fill="currentColor" d="M12 17.3l6.18 3.9-1.64-7.03 5.46-4.73-7.19-.62L12 2 9.19 8.82l-7.19.62 5.46 4.73L5.82 21.2z"/></symbol>
+</svg>
+
+{# Splide.js JS - подключаем вместо Swiper #}
+<script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+
+<style>
+  /* Стили для стрелок Splide, если стандартные не подходят по цвету к теме DaisyUI */
+  .splide__arrow {
+    background: hsl(var(--b3)); /* Цвет фона кнопки стрелки из DaisyUI (base-300) */
+    opacity: 0.8;
+  }
+  .splide__arrow:hover {
+    background: hsl(var(--b2)); /* Цвет фона при наведении */
+    opacity: 1;
+  }
+  .splide__arrow svg {
+    fill: hsl(var(--bc)); /* Цвет самой иконки стрелки (base-content) */
+  }
+  .splide__arrow--prev {
+    left: 0.5em; /* Немного отступ слева */
+  }
+  .splide__arrow--next {
+    right: 0.5em; /* Немного отступ справа */
+  }
+  /* Убираем стандартные контурные рамки при фокусе на миниатюрах, если они мешают */
+  #thumbnail-carousel .splide__slide:focus {
+    outline: none;
+  }
+  /* Добавляем свою индикацию активной миниатюры, если нужно */
+  #thumbnail-carousel .splide__slide.is-active {
+    border: 2px solid hsl(var(--p)); /* Рамка цвета primary из DaisyUI */
+    border-radius: 0.375rem; /* rounded-md */
+  }
+</style>
+
+<script>
+  document.addEventListener( 'DOMContentLoaded', function () {
+    var main = new Splide( '#main-carousel', {
+      type      : 'slide', // 'loop', 'slide', or 'fade'
+      rewind    : true,   // true, если type не 'loop'
+      pagination: false,  // Отключаем стандартную пагинацию (точки)
+      arrows    : true,   // Показываем стрелки
+      // высота основного слайда будет определяться контентом (img h-72)
+    } );
+
+    var thumbnails = new Splide( '#thumbnail-carousel', {
+      type        : 'slide',    // Тип слайдера для миниатюр
+      rewind      : true,       // Возможность прокручивать назад с конца
+      gap         : 8,          // Расстояние между миниатюрами (0.5rem)
+      pagination  : false,      // Отключаем пагинацию для миниатюр
+      arrows      : false,      // Обычно стрелки на миниатюрах не нужны
+      isNavigation: true,       // Указывает, что это слайдер-навигация
+      fixedWidth  : 100,        // Фиксированная ширина каждой миниатюры
+      fixedHeight : 80,         // Фиксированная высота (соответствует h-20 на img)
+      focus       : 'left',   // 'center' или 'left', чтобы активная миниатюра была видима
+                                // (может не работать идеально если слайдов мало)
+      updateOnMove: true,       // Обновлять is-active класс при перетаскивании
+      breakpoints : {           // Адаптивность для миниатюр
+        600: { // Для экранов < 600px
+          fixedWidth : 80,
+          fixedHeight: 64, // (h-16)
+        },
+        400: { // Для экранов < 400px
+            fixedWidth: 60,
+            fixedHeight: 48, // (h-12)
+        }
+      }
+    } );
+
+    main.sync( thumbnails ); // Синхронизируем основной слайдер с миниатюрами
+    main.mount();
+    thumbnails.mount();
+  } );
+
+  const el = document.querySelector(".splide__list");
+
+  el.style = "";
+</script>
+
+{% endblock %}

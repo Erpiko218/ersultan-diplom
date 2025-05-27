@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto mt-10 space-y-10 px-4">
+
+  <!-- ░░ Профиль + Баланс ░░ -->
+  <div class="grid md:grid-cols-3 gap-6">
+    <!-- Профиль -->
+    <div class="card bg-base-100 p-6 shadow items-center text-center">
+      <div class="avatar mb-4">
+        <div class="w-32 h-32 rounded-full ring ring-primary ring-offset-2 overflow-hidden">
+          <img
+            src="{% if user.avatar %}{{ user.avatar.url }}{% else %}https://i.pravatar.cc/256?img=65{% endif %}"
+            alt="avatar"
+            class="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+      <h2 class="text-2xl font-semibold">{{ user.get_full_name|default:user.username }}</h2>
+      <p class="text-sm text-gray-500">{{ user.email }}</p>
+      {% if user.phone %}<p class="text-sm text-gray-500">{{ user.phone }}</p>{% endif %}
+    </div>
+
+    <!-- Баланс -->
+    <div class="card bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow md:col-span-2 p-6">
+      <div class="flex items-center justify-between h-full">
+        <div>
+          <p class="opacity-80">Баланс</p>
+          <p class="text-4xl font-bold">{{ balance }} ₸</p>
+        </div>
+        <a href="{% url 'wallet' %}" class="btn btn-outline btn-sm text-white border-white">
+          Пополнить
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░ Последние транзакции ░░ -->
+  <div class="card bg-base-100 shadow">
+    <div class="card-body overflow-x-auto">
+      <h3 class="text-xl font-semibold mb-4">Последние транзакции</h3>
+      {% if transactions %}
+        <table class="table table-zebra text-sm">
+          <thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Статус</th></tr></thead>
+          <tbody>
+          {% for t in transactions %}
+            <tr>
+              <td>{{ t.timestamp|date:"d.m.Y H:i" }}</td>
+              <td>
+                <span class="badge badge-outline">
+                  {% if t.transaction_type == "TOP_UP" %}Пополнение{% else %}Аренда{% endif %}
+                </span>
+              </td>
+              <td>{{ t.amount }} ₸</td>
+              <td>
+                {% if t.status == "COMPLETED" %}
+                  <span class="badge badge-success badge-outline">Успех</span>
+                {% elif t.status == "WAITING" %}
+                  <span class="badge badge-warning badge-outline">Ожидание</span>
+                {% else %}
+                  <span class="badge badge-error badge-outline">Отказ</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-center text-gray-500">Транзакций пока нет.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ░░ Текущие аренды ░░ -->
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <h3 class="text-xl font-semibold mb-4">Текущие аренды</h3>
+      {% if current_rentals %}
+        <div class="space-y-4">
+          {% for r in current_rentals %}
+            <div class="flex items-center gap-4 bg-base-200 rounded-lg p-3 shadow-sm">
+              <img
+                src="{{ r.car.main_image.url }}"
+                class="w-20 h-14 object-cover rounded"
+                alt="{{ r.car }}"
+              />
+              <div class="flex-1">
+                <p class="font-medium">{{ r.car }}</p>
+                <p class="text-sm text-gray-500">
+                  {{ r.start_time|date:"d.m.Y H:i" }} →
+                  {{ r.end_time|date:"d.m.Y H:i" }}
+                </p>
+              </div>
+              <span class="badge badge-info badge-outline">Активна</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-center text-gray-500">Нет активных аренд.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ░░ История аренд ░░ -->
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <h3 class="text-xl font-semibold mb-4">История аренд</h3>
+      {% if history_rentals %}
+        <div class="space-y-4">
+          {% for r in history_rentals %}
+            <div class="flex items-center gap-4 bg-base-100 border rounded-lg p-3 shadow-sm">
+              <img
+                src="{{ r.car.main_image.url|default:r.car.image.url }}"
+                class="w-20 h-14 object-cover rounded"
+                alt="{{ r.car }}"
+              />
+              <div class="flex-1">
+                <p class="font-medium">{{ r.car }}</p>
+                <p class="text-sm text-gray-500">
+                  {{ r.start_time|date:"d.m.Y" }} — {{ r.end_time|date:"d.m.Y" }}
+                </p>
+              </div>
+              {% if r.status == "COMPLETED" %}
+                <span class="badge badge-success badge-outline">Завершена</span>
+              {% else %}
+                <span class="badge badge-error badge-outline">Отказано</span>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-center text-gray-500">История пуста.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

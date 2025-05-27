@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}Настройки профиля{% endblock %}
+
+{% block content %}
+<!-- Alpine для табов и превью аватара -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<div class="max-w-3xl mx-auto mt-10 px-4" x-data="{ tab: 'main', avatarPreview: null }">
+
+  <!-- Карточка -->
+  <div class="card shadow-xl bg-base-100">
+
+    <!-- Шапка -->
+    <div class="px-6 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-t-2xl">
+      <h2 class="text-2xl font-semibold">Настройки профиля</h2>
+      <p class="text-sm opacity-80">Обновите ваши данные</p>
+    </div>
+
+    <div class="card-body space-y-6">
+
+      <ul class="flex flex-wrap text-sm font-medium text-center border-b btn btn-primary border-base-200">
+
+        <!-- Основное -->
+        <li class="mr-2">
+          <a href="#"
+             @click.prevent="tab = 'main'"
+             :class="tab === 'main'
+                     ? 'bg-base-200 text-base-content font-semibold'
+                     : 'hover:bg-base-100 hover:text-base-content/80'"
+             class="inline-block p-4 rounded-t-lg transition-colors duration-150">
+              Основное
+          </a>
+        </li>
+
+        <!-- Безопасность -->
+        <li class="mr-2">
+          <a href="#"
+             @click.prevent="tab = 'security'"
+             :class="tab === 'security'
+                     ? 'bg-base-200 text-base-content font-semibold'
+                     : 'hover:bg-base-100 hover:text-base-content/80'"
+             class="inline-block p-4 rounded-t-lg transition-colors duration-150">
+              Безопасность
+          </a>
+        </li>
+
+        <!-- Уведомления -->
+        <li class="mr-2">
+          <a href="#"
+             @click.prevent="tab = 'notifications'"
+             :class="tab === 'notifications'
+                     ? 'bg-base-200 text-base-content font-semibold'
+                     : 'hover:bg-base-100 hover:text-base-content/80'"
+             class="inline-block p-4 rounded-t-lg transition-colors duration-150">
+              Уведомления
+          </a>
+        </li>
+      </ul>
+      <!-- 1) Основная информация -->
+      <form x-show="tab==='main'"
+            method="post"
+            enctype="multipart/form-data"
+            action="{% url 'settings' %}"
+            class="grid md:grid-cols-2 gap-8"
+            x-cloak>
+        {% csrf_token %}
+
+        <!-- Левая колонка: аватар -->
+        <div class="space-y-4">
+          <div class="avatar">
+            <div class="w-80 h-80 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 overflow-hidden">
+              {% if user.avatar %}
+              <img
+                x-bind:src="avatarPreview || '{{ user.avatar.url|default:'https://i.pravatar.cc/420' }}'"
+                alt="avatar"
+                class="object-cover w-full h-full"
+              >
+              {% else %}
+              <img
+                src="https://wallpapers.com/images/hd/generic-male-avatar-icon-piiktqtfffyzulft.jpg"
+                alt="avatar"
+                class="object-cover w-full h-full"
+              >
+              {% endif %}
+            </div>
+          </div>
+          <label class="form-control">
+            <span class="label-text mb-1">Аватар</span>
+            <input type="file"
+                   name="avatar"
+                   @change="avatarPreview = URL.createObjectURL($event.target.files[0])"
+                   class="file-input file-input-bordered w-full" />
+          </label>
+        </div>
+
+        <!-- Правая колонка: поля -->
+        <div class="space-y-6">
+
+          <!-- Имя + Фамилия -->
+          <div class="grid sm:grid-cols-2 gap-4">
+            <label class="form-control">
+              <span class="label-text">Имя</span>
+              <div class="relative">
+                <img src="https://api.iconify.design/heroicons-outline/user.svg"
+                     class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"/>
+                <input name="first_name"
+                       value="{{ user.first_name }}"
+                       class="input input-bordered w-full pl-10" />
+              </div>
+            </label>
+            <label class="form-control">
+              <span class="label-text">Фамилия</span>
+              <div class="relative">
+                <img src="https://api.iconify.design/heroicons-outline/user.svg"
+                     class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"/>
+                <input name="last_name"
+                       value="{{ user.last_name }}"
+                       class="input input-bordered w-full pl-10" />
+              </div>
+            </label>
+          </div>
+
+          <!-- Email -->
+          <label class="form-control">
+            <span class="label-text">Email</span>
+            <div class="relative">
+              <img src="https://api.iconify.design/heroicons-outline/envelope.svg"
+                   class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"/>
+              <input type="email"
+                     name="email"
+                     value="{{ user.email }}"
+                     class="input input-bordered w-full pl-10" />
+            </div>
+          </label>
+
+          <!-- Телефон -->
+          <label class="form-control">
+            <span class="label-text">Телефон</span>
+            <div class="relative">
+              <img src="https://api.iconify.design/heroicons-outline/phone.svg"
+                   class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"/>
+              <input type="tel"
+                     name="phone"
+                     value="{{ user.phone }}"
+                     class="input input-bordered w-full pl-10"
+                     placeholder="8777777777"
+              />
+            </div>
+          </label>
+
+          <!-- Адрес -->
+          <label class="form-control">
+            <span class="label-text">Адрес</span>
+            <textarea name="address"
+                      rows="3"
+                      class="textarea textarea-bordered w-full">{{ user.address }}</textarea>
+          </label>
+
+          <!-- Дата рождения -->
+          <label class="form-control">
+            <span class="label-text">Дата рождения</span>
+            <input type="date"
+                   name="date_of_birth"
+                   value="{{ user.date_of_birth|date:'Y-m-d' }}"
+                   class="input input-bordered w-full" />
+          </label>
+
+        </div>
+
+        <!-- Кнопка сохранить  -->
+        <div class="md:col-span-2 flex justify-end">
+          <button type="submit"
+                  class="btn btn-primary px-10 py-3">
+            Сохранить
+          </button>
+        </div>
+      </form>
+
+      <!-- 2) Безопасность и пароль -->
+      <form x-show="tab==='security'"
+            method="post"
+            action="{% url 'password_change' %}"
+            class="grid grid-cols-1 gap-6"
+            x-cloak>
+        {% csrf_token %}
+        <label class="form-control">
+          <span class="label-text">Старый пароль</span>
+          <input type="password"
+                 name="old_password"
+                 class="input input-bordered w-full" />
+        </label>
+        <label class="form-control">
+          <span class="label-text">Новый пароль</span>
+          <input type="password"
+                 name="new_password1"
+                 class="input input-bordered w-full" />
+        </label>
+        <label class="form-control">
+          <span class="label-text">Повтор нового пароля</span>
+          <input type="password"
+                 name="new_password2"
+                 class="input input-bordered w-full" />
+        </label>
+        <div class="flex justify-end">
+          <button type="submit"
+                  class="btn btn-primary">
+            Сменить пароль
+          </button>
+        </div>
+      </form>
+
+      <!-- 3) Уведомления -->
+      <form x-show="tab==='notifications'"
+            method="post"
+            action="{% url 'notifications_update' %}"
+            class="grid grid-cols-1 gap-4"
+            x-cloak>
+        {% csrf_token %}
+        <label class="flex items-center gap-2">
+          <input type="checkbox"
+                 name="email_news"
+                 class="checkbox"
+                 {% if user.email_news %}checked{% endif %}/>
+          <span>Получать новости на email</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox"
+                 name="sms_alerts"
+                 class="checkbox"
+                 {% if user.sms_alerts %}checked{% endif %}/>
+          <span>SMS-уведомления о брони</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox"
+                 name="push_notifications"
+                 class="checkbox"
+                 {% if user.push_notifications %}checked{% endif %}/>
+          <span>Push-уведомления</span>
+        </label>
+        <div class="flex justify-end">
+          <button type="submit"
+                  class="btn btn-primary">
+            Сохранить уведомления
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

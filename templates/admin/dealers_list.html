@@ -1,0 +1,26 @@
+{# templates/admin/dealers_list.html #}
+{% extends "base.html" %}
+{% block title %}Управление дилерами{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-8">
+  <h1 class="text-2xl font-bold mb-4">Дилеры</h1>
+  <ul class="divide-y divide-gray-200">
+    {% for d in dealers %}
+      <li class="py-3 flex justify-between items-center">
+        <div>
+          <a href="{% url 'admin_dealer_detail' d.pk %}"
+             class="text-lg font-medium text-primary hover:underline">
+            {{ d.name }}
+          </a>
+          <p class="text-sm text-gray-500">{{ d.address }}</p>
+        </div>
+        <span class="text-sm text-gray-600">
+          {{ d.car_set.count }} машин
+        </span>
+      </li>
+    {% empty %}
+      <li class="py-3 text-center text-gray-500">Нет ни одного дилера.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

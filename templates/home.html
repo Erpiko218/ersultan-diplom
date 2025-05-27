@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+<div class="grid md:grid-cols-2 gap-6">
+
+  <!-- КАРТОЧКА 1 -->
+  <div class="relative rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow-lg overflow-hidden">
+    <h2 class="text-2xl font-bold mb-2">
+      Лучшая площадка<br>для аренды авто
+    </h2>
+    <p class="text-sm mb-4 opacity-90">
+      Оформляйте аренду безопасно и выгодно.
+    </p>
+    <a href="{% url 'car_list' %}" class="btn btn-sm btn-error">
+      Выбрать авто
+    </a>
+    <img
+      src="{% static 'images/koenigsegg_supercar.png' %}"
+      alt="Koenigsegg"
+      class="absolute bottom-0 right-6 lg:w-80 object-contain pointer-events-none"
+      style="width: 400px"
+    />
+  </div>
+
+  <!-- КАРТОЧКА 2 -->
+  <div class="relative rounded-xl p-6 bg-gradient-to-br from-amber-300 to-orange-500 text-white shadow-lg overflow-hidden">
+    <h2 class="text-2xl font-bold mb-2">
+      Аренда по низкой цене
+    </h2>
+    <p class="text-sm mb-4 opacity-90">
+      Дешёвые тарифы и комфорт.
+    </p>
+    <a href="{% url 'car_list' %}" class="btn btn-sm btn-error">
+      Арендовать
+    </a>
+    <img
+      src="{% static 'images/nissan_gtr.png' %}"
+      alt="Nissan GT-R"
+      class="absolute bottom-0 right-6 object-contain pointer-events-none"
+      style="width: 400px"
+    />
+  </div>
+
+</div>
+
+
+<!-- Форма даты/локации— reuse той, что была на скрине-->
+{% include "partials/pickup_form.html" %}
+
+<!-- ПОПУЛЯРНЫЕ -->
+<section class="mt-10">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-semibold">Популярные</h3>
+        <a href="{% url 'car_list' %}" class="link">Смотреть всё</a>
+    </div>
+    {% include "partials/car_cards.html" with cars=popular_cars %}
+</section>
+
+<!-- Рекомендованные -->
+<section class="mt-10">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-semibold">Рекомендуем</h3>
+        <a href="{% url 'car_list' %}?order=recommended" class="link">Смотреть всё</a>
+    </div>
+    {% include "partials/car_cards.html" with cars=recommended_cars %}
+</section>
+
+<div class="flex justify-center mt-10">
+    <a href="{% url 'car_list' %}" class="btn bg-orange-500 text-white">Показать больше</a>
+</div>
+{% endblock %}

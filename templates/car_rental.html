@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Оформление аренды</h2>
+
+{% if messages %}
+    {% for message in messages %}
+        <p style="color: red;">{{ message }}</p>
+    {% endfor %}
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+
+    <h3>Личные данные</h3>
+    {{ form.full_name.label }} {{ form.full_name }}
+    {{ form.phone_number.label }} {{ form.phone_number }}
+    {{ form.address.label }} {{ form.address }}
+    {{ form.city.label }} {{ form.city }}
+
+    <h3>Информация о получении</h3>
+    {{ form.pickup_location.label }} {{ form.pickup_location }}
+    {{ form.pickup_date.label }} {{ form.pickup_date }}
+    {{ form.pickup_time.label }} {{ form.pickup_time }}
+
+    <h3>Информация о возврате</h3>
+    {{ form.dropoff_location.label }} {{ form.dropoff_location }}
+    {{ form.dropoff_date.label }} {{ form.dropoff_date }}
+    {{ form.dropoff_time.label }} {{ form.dropoff_time }}
+
+    <h3>Способ оплаты</h3>
+    {{ form.payment_method.label }} {{ form.payment_method }}
+
+    <div id="card-fields">
+        {{ form.card_number.label }} {{ form.card_number }}
+        {{ form.expiration_date.label }} {{ form.expiration_date }}
+        {{ form.card_holder.label }} {{ form.card_holder }}
+        {{ form.cvc.label }} {{ form.cvc }}
+    </div>
+
+    <button type="submit">Забронировать</button>
+</form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let paymentMethod = document.querySelector("#id_payment_method");
+        let cardFields = document.getElementById("card-fields");
+
+        function toggleCardFields() {
+            if (paymentMethod.value === "CARD") {
+                cardFields.style.display = "block";
+            } else {
+                cardFields.style.display = "none";
+            }
+        }
+
+        paymentMethod.addEventListener("change", toggleCardFields);
+        toggleCardFields();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ru" x-data="themeSwitcher()" :data-theme="theme"> {# daisyUI поддерживает темы через data‑theme #}
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{% block title %}RentCur – каршеринг автомобилей{% endblock %}</title>
+    {% load static %}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .chatflow-header-gradient {
+          /* Вариант 1: Более насыщенный градиент с тремя точками */
+          background-image: linear-gradient(135deg, #5B21B6 0%, #7C3AED 50%, #A78BFA 100%);
+
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet" type="text/css" />
+    {% block additional_head %} {% endblock %}
+
+    {% load custom_tags %}
+    <script>
+    function themeSwitcher(){
+      return {
+        theme: localStorage.getItem('theme') || 'light',
+        toggle(){
+          this.theme = this.theme === 'light' ? 'dark' : 'light'
+          localStorage.setItem('theme', this.theme)
+        }
+      }
+    }
+    </script>
+</head>
+<body class="min-h-screen flex flex-col bg-base-200 text-base-content relative">
+
+<nav class="bg-base-100 border-b border-base-300">
+  <div class="container mx-auto px-4 py-3 flex items-center">
+
+    <a href="{% url 'home' %}" class="text-2xl font-extrabold text-orange-500">
+      RentCURCar
+    </a>
+
+    <div class="flex-1 mx-6">
+      <form action="{% url 'car_list' %}" method="get" class="relative">
+        <input
+          name="q"
+          type="text"
+          x-model="query"
+          @input.debounce.300ms="fetchSuggestions"
+          placeholder="Найдите машину…"
+          value="{{ query }}"
+          class="w-full h-10 pl-10 pr-10 input input-bordered focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <img
+          src="https://api.iconify.design/heroicons-outline/magnifying-glass.svg"
+          class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-base-content opacity-60"
+          alt="Поиск"
+        />
+      </form>
+    </div>
+
+    <div class="flex items-center space-x-4">
+
+      <div x-data="{open:false}" class="relative">
+        <button @click="open = !open" class="p-2 rounded-full hover:bg-base-300">
+          <img
+            src="https://api.iconify.design/heroicons-outline/heart.svg"
+            class="h-6 w-6"
+            alt="Favorites"
+          />
+        </button>
+        <div
+          x-show="open"
+          @click.away="open = false"
+          class="absolute right-0 mt-2 w-64 bg-base-100 border border-base-300 rounded-lg shadow-lg z-50 overflow-hidden"
+        >
+          {% if favorites %}
+            <ul>
+              {% for fav in favorites|slice:":5" %}
+                <li class="p-2 hover:bg-base-200 flex items-center gap-2">
+                  <img src="{{ fav.car.main_image.url }}" class="h-8 w-12 object-cover rounded">
+                  <span class="truncate">{{ fav.car }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="p-4 text-center text-base-content opacity-60">Пусто</div>
+          {% endif %}
+          <a href="{% url 'favorites' %}"
+             class="block text-center py-2 bg-orange-500 text-white hover:bg-orange-600">
+            Перейти в «Избранное»
+          </a>
+        </div>
+      </div>
+
+      <div x-data="{open:false}" class="relative">
+        <button @click="open = !open" class="p-2 rounded-full hover:bg-base-300 relative">
+          <img
+            src="https://api.iconify.design/heroicons-outline/bell.svg"
+            class="h-6 w-6"
+            alt="Notifications"
+          />
+          {% if unread_notifications_count %}
+            <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500"></span> {# Or use bg-error from DaisyUI #}
+          {% endif %}
+        </button>
+        <div
+          x-show="open"
+          @click.away="open = false"
+          class="absolute right-0 mt-2 w-80 bg-base-100 border border-base-300 rounded-lg shadow-lg z-50 overflow-hidden list-none"
+        >
+          {% include "partials/notifications_dropdown.html" %}
+        </div>
+      </div>
+
+      <a href="{% url 'settings' %}" class="p-2 rounded-full hover:bg-base-300">
+        <img
+          src="https://api.iconify.design/heroicons-outline/cog.svg"
+          class="h-6 w-6"
+          alt="Settings"
+        />
+      </a>
+
+      <div x-data="{ helpOpen: false }" class="relative">
+        <button @click="helpOpen = !helpOpen" class="p-2 rounded-full hover:bg-base-300">
+          <img
+            src="https://api.iconify.design/heroicons-outline/question-mark-circle.svg"
+            class="h-6 w-6 text-base-content opacity-80"
+            alt="Помощь"
+          />
+        </button>
+        <div
+          x-show="helpOpen"
+          @click.away="helpOpen = false"
+          class="absolute right-0 mt-2 w-48 bg-base-100 border border-base-300 rounded-lg shadow-lg z-50 overflow-hidden"
+        >
+          <ul class="py-1">
+            <li>
+              <a href="{% url 'faq' %}"
+                 class="block px-4 py-2 text-sm hover:bg-base-300">
+                FAQ
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'about' %}"
+                 class="block px-4 py-2 text-sm hover:bg-base-300">
+                О нас
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'contact' %}"
+                 class="block px-4 py-2 text-sm hover:bg-base-300">
+                Контакты
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <label class="swap swap-rotate">
+        <button @click="toggle()" class="btn btn-ghost">
+          </button>
+
+        <svg
+          class="swap-off h-7 w-7 fill-current"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24">
+          <path
+            d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z" />
+        </svg>
+
+        <svg
+          class="swap-on h-6 w-7 fill-current"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24">
+          <path
+            d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z" />
+        </svg>
+      </label>
+
+      <div x-data="{open:false}" class="relative">
+        <button @click="open = !open" class="p-1 rounded-full hover:bg-base-300">
+          {% if user.is_authenticated and user.avatar %}
+            <img src="{{ user.avatar.url }}" class="h-8 w-8 rounded-full object-cover" alt="User avatar">
+          {% else %}
+            <img src="https://api.iconify.design/heroicons-outline/user.svg"
+                 class="h-8 w-8" alt="User icon"/>
+          {% endif %}
+        </button>
+        <div
+          x-show="open"
+          @click.away="open = false"
+          class="absolute right-0 mt-2 w-56 bg-base-100 border border-base-300 rounded-lg shadow-lg z-50"
+        >
+          <ul class="py-1">
+            {% if user.is_authenticated %}
+              <li><a href="{% url 'dashboard' %}"  class="block px-4 py-2 hover:bg-base-200">Профиль</a></li>
+              <li><a href="{% url 'wallet' %}"     class="block px-4 py-2 hover:bg-base-200">Кошелёк</a></li>
+              {% if user.is_superuser %}
+                <li><a href="{% url 'admin:index' %}"
+                       class="block px-4 py-2 hover:bg-base-200">
+                  Админка
+                </a></li>
+                <li><a href="{% url 'admin_dealers_list' %}"
+                       class="block px-4 py-2 hover:bg-base-200">
+                  Дилеры
+                </a></li>
+              {% endif %}
+
+              {% if is_dealer %}
+                <li>
+                  <a href="{% url 'retailers_dashboard' %}"
+                     class="block px-4 py-2 hover:bg-base-200">
+                    Панель дилера
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'retailer_tracking_dashboard' dealer_id=dealer_id %}"
+                     class="block px-4 py-2 hover:bg-base-200">
+                    Отслеживание авто
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'dealer_detail' dealer_id=dealer_id %}"
+                     class="block px-4 py-2 hover:bg-base-200">
+                    Мой профиль дилера
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'car_rent' car_id=0 %}"  {# тут замените на линки создания #}
+                     class="block px-4 py-2 hover:bg-base-200">
+                    Добавить авто
+                  </a>
+                </li>
+              {% endif %}
+
+              <li><a href="{% url 'logout' %}"     class="block px-4 py-2 text-red-600 hover:bg-base-200">Выйти</a></li> {# Consider text-error for DaisyUI themes #}
+            {% else %}
+              <li><a href="{% url 'login' %}"      class="block px-4 py-2 hover:bg-base-200">Войти</a></li>
+              <li><a href="{% url 'register' %}"   class="block px-4 py-2 hover:bg-base-200">Регистрация</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+<main class="flex-1 container mx-auto p-4">{% block content %}{% endblock %}</main>
+
+<footer class="footer p-10 bg-base-300 text-base-content"> {# Changed to bg-base-300 for more distinction from body bg-base-200 #}
+    {% include "partials/footer.html" %}
+</footer>
+
+{# --- НАЧАЛО: UI и Alpine.js компонент для AI Чат-бота (Окно чата вверху справа) --- #}
+<div x-data="aiChatInterface()" x-init="init()" class="print:hidden">
+
+    {# Кнопка для открытия/закрытия чата - закреплена внизу справа #}
+    <button @click="isOpen = !isOpen"
+            class="p-3 rounded-full text-white shadow-xl transition-all duration-300 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-base-200 focus:ring-purple-500"
+            :class="isOpen ? 'bg-purple-700 hover:bg-purple-800 scale-90 rotate-[315deg]' : 'bg-purple-600 hover:bg-purple-700'"
+            aria-label="Открыть чат-помощник" title="AI Помощник"
+            style="position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 10000;">
+        <img x-show="!isOpen" src="https://api.iconify.design/heroicons-outline/chat-bubble-oval-left-ellipsis.svg?color=currentColor" alt="Открыть чат" class="h-7 w-7">
+        <img x-show="isOpen" src="https://api.iconify.design/heroicons-outline/x-mark.svg?color=currentColor" alt="Закрыть чат" class="h-7 w-7">
+    </button>
+
+    {# Окно чата - закреплено вверху справа #}
+    <div x-show="isOpen"
+         @click.away="isOpen = false"
+         x-cloak
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 transform scale-90"
+         x-transition:enter-end="opacity-100 transform scale-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 transform scale-100"
+         x-transition:leave-end="opacity-0 transform scale-90"
+
+         class="fixed bottom-20 right-5 z-[9999]              /* приклеили к углу */
+                w-[380px] sm:w-[400px]                       /* ширина, как была */
+                h-[calc(100vh-5rem)] max-h-[calc(100vh-5rem)]/* огранич. по высоте */
+                flex flex-col overflow-hidden                /* flex-колонка */
+                rounded-xl shadow-2xl
+                bg-white dark:bg-gray-900
+                border border-gray-200 dark:border-gray-700/50"
+         style="position: fixed; bottom: 5.25rem; right: 1.25rem; z-index: 9999; max-width: 60rem; /* Окно чата под кнопкой, если бы пересекались */
+                max-height: calc(100vh - 8rem); /* Макс. высота с учетом отступов от краев экрана */"
+    >
+        <div class="chatflow-header-gradient text-white p-4 pt-5 rounded-t-xl">
+            <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center space-x-3 gap-2">
+                    <div class="bg-white/25 p-1.5 rounded-full flex items-center justify-center w-9 h-9">
+                        <span class="text-xl font-bold text-white">C</span>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-md leading-tight">ChatFlow</h3>
+                        <p class="text-xs opacity-80 leading-tight">AI Assistant</p>
+                    </div>
+                </div>
+                <button @click="isOpen = false" class="text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10" aria-label="Закрыть чат">
+                    <img src="https://api.iconify.design/heroicons-outline/x-mark.svg?color=currentColor" alt="Закрыть" class="h-5 w-5">
+                </button>
+            </div>
+            <p class="text-[11px] opacity-80 mt-1.5">
+                Прямой чат который дает доступ к поддержке ИИ
+            </p>
+        </div>
+
+        {# Сообщения #}
+        <div x-ref="chatMessagesContainer"
+               style="
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1 1 auto;
+                    min-height: 0;
+                    padding: 12px 40px 12px 20px;      /* top/right/bottom/left = p-3 + pr-10 + pl-5 */
+                    row-gap: 12px;                     /* аналог space-y-3 при column-reverse */
+                    overflow-y: auto;
+                    overscroll-behavior: contain;
+                    position: relative;
+                    background-color: #F9FAFB;         /* bg-gray-50 */
+
+                    max-height: calc(100vh - 8rem);
+               ">
+                <template x-for="(message, index) in messages" :key="index">
+                  <div class="flex"
+                       :class="message.sender === 'user' ? 'justify-end' : 'justify-start'">
+                    <div class="flex items-end gap-2 max-w-[85%]">
+                        <img x-show="message.sender === 'assistant'"
+                             src="https://ui-avatars.com/api/?name=AI&background=A0AEC0&color=FFFFFF&size=32&rounded=true&font-size=0.4&bold=true"
+                             alt="Assistant" class="w-6 h-6 rounded-full self-start flex-shrink-0">
+                        <div>
+                            <div style="max-width: 20rem;" class="px-3 py-2 rounded-xl text-sm leading-relaxed break-words max-w-xl"
+                                 :class="message.sender === 'user' ? 'bg-indigo-600 text-white rounded-br-none p-1' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none'"
+                                 x-html="message.sender === 'assistant'
+                                            ? renderMarkdown(message.text)
+                                            : escapeHtml(message.text)">
+                            </div>
+                            <p class="text-xs mt-1" :class="message.sender === 'user' ? 'text-right text-gray-400 dark:text-gray-500 pr-1' : 'text-left text-gray-400 dark:text-gray-500 pl-1'">
+                                <span x-text="message.time"></span>
+                                <span x-show="message.sender === 'assistant'" class="ml-1 font-medium text-gray-600 dark:text-gray-400">Assistant</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <div x-show="isLoading" class="flex justify-start">
+                 <div class="flex items-end gap-2 max-w-[85%]">
+                    <img src="https://ui-avatars.com/api/?name=AI&background=A0AEC0&color=FFFFFF&size=32&rounded=true&font-size=0.4&bold=true" alt="Assistant" class="w-6 h-6 rounded-full self-start flex-shrink-0">
+                    <div>
+                        <div class="px-3 py-2 rounded-xl text-sm bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none">
+                            <span class="loading loading-dots loading-xs opacity-60"></span>
+                        </div>
+                        <p class="text-xs mt-1 text-left text-gray-400 dark:text-gray-500 pl-1">
+                            <span class="font-medium text-gray-600 dark:text-gray-400">...</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Поле ввода #}
+        <div class="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/50 rounded-b-xl">
+            <form @submit.prevent="sendMessage()" class="flex items-center gap-2 sm:gap-3">
+                <input type="text" x-model="userInput" @keydown.enter.prevent="sendMessage()"
+                       placeholder="Reply ..."
+                       class="flex-grow input input-sm bg-gray-100 dark:bg-gray-700/80 border-transparent focus:bg-white dark:focus:bg-gray-700/50 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg text-sm"
+                       x-ref="userInputEl">
+                <button type="submit" :disabled="isLoading || userInput.trim() === ''"
+                        class="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0" title="Отправить">
+                    <img src="https://api.iconify.design/heroicons-outline/paper-airplane.svg?color=currentColor" alt="Отправить" class="h-5 w-5 transform rotate-45 -mr-0.5 -mt-0.5">
+                </button>
+            </form>
+        </div>
+    </div> </div> {# --- КОНЕЦ: UI для AI Чат-бота --- #}
+{# --- КОНЕЦ: UI для AI Чат-бота --- #}
+<script>
+/* Alpine.js функция для управления интерфейсом чат-бота с Google Gemini API */
+function aiChatInterface() {
+    return {
+        isOpen: false,
+        userInput: '',
+        messages: [], // { text: string, sender: 'user' | 'assistant', time: string }
+        isLoading: false,
+
+        // Настройки для Google Gemini API
+        // !!! Ключ будет загружен из контекста Django !!!
+        // !!! УБЕДИТЕСЬ, ЧТО ОН ЗАДАН В settings.py И context_processors.py !!!
+        geminiApiKey: "{{ GEMINI_API_KEY }}",
+        geminiModelName: 'gemini-1.5-flash-latest', // Или 'gemini-1.0-pro', 'gemini-1.5-pro-latest' и т.д.
+
+        baseSystemPrompt: `
+Ты — опытный бизнес-консультант в сфере каршеринга в Казахстане и эксперт по подготовке
+деловых и академических документов. Твоя задача — помогать студенту создать дипломную
+работу «Развитие каршеринговых услуг в Казахстане» с акцентом на:
+
+1. **Структуру работы**: предложи оглавление разделов (введение, анализ рынка, маркетинг,
+ финансовая модель, операционная стратегия, риски, рекомендации, заключение).
+2. **Оформление**: как правильно оформлять таблицы, графики, схемы; требования к шрифтам,
+ межстрочному интервалу, нумерации страниц; примеры заголовков и подпунктов.
+3. **Маркетинговый анализ**: ключевые метрики (LTV, CAC, доля рынка), описание целевых
+ сегментов, конкурентный анализ (Яндекс Драйв, local startups).
+4. **Финансовую модель**: структура затрат, источники дохода, прогноз загрузки автопарка,
+ показатели рентабельности; пример Excel-таблицы и графика.
+5. **Правовое сопровождение**: регистрация флота, страхование, лицензирование,
+ экологические нормы РК.
+6. **Практические рекомендации**: план запуска, выбор зон покрытия (Алматы, Нур-Султан),
+ способы продвижения в социальных сетях и через партнёрства.
+
+Отвечай подробно, приводя конкретные примеры для Казахстана, формулируя советы
+«шаг за шагом» и показывая образцы оформления. Избегай общих фраз — фокусируйся
+на бизнес-аспектах и требованиях вузов к диплому.
+        `,
+
+        /* Метод рендера Markdown → HTML */
+        renderMarkdown (text = "") {
+          try {
+            return marked.parse(text);
+          } catch (e) {
+            return this.escapeHtml(text);
+          }
+        },
+
+        /* Остальные утилиты */
+        escapeHtml (unsafe = "") {
+          return unsafe
+            .replace(/&/g,'&amp;')
+            .replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;')
+            .replace(/'/g,'&#039;');
+        },
+
+
+        get geminiApiEndpoint() {
+            return `https://generativelanguage.googleapis.com/v1beta/models/${this.geminiModelName}:generateContent`;
+        },
+
+        async sendMessage() {
+            const trimmedInput = this.userInput.trim();
+            if (trimmedInput === '') return;
+
+            if (!this.geminiApiKey) {
+                console.error('Gemini API Key is not set. Please check Django settings, context processor, and template.');
+                this.messages.push({
+                    text: 'Ошибка конфигурации: Gemini API-ключ не установлен. Обратитесь к администратору.',
+                    sender: 'assistant',
+                    time: this.getCurrentTime()
+                });
+                this.isLoading = false;
+                return;
+            }
+
+            this.messages.push({ text: this.escapeHtml(trimmedInput), sender: 'user', time: this.getCurrentTime() });
+
+            // Трансформация истории сообщений для Gemini API
+            // Gemini ожидает массив "contents" с чередующимися ролями "user" и "model"
+            // Важно: история должна корректно чередовать роли.
+            // Если первое сообщение - приветствие от ассистента, оно станет 'model'.
+            const geminiContents = [];
+            if (this.baseSystemPrompt) {
+                geminiContents.push({
+                    role: 'user',
+                    parts: [{ text: this.baseSystemPrompt }]
+                });
+            }
+
+            // 2) Добавляем всю историю чата (user → assistant/model)
+            this.messages.forEach(m => {
+                geminiContents.push({
+                    role: m.sender === 'user' ? 'user' : 'model',
+                    parts: [{ text: this.stripHtml(m.text) }]
+                });
+            });
+
+            this.userInput = '';
+            this.isLoading = true;
+            this.scrollToBottom();
+
+            try {
+                const fullApiUrl = `${this.geminiApiEndpoint}?key=${this.geminiApiKey}`;
+
+                const response = await fetch(fullApiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: geminiContents,
+                        // Можно добавить конфигурацию генерации, если нужно
+                        // generationConfig: {
+                        //   temperature: 0.7,
+                        //   maxOutputTokens: 1000,
+                        // },
+                        // safetySettings: [ // Пример настройки безопасности (опционально)
+                        //   { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+                        //   { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" }
+                        // ]
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({
+                        error: { message: `Ошибка API: ${response.status} ${response.statusText}` }
+                    }));
+                    // Gemini API может возвращать ошибки в другом формате
+                    let detailMessage = "";
+                    if (errorData.error && errorData.error.message) {
+                        detailMessage = errorData.error.message;
+                    } else if (errorData.message) { // Иногда ошибка может быть просто в data.message
+                        detailMessage = errorData.message;
+                    } else {
+                        detailMessage = `Ошибка API: ${response.status} ${response.statusText}`;
+                    }
+                    throw new Error(detailMessage);
+                }
+
+                const data = await response.json();
+                let botReply = "Не удалось получить корректный ответ от AI.";
+
+                if (data.candidates && data.candidates.length > 0 &&
+                    data.candidates[0].content && data.candidates[0].content.parts &&
+                    data.candidates[0].content.parts.length > 0 && data.candidates[0].content.parts[0].text) {
+                    botReply = data.candidates[0].content.parts[0].text;
+                } else if (data.promptFeedback && data.promptFeedback.blockReason) {
+                    // Обработка случаев, когда запрос заблокирован по соображениям безопасности
+                    botReply = `Ваш запрос был заблокирован: ${data.promptFeedback.blockReason}.`;
+                    if (data.promptFeedback.safetyRatings) {
+                        const details = data.promptFeedback.safetyRatings
+                            .filter(r => r.probability !== 'NEGLIGIBLE') // Показываем только значимые категории
+                            .map(r => `${r.category.replace('HARM_CATEGORY_', '')}: ${r.probability}`)
+                            .join(', ');
+                        if (details) botReply += ` Детали: ${details}`;
+                    }
+                } else if (data.candidates && data.candidates.length > 0 && data.candidates[0].finishReason && data.candidates[0].finishReason !== "STOP") {
+                    // Обработка других причин завершения, если это не успешный STOP
+                    botReply = `Генерация ответа остановлена. Причина: ${data.candidates[0].finishReason}.`;
+                }
+
+
+                this.messages.push({ text: this.escapeHtml(botReply), sender: 'assistant', time: this.getCurrentTime() });
+
+            } catch (error) {
+                console.error('Ошибка при вызове Gemini API:', error);
+                this.messages.push({ text: `Ошибка: ${this.escapeHtml(error.message)}`, sender: 'assistant', time: this.getCurrentTime() });
+            } finally {
+                this.isLoading = false;
+                this.scrollToBottom();
+                this.$nextTick(() => { if(this.$refs.userInputEl && this.isOpen) this.$refs.userInputEl.focus(); });
+            }
+        },
+        // ... (остальные методы: scrollToBottom, getCurrentTime, escapeHtml, stripHtml, init, $watch без изменений)
+        scrollToBottom() {
+            this.$nextTick(() => {
+                const container = this.$refs.chatMessagesContainer;
+                if (container) container.scrollTop = container.scrollHeight;
+            });
+        },
+        getCurrentTime() {
+            return new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        },
+        escapeHtml(unsafe) {
+            if (typeof unsafe !== 'string') return '';
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        },
+        stripHtml(html) {
+            let tmp = document.createElement("DIV");
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || "";
+        },
+        init() {
+            this.messages.push({
+                text: 'Привет! Я ChatFlow на базе Gemini. Чем могу помочь?', // Обновленное приветствие
+                sender: 'assistant',
+                time: this.getCurrentTime()
+            });
+             this.$nextTick(() => {
+                if (this.isOpen) {
+                    this.scrollToBottom();
+                }
+            });
+            /* --- ДОБАВИЛИ прокрутку блокируемую у <html> --- */
+            this.$watch('isOpen', open => {
+                document.documentElement.classList.toggle('overflow-hidden', open);
+                if (open) {
+                    this.$nextTick(() => {
+                        this.scrollToBottom();
+                        this.$refs.userInputEl?.focus();
+                    });
+                }
+            });
+        }
+    }
+}
+</script>
+<script>
+/* Обновляем подписи у бегунков (цена и места) */
+(function () {
+  const pairs = [
+    {
+      sliderId : 'price-range',
+      outputId : 'price-value',
+      format   : v => v.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₸'
+    },
+    {
+      sliderId : 'seats-range',
+      outputId : 'seats-value',
+      format   : v => v                          // просто число мест
+    }
+  ];
+
+  pairs.forEach(({sliderId, outputId, format}) => {
+    const s = document.getElementById(sliderId);
+    const o = document.getElementById(outputId);
+    if (!s || !o) return;
+
+    const render = () => { o.textContent = format(String(s.value)); };
+    render();                // первое отображение при загрузке
+    s.addEventListener('input', render);
+  });
+})();
+</script>
+
+<script>
+/* Показываем актуальное значение слайдера «Цена» */
+(function () {
+  const slider = document.getElementById('price-range');
+  const output = document.getElementById('price-value');
+
+  if (!slider || !output) return;
+
+  /* Функция форматирует 1000000 → 1 000 000 */
+  const fmt = n => n.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+  /* начальное отображение при первой загрузке */
+  output.textContent = fmt(slider.value) + ' ₸';
+
+  /* обновляем при каждом перемещении бегунка */
+  slider.addEventListener('input', () => {
+    output.textContent = fmt(slider.value) + ' ₸';
+  });
+})();
+</script>
+
+<script>
+function searchBar () { // This function seems unused in the provided template snippet for <nav>, but kept it in case it's used elsewhere
+    return {
+        query: '', // This is locally scoped, the x-model="query" in the search bar is tied to the themeSwitcher's scope if not defined there
+        results: [],
+        open: false,
+        // openFilter: false, // openFilter is globally available from themeSwitcher scope or if defined on a parent Alpine component
+        fetchSuggestions() {
+            if (!this.query.trim()) { this.open=false; return }
+            fetch(`/search_suggestions/?q=${encodeURIComponent(this.query)}`)
+                .then(r=>r.json())
+                .then(data => {
+                    this.results = data
+                    this.open = true
+                })
+        }
+    }
+}
+
+// Modified themeSwitcher to include openFilter if it's meant to be global for Alpine components
+// However, your current setup seems to imply openFilter is part of a different Alpine component or will be initialized on the fly.
+// For clarity, if openFilter is used by multiple components and controlled globally, it should be in a shared store or initialized on a root component.
+// The provided HTML uses `x-data="themeSwitcher()"` only on the <html> tag.
+// The filter modal button `@click="openFilter = true"` implies `openFilter` should be reactive.
+// Let's adjust `themeSwitcher` to include `openFilter` so it's globally available via the root `<html>` data.
+
+function themeSwitcher(){
+  return {
+    theme: localStorage.getItem('theme') || 'light',
+    openFilter: false, // Added openFilter here
+    query: '', // Added query for the search bar if it's meant to be globally accessible or shared
+    // results: [], // If suggestions dropdown is also controlled here
+    // openSearchSuggestions: false, // If suggestions dropdown is also controlled here
+    toggle(){
+      this.theme = this.theme === 'light' ? 'dark' : 'light'
+      localStorage.setItem('theme', this.theme)
+    },
+    // fetchSuggestions() { // if you move search logic here
+    //     if (!this.query.trim()) { this.openSearchSuggestions=false; return }
+    //     fetch(`/search_suggestions/?q=${encodeURIComponent(this.query)}`)
+    //         .then(r=>r.json())
+    //         .then(data => {
+    //             this.results = data
+    //             this.openSearchSuggestions = true
+    //         })
+    // }
+  }
+}
+// If `query` in the search bar and `openFilter` are meant to be globally managed by the root Alpine instance:
+// 1. Ensure `x-model="query"` in the search input refers to `query` in `themeSwitcher`.
+// 2. Ensure `@click="openFilter = true"` and `x-show="openFilter"` correctly refer to `openFilter` in `themeSwitcher`.
+// The current `x-model="query"` will create a local `query` variable in its own scope if not present in `themeSwitcher`.
+// I've added `query` and `openFilter` to `themeSwitcher` for this example.
+
+</script>
+</body>
+</html>

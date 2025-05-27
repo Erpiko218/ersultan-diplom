@@ -1,0 +1,89 @@
+{# templates/login.html #}
+{% extends "base.html" %}
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-base-200 p-6">
+
+  <!-- Карточка -->
+  <div class="flex flex-col md:flex-row w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden bg-base-100">
+
+    {# ────────── ЛЕВАЯ ПОЛОВИНА: ТОЛЬКО ФОТО ────────── #}
+    <div class="relative flex-1 h-56 md:h-auto">
+        <img src="https://img.freepik.com/free-photo/sport-car-with-black-white-autotuning-driving-forest_114579-4076.jpg?semt=ais_hybrid&w=740"
+             alt="Спортивный автомобиль"
+             class="absolute inset-0 w-full h-full object-cover" />
+    </div>
+
+    {# ────────── ПРАВАЯ ПОЛОВИНА (форма) ────────── #}
+    <div class="flex-1 p-10 space-y-8">
+        <div class="text-center md:text-left">
+            <h3 class="text-2xl font-semibold text-gray-800">Войти в аккаунт</h3>
+            <p class="text-sm text-gray-500 mt-1">Используйте email и пароль, указанные при регистрации.</p>
+        </div>
+
+        <form method="post" action="{% url 'login' %}" class="space-y-6">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+              <div class="alert alert-error shadow-sm">
+                {% for err in form.non_field_errors %}<span>{{ err }}</span>{% endfor %}
+              </div>
+            {% endif %}
+
+            <!-- Email -->
+            <div>
+                <label for="id_email" class="label mb-1 text-sm text-gray-600">Email</label>
+                <input id="id_email" type="email" name="email"
+                       value="{{ form.email.value|default_if_none:'' }}"
+                       class="input input-bordered w-full focus:border-orange-500">
+                {% for err in form.email.errors %}
+                  <span class="text-error text-xs">{{ err }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Пароль -->
+            <div>
+                <label for="id_password" class="label mb-1 text-sm text-gray-600">Пароль</label>
+                <input id="id_password" type="password" name="password"
+                       class="input input-bordered w-full focus:border-orange-500">
+                {% for err in form.password.errors %}
+                  <span class="text-error text-xs">{{ err }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Чек-бокс + линк -->
+            <div class="flex items-center justify-between text-sm">
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" name="remember"
+                           class="checkbox checkbox-sm checkbox-warning">
+                    <span>Запомнить&nbsp;меня</span>
+                </label>
+                <a href="{% url 'password_reset' %}" class="text-orange-600 hover:underline">
+                    Забыли&nbsp;пароль?
+                </a>
+            </div>
+
+            <!-- Кнопка входа -->
+            <button type="submit"
+                    class="btn w-full bg-orange-500 hover:bg-orange-400 text-white">
+                Войти
+            </button>
+
+            <!-- Разделитель и соц-логин -->
+            <div class="flex items-center gap-4">
+                <hr class="flex-1 border-base-300">
+                <span class="text-xs uppercase text-base-content/60">или</span>
+                <hr class="flex-1 border-base-300">
+            </div>
+        </form>
+
+        <p class="text-center text-sm text-gray-600">
+            Нет аккаунта?
+            <a href="{% url 'register' %}" class="text-orange-600 hover:underline font-medium">
+                Зарегистрироваться
+            </a>
+        </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель трекинга для ритейлеров{% endblock %}
+
+{% block content %}
+    <h1>Панель трекинга машин</h1>
+    <div class="filter-form">
+        <form method="get">
+            <label for="car_type">Тип автомобиля:</label>
+            <select name="car_type" id="car_type">
+                <option value="">Все</option>
+                {% for key, label in car_types %}
+                    <option value="{{ key }}" {% if selected_car_type == key %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <label for="is_available">Доступна:</label>
+            <select name="is_available" id="is_available">
+                <option value="">Все</option>
+                <option value="true" {% if selected_is_available == "true" %}selected{% endif %}>Да</option>
+                <option value="false" {% if selected_is_available == "false" %}selected{% endif %}>Нет</option>
+            </select>
+            <button type="submit">Фильтровать</button>
+        </form>
+    </div>
+    <div id="map" style="height:600px; width:70%; float:left;"></div>
+    <div id="sidebar" style="width:28%; float:right; padding:10px; height:600px; overflow-y:auto; border:1px solid #ccc;">
+        <h2>Список машин</h2>
+        <ul>
+            {% for loc in locations %}
+                <li>
+                    <strong>{{ loc.car.brand }} {{ loc.car.model }}</strong>
+                    {% if loc.car.dealer %}
+                        <br>Дилер: {{ loc.car.dealer.name }}
+                    {% endif %}
+                    <br>Широта: {{ loc.latitude }}, Долгота: {{ loc.longitude }}
+                    <br><a href="{% url 'retailer_car_tracking_history' loc.car.id %}">История трекинга</a>
+                </li>
+            {% empty %}
+                <li>Нет доступных машин для отслеживания.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% block footer %} {% endblock %}
+
+    <!-- Подключаем Google Maps API (замените YOUR_API_KEY на ваш реальный ключ) -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBHcJHOnxvzh6LnhsVtcAJoS2eiOD7qBaA"></script>
+    <script>
+        function initMap() {
+            // Центр карты: если есть хотя бы одна машина, берем её координаты, иначе – центр по умолчанию
+            let defaultCenter = { lat: 55.751244, lng: 37.618423 };
+            {% if locations|length > 0 %}
+                defaultCenter = {
+                    lat: parseFloat("{{ locations.0.latitude }}"),
+                    lng: parseFloat("{{ locations.0.longitude }}")
+                };
+            {% endif %}
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 10,
+                center: defaultCenter,
+            });
+
+            // Добавляем маркеры для каждой машины
+            {% for loc in locations %}
+                const pos{{ forloop.counter }} = {
+                    lat: parseFloat("{{ loc.latitude }}"),
+                    lng: parseFloat("{{ loc.longitude }}")
+                };
+                const marker{{ forloop.counter }} = new google.maps.Marker({
+                    position: pos{{ forloop.counter }},
+                    map: map,
+                    title: "{{ loc.car.brand }} {{ loc.car.model }}",
+                });
+
+                const infoWindow{{ forloop.counter }} = new google.maps.InfoWindow({
+                    content: `<strong>{{ loc.car.brand }} {{ loc.car.model }}</strong>
+                              {% if loc.car.dealer %}
+                                <br>Дилер: {{ loc.car.dealer.name }}
+                              {% endif %}
+                              <br>Широта: {{ loc.latitude }}, Долгота: {{ loc.longitude }}`
+                });
+                marker{{ forloop.counter }}.addListener("click", function() {
+                    infoWindow{{ forloop.counter }}.open(map, marker{{ forloop.counter }});
+                });
+            {% endfor %}
+        }
+        window.onload = initMap;
+    </script>
+{% endblock %}

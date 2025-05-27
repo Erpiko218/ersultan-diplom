@@ -1,0 +1,67 @@
+<form action="{% url 'car_list' %}" method="get"
+      class="mt-8 relative flex flex-col md:flex-row items-start gap-6">
+
+  {# ===== PICK‑UP ===== #}
+  <div class="card bg-base-100 shadow p-6 w-full md:w-1/2 space-y-4">
+    <h3 class="flex items-center gap-2 text-lg font-semibold">
+      <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+      Pick‑Up
+    </h3>
+    <label class="form-control">
+      <span class="label-text">Locations</span>
+      <input name="pickup_location" class="input input-bordered" placeholder="Select your city"
+             value="{{ request.GET.pickup_location }}">
+    </label>
+    <label class="form-control">
+      <span class="label-text">Date</span>
+      <input type="date" name="pickup_date" class="input input-bordered"
+             value="{{ request.GET.pickup_date }}">
+    </label>
+    <label class="form-control">
+      <span class="label-text">Time</span>
+      <input type="time" name="pickup_time" class="input input-bordered"
+             value="{{ request.GET.pickup_time }}">
+    </label>
+  </div>
+
+  {# ===== SWITCH BUTTON ===== #}
+  <button type="button"
+          @click="
+            // простой swap значений форм, см. ниже
+            [$refs.pickup_loc.value, $refs.dropoff_loc.value] = [$refs.dropoff_loc.value, $refs.pickup_loc.value];
+            [$refs.pickup_date.value, $refs.dropoff_date.value] = [$refs.dropoff_date.value, $refs.pickup_date.value];
+            [$refs.pickup_time.value, $refs.dropoff_time.value] = [$refs.dropoff_time.value, $refs.pickup_time.value];
+          "
+          class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2
+                 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-3 shadow-lg z-10">
+    <img src="https://api.iconify.design/heroicons-outline/arrows-up-down.svg"
+         class="w-6 h-6" alt="Swap" />
+  </button>
+
+  {# ===== DROP‑OFF ===== #}
+  <div class="card bg-base-100 shadow p-6 w-full md:w-1/2 space-y-4">
+    <h3 class="flex items-center gap-2 text-lg font-semibold">
+      <span class="w-2 h-2 bg-sky-400 rounded-full"></span>
+      Drop‑Off
+    </h3>
+    <label class="form-control">
+      <span class="label-text">Locations</span>
+      <input name="dropoff_location" x-ref="dropoff_loc"
+             class="input input-bordered" placeholder="Select your city"
+             value="{{ request.GET.dropoff_location }}">
+    </label>
+    <label class="form-control">
+      <span class="label‑text">Date</span>
+      <input type="date" name="dropoff_date" x-ref="dropoff_date"
+             class="input input‑bordered"
+             value="{{ request.GET.dropoff_date }}">
+    </label>
+    <label class="form-control">
+      <span class="label-text">Time</span>
+      <input type="time" name="dropoff_time" x-ref="dropoff_time"
+             class="input input‑bordered"
+             value="{{ request.GET.dropoff_time }}">
+    </label>
+  </div>
+
+</form>

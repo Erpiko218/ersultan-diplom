@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Оформление аренды{% endblock %}
+
+{% block content %}
+<script src="https://js.stripe.com/v3/"></script>
+
+<div class="container mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Форма аренды -->
+    <div class="lg:col-span-2">
+        <form id="checkout-form" class="space-y-6">
+            <!-- Hidden поле -->
+            <input type="hidden" name="rental_id" value="{{ rental_id }}">
+
+            <div class="bg-base-100 rounded-lg shadow-md p-6">
+              <h3 class="font-bold text-xl mb-4">1. Личная информация</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  name="full_name"
+                  placeholder="ФИО"
+                  required
+                  class="input input-bordered w-full"
+                  value="{{ user.first_name }} {{ user.last_name }}"
+                />
+                <input
+                  type="text"
+                  name="phone_number"
+                  placeholder="Телефон"
+                  required
+                  class="input input-bordered w-full"
+                  value="{{ user.phone|default:'' }}"
+                />
+                <input
+                  type="text"
+                  name="address"
+                  placeholder="Адрес"
+                  required
+                  class="input input-bordered w-full"
+                  value="{{ user.address|default:'' }}"
+                />
+                <input
+                  type="text"
+                  name="city"
+                  placeholder="Город"
+                  required
+                  class="input input-bordered w-full"
+                  value="{{ user.city|default:'' }}"
+                />
+              </div>
+            </div>
+
+
+            <!-- Даты аренды -->
+            <div class="bg-base-100 rounded-lg shadow-md p-6">
+                <h3 class="font-bold text-xl mb-4">2. Даты аренды</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <input type="text" name="pickup_location" placeholder="Место получения" required
+                           class="input input-bordered w-full"/>
+                    <input type="date" name="pickup_date" required
+                           class="input input-bordered w-full"/>
+                    <input type="time" name="pickup_time" required
+                           class="input input-bordered w-full"/>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" name="dropoff_location" placeholder="Место возврата" required
+                           class="input input-bordered w-full"/>
+                    <input type="date" name="dropoff_date" required
+                           class="input input-bordered w-full"/>
+                    <input type="time" name="dropoff_time" required
+                           class="input input-bordered w-full"/>
+                </div>
+            </div>
+
+            <!-- Оплата -->
+            <div class="bg-base-100 rounded-lg shadow-md p-6">
+                <div class="font-bold text-xl mb-4">3. Метод оплаты</div>
+                <div class="card-body">
+                    <div id="payment-element"></div>
+                </div>
+            </div>
+
+            <!-- Подтверждение -->
+            <div class="bg-base-100 rounded-lg shadow-md p-6">
+                <h3 class="font-bold text-xl mb-4">4. Подтверждение</h3>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" required class="checkbox checkbox-primary"/>
+                    <span>Я согласен с <a href="#" class="text-indigo-500 underline">условиями аренды</a></span>
+                </label>
+                <button type="submit"
+                        class="btn btn-primary w-full mt-4">
+                    Оплатить
+                </button>
+                <div id="error-message" class="text-red-500 mt-2"></div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Карточка авто -->
+    <div class="bg-base-100 rounded-lg shadow-md p-6 self-start">
+        {% if car.main_image %}
+          <img
+            src="{{ car.main_image.url }}"
+            alt="{{ car.model }}"
+            class="w-full rounded-lg shadow-md mb-4 h-40 object-contain"
+          >
+        {% endif %}
+        <h4 class="font-bold text-lg mb-2">{{ car.brand }} {{ car.model }}</h4>
+        <ul class="text-gray-600 space-y-1">
+            <li><strong>Тип:</strong> {{ car.get_car_type_display }}</li>
+            <li><strong>Трансмиссия:</strong> {{ car.get_transmission_display }}</li>
+            <li><strong>Топливо:</strong> {{ car.get_fuel_type_display }}</li>
+        </ul>
+        <p class="text-xl font-bold text-indigo-600 mt-4">
+            ₸{{ car.price_per_day|floatformat:2 }} / день
+        </p>
+        <p class="text-sm text-gray-500 mt-2">
+            * Итоговая цена может зависеть от длительности аренды
+        </p>
+    </div>
+</div>
+
+<script>
+    // Сохраняем rental_id, переданный из вьюхи
+    const rentalId = "{{ rental_id }}";
+    const stripe = Stripe("{{ stripe_pk }}");
+    let elements;
+
+    // Создаем PaymentIntent, передавая сумму и rental_id
+    fetch("/create-payment-intent/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: {{ car.price_per_day }}, rental_id: rentalId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("clientSecret =", data.clientSecret);
+        elements = stripe.elements({ clientSecret: data.clientSecret });
+        const paymentElement = elements.create("payment");
+        paymentElement.mount("#payment-element");
+
+        const form = document.getElementById("checkout-form");
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            // Собираем данные формы через FormData
+            const formData = new FormData(form);
+            // Обновляем Rental через AJAX
+            try {
+                const updateResponse = await fetch("/update-rental/", {
+                    method: "POST",
+                    body: formData
+                });
+                const updateResult = await updateResponse.json();
+                if (updateResult.status !== "success") {
+                    document.getElementById("error-message").textContent = "Ошибка обновления данных аренды.";
+                    return;
+                }
+            } catch (err) {
+                document.getElementById("error-message").textContent = "Ошибка при отправке данных аренды.";
+                return;
+            }
+
+            // После успешного обновления данных, запускаем подтверждение платежа
+            const { error } = await stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    // В рабочей сборке возвращаем на страницу ожидания транзакции
+                    return_url: window.location.origin + "/processing/?rental_id=" + rentalId
+
+                    // Для тестовой сборки, чтобы сразу переходить на страницу успешной аренды, можно использовать:
+                    // return_url: window.location.origin + "/rental-success/?rental_id=" + rentalId
+                }
+            });
+            if (error) {
+                document.getElementById("error-message").textContent = error.message;
+            }
+        });
+    })
+    .catch(error => {
+        console.error("Ошибка создания PaymentIntent:", error);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,53 @@
+{# templates/car_list.html #}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Список машин{% endblock %}
+
+{% block content %}
+<div class="grid md:grid-cols-[250px_1fr] gap-6 px-4 py-8">
+
+  <!-- Сайд-бар с фильтрами -->
+  <aside>
+    {% include "partials/car_filter.html" %}
+  </aside>
+
+  <!-- Контейнер для карточек (HTMX будет перезаписывать именно его) -->
+  <main id="car-results">
+    {% include "partials/car_cards.html" with cars=cars %}
+
+    {# Пагинация через HTMX #}
+    <div class="join mt-10 flex justify-center">
+      {% if cars.has_previous %}
+        <a
+          href="?page={{ cars.previous_page_number }}&{{ params }}"
+          hx-get="?page={{ cars.previous_page_number }}&{{ params }}"
+          hx-target="#car-results"
+          hx-swap="innerHTML"
+          hx-push-url="true"
+          class="join-item btn"
+        >
+          «
+        </a>
+      {% endif %}
+
+      <span class="join-item btn btn-ghost">
+        {{ cars.number }} / {{ cars.paginator.num_pages }}
+      </span>
+
+      {% if cars.has_next %}
+        <a
+          href="?page={{ cars.next_page_number }}&{{ params }}"
+          hx-get="?page={{ cars.next_page_number }}&{{ params }}"
+          hx-target="#car-results"
+          hx-swap="innerHTML"
+          hx-push-url="true"
+          class="join-item btn"
+        >
+          »
+        </a>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock %}

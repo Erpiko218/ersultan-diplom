@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Аренда подтверждена{% endblock %}
+{% block extra_head %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2b0qihV2SByhJ5jE75pfN9kASAGnL6z0rYVo3e0IdD5PjGlwMZP07pR6xET2E6TZZ4n4x04g=="
+    crossorigin=""/>
+  <style>
+    #map { height: 100%; min-height: 300px; border-radius: 0.5rem; }
+  </style>
+{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-8 space-y-6">
+
+  <div class="bg-green-100 border-l-4 border-green-500 p-4 rounded-md">
+    <h2 class="text-2xl font-semibold text-green-700">Аренда подтверждена!</h2>
+    <p class="mt-2 text-gray-700">
+      Ваш автомобиль
+      <strong>{{ rental.car.brand }} {{ rental.car.model }}</strong>
+      успешно арендован.
+    </p>
+  </div>
+
+  <div class="flex flex-col md:flex-row gap-6">
+
+    <!-- Карточка авто -->
+    <div class="md:w-1/2 bg-white rounded-lg shadow-md p-6">
+      {% if rental.car.main_image %}
+        <img
+          src="{{ rental.car.main_image.url }}"
+          alt="{{ rental.car.model }}"
+          class="w-full rounded-lg mb-4 h-40 object-cover"
+        >
+      {% endif %}
+      <h4 class="font-bold text-lg mb-2">
+        {{ rental.car.brand }} {{ rental.car.model }}
+      </h4>
+      <ul class="text-gray-600 space-y-1 mb-4">
+        <li><strong>Тип:</strong> {{ rental.car.get_car_type_display }}</li>
+        <li><strong>Коробка:</strong> {{ rental.car.get_transmission_display }}</li>
+        <li><strong>Топливо:</strong> {{ rental.car.get_fuel_type_display }}</li>
+      </ul>
+      <p class="text-xl font-bold text-indigo-600">
+        ₸{{ rental.car.price_per_day|floatformat:2 }} / день
+      </p>
+      <p class="text-sm text-gray-500 mt-1">
+        * Итоговая цена зависит от длительности аренды
+      </p>
+    </div>
+
+    <!-- Карта локации дилера -->
+    <div class="md:w-1/2 bg-white rounded-lg shadow-md p-4">
+      <h3 class="font-semibold text-lg mb-2">Местоположение дилера</h3>
+      <p class="text-sm text-gray-600 mb-4">
+        <strong>{{ rental.car.dealer.name }}</strong><br>
+        {{ rental.car.dealer.address }}
+      </p>
+      <div id="map"></div>
+    </div>
+
+  </div>
+
+  <!-- Детали аренды и ссылка на квитанцию -->
+  <div class="bg-white rounded-lg shadow-md p-6 space-y-3">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <span class="font-semibold">Дата получения:</span><br>
+        {{ rental.pickup_date }} в {{ rental.pickup_time }}
+      </div>
+    </div>
+    <a
+      href="{% url 'download_receipt' %}?rental_id={{ rental.id }}"
+      class="inline-block btn btn-success mt-4"
+    >
+      Скачать квитанцию
+    </a>
+  </div>
+
+</div>
+{% endblock %}
+

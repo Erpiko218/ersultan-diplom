@@ -1,0 +1,90 @@
+{# templates/partials/sidebar_filters.html #}
+
+{# Сохраним url списка в переменную #}
+{% url 'car_list' as car_list_url %}
+
+<form
+    method="get"
+    action="{{ car_list_url }}"
+    class="space-y-6 p-4 bg-base-200 rounded-lg shadow"
+    {# если мы на странице списка — включаем HTMX #}
+    {% if request.resolver_match.url_name == 'car_list' %}
+      hx-get="{{ car_list_url }}"
+      hx-target="#car-results"
+      hx-swap="innerHTML"
+      hx-push-url="true"
+    {% endif %}
+>
+  {# — Тип — #}
+  <div>
+    <h3 class="font-semibold mb-2 text-gray-700">Тип</h3>
+    {% for value, label in filter.form.fields.car_type.choices %}
+      <label class="flex items-center gap-2 mb-1 cursor-pointer hover:text-orange-600">
+        <input type="checkbox"
+               name="car_type"
+               value="{{ value }}"
+               class="checkbox checkbox-sm checkbox-warning focus:ring-orange-500"
+               {% if value in selected_types %}checked{% endif %}/>
+        <span class="text-sm text-gray-600">{{ label }}</span>
+      </label>
+    {% endfor %}
+  </div>
+
+  {# — Мин. мест — #}
+  <div>
+    <h3 class="font-semibold mb-2 text-gray-700">Мин. мест</h3>
+    <input  id="seats-range"
+            type="range"
+            name="seats"
+            min="2"
+            max="10"
+            step="1"
+            value="{{ selected_seats|default:2 }}"
+            class="range-xs sm:range-sm range-warning w-full accent-orange-500"/>
+    <div class="text-xs sm:text-sm mt-1 text-gray-500 flex justify-between">
+        <span>2</span>
+        <span id="seats-value">{{ selected_seats|default:2 }}</span>
+        <span>10</span>
+    </div>
+  </div>
+
+  {# — Цена — #}
+  <div>
+    <h3 class="font-semibold text-gray-700">Цена до, ₸</h3>
+    <input  id="price-range"
+            type="range"
+            name="price_to"
+            min="0"
+            max="10000000"
+            step="10000"
+            value="{{ price_to|default:1000000 }}"
+            class="range-xs sm:range-sm range-warning w-full accent-orange-500"/>
+    <div class="text-xs sm:text-sm mt-1 text-gray-500 flex justify-between">
+        <span>0 ₸</span>
+        <span id="price-value" class="font-medium text-orange-600">
+            {{ price_to|default:1000000|floatformat:"0" }} ₸
+        </span>
+    </div>
+  </div>
+
+  {# — Дилеры — #}
+  {% if filter.form.fields.dealer.queryset %}
+  <div>
+    <h3 class="font-semibold mb-2 text-gray-700">Дилеры</h3>
+    {% for dealer_choice in filter.form.dealer %}
+      <label class="flex items-center gap-2 mb-1 cursor-pointer hover:text-orange-600">
+        {{ dealer_choice.tag }}
+        <span class="text-sm text-gray-600">{{ dealer_choice.choice_label }}</span>
+      </label>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {# — Кнопка — #}
+  <button
+      type="submit"
+      class="btn btn-warning text-white w-full mt-6 text-sm sm:text-base"
+  >
+      Показать
+  </button>
+</form>

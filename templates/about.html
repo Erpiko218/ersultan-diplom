@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}О нас – Car Rental{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 pt-12 pb-8 text-center">
+  <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-3">
+      Где каждая поездка становится <span class="text-orange-500">незабываемой</span>
+  </h1>
+  <nav class="text-gray-500 text-sm">
+    <a href="{% url 'home' %}" class="hover:text-orange-500">Главная</a> / О нас
+  </nav>
+</div>
+
+<section class="container mx-auto px-4 mt-16 mb-12">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10 text-center">
+    {# —— Карточка 1: Разнообразие брендов —— #}
+    <div class="p-4 rounded-lg hover:shadow-lg transition-shadow duration-300">
+      <div class="flex justify-center items-center mb-3 bg-orange-100 rounded-full mx-auto w-20 h-20">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke-width="1.5"><path d="m0 0h24v24h-24z" fill="#d18f2c" opacity="0" transform="matrix(0 1 -1 0 24 0)"/><path fill="#d18f2c" d="m17.56 21a1 1 0 0 1 -.46-.11l-5.1-2.67-5.1 2.67a1 1 0 0 1 -1.45-1.06l1-5.63-4.12-4a1 1 0 0 1 -.25-1 1 1 0 0 1 .81-.68l5.7-.83 2.51-5.13a1 1 0 0 1 1.8 0l2.54 5.12 5.7.83a1 1 0 0 1 .81.68 1 1 0 0 1 -.25 1l-4.12 4 1 5.63a1 1 0 0 1 -.4 1 1 1 0 0 1 -.62.18z" fill="#231f20"/></svg>
+      </div>
+      <h4 class="text-xl font-semibold text-gray-700 mb-2">Разнообразие брендов</h4>
+      <p class="text-gray-500 text-sm leading-relaxed">
+        У нас широкий выбор автомобилей — от эконом до премиум-класса.
+      </p>
+    </div>
+
+    {# —— Карточка 2: Максимальная свобода —— #}
+    <div class="p-4 rounded-lg hover:shadow-lg transition-shadow duration-300">
+      <div class="flex justify-center items-center mb-3 bg-orange-100 rounded-full mx-auto w-20 h-20">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-10 w-10 text-orange-500">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+        </svg>
+      </div>
+      <h4 class="text-xl font-semibold text-gray-700 mb-2">Максимальная свобода</h4>
+      <p class="text-gray-500 text-sm leading-relaxed">
+        Бронируйте авто в любое время и в любом месте через наш сервис.
+      </p>
+    </div>
+
+    {# —— Карточка 3: Круглосуточная поддержка —— #}
+    <div class="p-4 rounded-lg hover:shadow-lg transition-shadow duration-300">
+      <div class="flex justify-center items-center mb-3 bg-orange-100 rounded-full mx-auto w-20 h-20">
+        <svg viewBox="0 0 24 24" width="50" height="50" fill="#d18f2c" xmlns="http://www.w3.org/2000/svg"><path d="m0 0h24v24h-24z" fill="#d18f2c" opacity="0"/><g fill="#d18f2c"><path d="m12 11a4 4 0 1 0 -4-4 4 4 0 0 0 4 4z"/><path d="m18 21a1 1 0 0 0 1-1 7 7 0 0 0 -14 0 1 1 0 0 0 1 1z"/></g></svg>
+      </div>
+      <h4 class="text-xl font-semibold text-gray-700 mb-2">Круглосуточная поддержка</h4>
+      <p class="text-gray-500 text-sm leading-relaxed">
+        Мы он-лайн 24/7 и всегда готовы помочь на дороге.
+      </p>
+    </div>
+
+    {# —— Карточка 4: Гибкость в дороге —— #}
+    <div class="p-4 rounded-lg hover:shadow-lg transition-shadow duration-300">
+      <div class="flex justify-center items-center mb-3 bg-orange-100 rounded-full mx-auto w-20 h-20">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-10 w-10 text-orange-500">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+        </svg>
+      </div>
+      <h4 class="text-xl font-semibold text-gray-700 mb-2">Гибкость в дороге</h4>
+      <p class="text-gray-500 text-sm leading-relaxed">
+        Без скрытых платежей, безлимитный пробег — полнейшая свобода.
+      </p>
+    </div>
+  </div>
+</section>
+
+{# —— YouTube блок не был в вашем коде, поэтому эта секция без изменений —— #}
+
+<section class="bg-base-200 py-16">
+  <div class="container mx-auto px-4 text-center">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-y-10 gap-x-8">
+      <div>
+        <h2 class="text-5xl font-bold text-orange-500 mb-1">{{ total_rentals|default:"1200" }}+</h2>
+        <p class="text-gray-600 font-medium">Счастливых клиентов</p>
+      </div>
+      <div>
+        <h2 class="text-5xl font-bold text-orange-500 mb-1">{{ total_cars|default:"350" }}+</h2>
+        <p class="text-gray-600 font-medium">Автомобилей</p>
+      </div>
+      <div>
+        <h2 class="text-5xl font-bold text-orange-500 mb-1">{{ total_mileage|default:"5000000"|floatformat:"0" }} км</h2>
+        <p class="text-gray-600 font-medium">Общий пробег</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container mx-auto px-4 py-16">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+    <div class="text-left md:pr-8">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+        Откройте для себя <span class="text-orange-500">новые горизонты</span> с комфортом
+      </h2>
+      <p class="text-gray-500 mb-6 leading-relaxed">
+        Аренда авто должна быть простой и доступной. Мы даем ключи к незабываемым поездкам.
+      </p>
+      <ul class="space-y-3 text-gray-600">
+        <li class="flex items-start">
+          <svg class="h-6 w-6 text-orange-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          <span>Большой <strong class="font-semibold">парк авто</strong> для любых задач.</span>
+        </li>
+        <li class="flex items-start">
+          <svg class="h-6 w-6 text-orange-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          <span><strong class="font-semibold">Удобные локации</strong> выдачи по всему городу.</span>
+        </li>
+        <li class="flex items-start">
+          <svg class="h-6 w-6 text-orange-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          <span><strong class="font-semibold">Прозрачные тарифы</strong> — никаких скрытых комиссий.</span>
+        </li>
+        <li class="flex items-start">
+          <svg class="h-6 w-6 text-orange-500 mr-2 flex-shrink-0 mb-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          <span>24/7 <strong class="font-semibold">поддержка</strong> и помощь на дороге.</span>
+        </li>
+      </ul>
+      <a href="{% url 'car_list' %}" class="inline-block mt-4 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-150 ease-in-out">
+        Выбрать автомобиль
+      </a>
+    </div>
+    <div>
+      {# Уменьшаем высоту этой картинки, добавляя max-h класс и обеспечивая object-cover #}
+      <img src="https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=1600&q=80"
+           alt="Аренда авто" class="w-full rounded-xl shadow-2xl object-cover" style="height: 32rem;"> {# Пример: max-h-80 (20rem) или md:max-h-96 (24rem) #}
+    </div>
+  </div>
+</section>
+
+{# —— блок отзывов без изменений —— #}
+
+<section class="bg-orange-500 text-white mt-10">
+  <div class="container mx-auto px-4 py-16 text-center">
+    <h2 class="text-3xl md:text-4xl font-bold mb-3">Готовы начать путешествие?</h2>
+    <p class="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
+      Присоединяйтесь к тысячам довольных клиентов и почувствуйте свободу дороги.
+    </p>
+    <a href="{% url 'car_list' %}"
+       class="inline-block px-8 py-3 bg-white text-orange-500 font-semibold rounded-lg hover:bg-gray-100 transition duration-150 ease-in-out p-8"> {# Убрал font-medium, добавил font-semibold #}
+       Забронировать автомобиль
+    </a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="card shadow-xl p-6 rounded-lg bg-white">
+        <h1 class="text-2xl font-semibold">{{ dealer.name }}</h1>
+        <p class="text-gray-500 mt-2">{{ dealer.address }}</p>
+
+        <!-- Карта -->
+        <div id="map" class="mt-4 w-full h-80 rounded-lg"></div>
+    </div>
+</div>
+
+<!-- Leaflet CSS -->
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-sA+e2D6o6M6e8BE1JPoW/EJQXPGh/lp9x01w/jbQXZI="
+    crossorigin=""
+/>
+
+<!-- Leaflet JS -->
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-o9N1jL9LjTN31I02X3arQdXPyyd/lpxP8a1VVkXybxw="
+    crossorigin=""
+></script>
+
+<script>
+  // координаты дилера из Django
+  const dealerLat = {{ dealer.latitude }};
+  const dealerLng = {{ dealer.longitude }};
+
+  // создание карты и её центрирование
+  const map = L.map('map').setView([dealerLat, dealerLng], 15);
+
+  // добавление тайлов (слой с картой OpenStreetMap)
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  // добавление маркера на карту
+  const marker = L.marker([dealerLat, dealerLng]).addTo(map);
+
+  marker.bindPopup("<b>{{ dealer.name }}</b><br>{{ dealer.address }}").openPopup();
+</script>
+{% endblock %}

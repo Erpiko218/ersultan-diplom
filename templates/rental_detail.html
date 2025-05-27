@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Детали аренды{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row">
+    <!-- Боковое меню (sidebar) -->
+    <div class="col-md-3 mb-4">
+      <div class="list-group">
+        <a href="{% url 'rental_history' %}" class="list-group-item list-group-item-action">Мои аренды</a>
+        <a href="#info" class="list-group-item list-group-item-action active">Общие сведения</a>
+        <a href="#dates" class="list-group-item list-group-item-action">Даты аренды</a>
+        <a href="#payment" class="list-group-item list-group-item-action">Оплата</a>
+      </div>
+    </div>
+
+    <!-- Основное содержимое -->
+    <div class="col-md-9">
+      <h2 class="mb-3">Детали аренды</h2>
+      <hr>
+
+      <!-- Информация об автомобиле -->
+      <div id="info" class="mb-4">
+        <h4>Информация об автомобиле</h4>
+        <p><strong>Автомобиль:</strong> {{ rental.car.brand }} {{ rental.car.model }}</p>
+        <p><strong>Тип:</strong> {{ rental.car.get_type_display }}</p>
+        {% if rental.car.image %}
+          <img src="{{ rental.car.image.url }}" class="img-fluid rounded shadow-sm mb-3" alt="{{ rental.car.brand }} {{ rental.car.model }}">
+        {% endif %}
+      </div>
+
+      <!-- Период аренды -->
+      <div id="dates" class="mb-4">
+        <h4>Период аренды</h4>
+        <p><strong>Начало аренды:</strong> {{ rental.start_time|date:"d.m.Y H:i" }}</p>
+        <p><strong>Окончание аренды:</strong> {{ rental.end_time|date:"d.m.Y H:i" }}</p>
+      </div>
+
+      <!-- Личная информация -->
+      <div id="info" class="mb-4">
+        <h4>Личная информация</h4>
+        <p><strong>ФИО:</strong> {{ rental.full_name }}</p>
+        <p><strong>Телефон:</strong> {{ rental.phone_number }}</p>
+        <p><strong>Адрес:</strong> {{ rental.address }}, {{ rental.city }}</p>
+      </div>
+
+      <!-- Локация аренды -->
+      <div id="info" class="mb-4">
+        <h4>Локация аренды</h4>
+        <p><strong>Место получения:</strong> {{ rental.pickup_location }}</p>
+        <p><strong>Дата получения:</strong> {{ rental.pickup_date }} {{ rental.pickup_time }}</p>
+        <p><strong>Место возврата:</strong> {{ rental.dropoff_location }}</p>
+        <p><strong>Дата возврата:</strong> {{ rental.dropoff_date }} {{ rental.dropoff_time }}</p>
+      </div>
+
+      <!-- Оплата -->
+      <div id="payment" class="mb-4">
+        <h4>Оплата</h4>
+        <p><strong>Метод оплаты:</strong> {{ rental.get_payment_method_display }}</p>
+        <p><strong>Статус оплаты:</strong> {% if rental.is_paid %}Оплачено{% else %}Не оплачено{% endif %}</p>
+        <p><strong>Итоговая цена:</strong> ₸{{ rental.total_price }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

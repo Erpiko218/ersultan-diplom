@@ -1,0 +1,66 @@
+{# templates/partials/car_cards.html #}
+<section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {% for car in cars %}
+    <a  href="{% url 'car_detail' car.pk %}"
+        class="block card bg-base-100 shadow-lg rounded-xl overflow-hidden group relative transition-transform hover:scale-[1.02]">
+
+      {% if user.is_authenticated %}
+        <div class="absolute top-3 z-10">
+          {% include "partials/fav_button.html" with car=car favorited=car.is_favorited card_is_link=True %}
+        </div>
+      {% endif %}
+
+        {# --- ФОТО --- #}
+        <figure>
+          <img src="{{ car.main_image.url }}"
+               alt="{{ car }}"
+               class="w-full h-40 object-cover"/>
+        </figure>
+
+        {# --- КОНТЕНТ --- #}
+        <div class="p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">
+              {{ car.brand }} {{ car.model }}
+            </h3>
+            <span class="text-sm text-gray-500">
+              {{ car.get_car_type_display }}
+            </span>
+          </div>
+
+          <p class="text-sm text-gray-400">
+            {{ car.get_fuel_type_display }}
+          </p>
+
+          <div class="mt-2 flex justify-between text-gray-500 text-sm">
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 512 512" width="24" height="24" xmlns="http://www.w3.org/2000/svg"><path d="m336 448h-320c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h320c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16zm157.2-340.7-81-81c-6.2-6.2-16.4-6.2-22.6 0l-11.3 11.3c-6.2 6.2-6.2 16.4 0 22.6l37.7 37.7v62.1c0 28.1 20.9 51.3 48 55.2v160.8c0 13.2-10.8 24-24 24s-24-10.8-24-24v-32c0-48.6-39.4-88-88-88h-8v-192c0-35.3-28.7-64-64-64h-160c-35.3 0-64 28.7-64 64v352h288v-112h8c22.1 0 40 17.9 40 40v27.8c0 37.7 27 72 64.5 75.9 43 4.3 79.5-29.5 79.5-71.7v-223.4c0-17-6.8-33.3-18.8-45.3zm-237.2 84.7h-160v-128h160z"/></svg>
+              {{ car.get_fuel_type_display }}
+            </div>
+            <div class="flex items-center gap-2">
+              <svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><g stroke="#1c274c" stroke-width="1.5"><path d="m6 4c0 1.10457-.89543 2-2 2s-2-.89543-2-2 .89543-2 2-2 2 .89543 2 2z"/><path d="m6 20c0 1.1046-.89543 2-2 2s-2-.8954-2-2 .89543-2 2-2 2 .8954 2 2z"/><path d="m14 20c0 1.1046-.8954 2-2 2s-2-.8954-2-2 .8954-2 2-2 2 .8954 2 2z"/><path d="m14 4c0 1.10457-.8954 2-2 2s-2-.89543-2-2 .8954-2 2-2 2 .89543 2 2z"/><path d="m22 4c0 1.10457-.8954 2-2 2s-2-.89543-2-2 .8954-2 2-2 2 .89543 2 2z"/><path d="m4 6v12" stroke-linecap="round"/><path d="m12 6v12" stroke-linecap="round"/><path d="m20 6v2c0 1.88562 0 2.8284-.5858 3.4142s-1.5286.5858-3.4142.5858h-12" stroke-linecap="round"/></g><path d="m18 15v-.75c-.4142 0-.75.3358-.75.75zm-.75 7c0 .4142.3358.75.75.75s.75-.3358.75-.75zm4.1104.3916c.2162.3533.678.4643 1.0312.248.3533-.2162.4643-.678.248-1.0312zm-3.3604-6.6416h2.2857v-1.5h-2.2857zm.75 2.75v-3.5h-1.5v3.5zm2.5-1.75c0 .5669-.4462 1-.9643 1v1.5c1.3755 0 2.4643-1.1339 2.4643-2.5zm-.9643-1c.5181 0 .9643.4331.9643 1h1.5c0-1.3661-1.0888-2.5-2.4643-2.5zm0 2h-.4286v1.5h.4286zm-.4286 0h-1.8571v1.5h1.8571zm-.6396 1.1416 2.1429 3.5 1.2792-.7832-2.1428-3.5zm-1.9675-.3916v3.5h1.5v-3.5z" fill="#1c274c"/></svg>
+              {{ car.get_transmission_display }}
+            </div>
+            <div class="flex items-center gap-1">
+              <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"><path d="m0 0h24v24h-24z" fill="#fff" opacity="0"/><g fill="#231f20"><path d="m12 11a4 4 0 1 0 -4-4 4 4 0 0 0 4 4z"/><path d="m18 21a1 1 0 0 0 1-1 7 7 0 0 0 -14 0 1 1 0 0 0 1 1z"/></g></svg>
+              {{ car.seats }} чел.
+            </div>
+          </div>
+
+          <div class="mt-4 flex items-center justify-between">
+            <div>
+              <span class="text-xl font-bold">{{ car.price_per_day }} ₸</span>
+              <span class="text-sm text-gray-500">/день</span>
+            </div>
+            <span class="btn btn-warning btn-sm bg-orange-500 px-3 py-1 rounded-md text-white">
+              Арендовать
+            </span>
+          </div>
+        </div>
+    </a>
+  {% empty %}
+      <p class="col-span-full text-center py-16 opacity-60">
+        Машин не найдено.
+      </p>
+  {% endfor %}
+</section>

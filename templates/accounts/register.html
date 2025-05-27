@@ -1,0 +1,112 @@
+{# templates/register.html #}
+{% extends "base.html" %}
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-base-200 p-6">
+
+  <!-- Карточка -->
+  <div class="flex flex-col md:flex-row w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden bg-base-100">
+
+    {# ────────── ЛЕВАЯ ПОЛОВИНА: ФОТО ────────── #}
+    <div class="relative flex-1 h-56 md:h-auto">
+        <img src="https://img.freepik.com/free-photo/sport-car-with-black-white-autotuning-driving-forest_114579-4076.jpg?semt=ais_hybrid&w=740"
+             alt="Спортивный автомобиль"
+             class="absolute inset-0 w-full h-full object-cover"/>
+    </div>
+
+    {# ────────── ПРАВАЯ ПОЛОВИНА: Форма ────────── #}
+    <div class="flex-1 p-10 space-y-8">
+
+        <div class="text-center md:text-left">
+            <h2 class="text-3xl font-bold text-gray-800">Создать аккаунт</h2>
+            <p class="text-sm text-gray-500 mt-1">Заполните поля ниже, чтобы присоединиться.</p>
+        </div>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-error shadow-sm">
+                {% for err in form.non_field_errors %}<span>{{ err }}</span>{% endfor %}
+              </div>
+            {% endif %}
+
+            <!-- Username -->
+            <div>
+                <label for="id_username" class="label mb-1 text-sm text-gray-600">Имя&nbsp;пользователя</label>
+                <input id="id_username" type="text" name="username"
+                       value="{{ form.username.value|default_if_none:'' }}"
+                       class="input input-bordered w-full focus:border-orange-500">
+                {% for err in form.username.errors %}
+                  <span class="text-error text-xs">{{ err }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Email -->
+            <div>
+                <label for="id_email" class="label mb-1 text-sm text-gray-600">Email</label>
+                <input id="id_email" type="email" name="email"
+                       value="{{ form.email.value|default_if_none:'' }}"
+                       class="input input-bordered w-full focus:border-orange-500">
+                {% for err in form.email.errors %}
+                  <span class="text-error text-xs">{{ err }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Телефон -->
+            <div>
+                <label for="id_phone" class="label mb-1 text-sm text-gray-600">Телефон</label>
+                <input id="id_phone" type="text" name="phone"
+                       value="{{ form.phone.value|default_if_none:'' }}"
+                       placeholder="+7 700 123-4567"
+                       class="input input-bordered w-full focus:border-orange-500">
+                {% for err in form.phone.errors %}
+                  <span class="text-error text-xs">{{ err }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Пароль 1 -->
+            <div>
+                <label for="id_password1" class="label mb-1 text-sm text-gray-600">Пароль</label>
+                <input id="id_password1" type="password" name="password1"
+                       class="input input-bordered w-full focus:border-orange-500">
+                {% for err in form.password1.errors %}
+                  <span class="text-error text-xs">{{ err }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Пароль 2 -->
+            <div>
+                <label for="id_password2" class="label mb-1 text-sm text-gray-600">Повторите&nbsp;пароль</label>
+                <input id="id_password2" type="password" name="password2"
+                       class="input input-bordered w-full focus:border-orange-500">
+                {% for err in form.password2.errors %}
+                  <span class="text-error text-xs">{{ err }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Согласие с правилами (пример) -->
+            <label class="flex items-start gap-2 text-sm text-gray-700">
+                <input type="checkbox" name="terms"
+                       class="checkbox checkbox-sm checkbox-warning mt-0.5">
+                <span>Я принимаю <a href="#" class="text-orange-600 hover:underline">условия сервиса</a></span>
+            </label>
+
+            <!-- Кнопка -->
+            <button type="submit"
+                    class="btn w-full bg-orange-500 hover:bg-orange-400 text-white">
+                Зарегистрироваться
+            </button>
+        </form>
+
+        <p class="text-center text-sm text-gray-600">
+            Уже есть аккаунт?
+            <a href="{% url 'login' %}" class="text-orange-600 hover:underline font-medium">
+                Войти
+            </a>
+        </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
