@@ -79,6 +79,14 @@ class Car(models.Model):
 		PB95 = "PB95", "PB95"
 		PB98 = "PB98", "PB98"
 
+	STATUS_CHOICES = (
+		('available', 'Available'),
+		('rented', 'Rented'),
+		('maintenance', 'Maintenance'),
+		('pending_inspection', 'Pending Inspection'),  # <-- НОВЫЙ СТАТУС
+	)
+
+	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
 	slug = models.SlugField(max_length=150, unique=True, blank=True)
 	brand = models.CharField(max_length=100, verbose_name="Марка")
 	model = models.CharField(max_length=100, verbose_name="Модель")
@@ -182,6 +190,7 @@ class Rental(models.Model):
 		("OWNED", "Пользватель еще пользуется услугой"),
 		("COMPLETED", "Завершена"),
 		("REJECTED", "Отказано"),
+		("CANCELED", "Отмена от пользвателя")
 	)
 
 	user = models.ForeignKey(UserModel, on_delete=models.CASCADE, verbose_name="Пользователь")

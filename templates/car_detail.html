@@ -120,19 +120,24 @@
         {% if reviews %}
           {% for rv in reviews|slice:":2" %}
             <div class="py-4 border-b border-base-300 last:border-0 flex flex-col sm:flex-row gap-4">
-              <img src="{{ rv.user.avatar.url|default:'https://i.pravatar.cc/60' }}"
-                   class="w-14 h-14 rounded-full object-cover ring ring-primary ring-offset-base-100 ring-offset-2">
+              {% if rv.user.avatar %}
+                <img src="{{ rv.user.avatar.url }}"
+                     class="w-14 h-14 rounded-full object-cover ring ring-primary ring-offset-base-100 ring-offset-2">
+              {% else %}
+                <img src="https://cdn-icons-png.flaticon.com/512/15/15081.png"
+                     class="w-14 h-14 rounded-full object-cover ring ring-primary ring-offset-base-100 ring-offset-2">
+              {% endif %}
               <div class="flex-1">
                 <div class="flex justify-between">
                   <p class="font-medium text-base-content">{{ rv.user.get_full_name|default:rv.user.username }}</p>
-                  <p class="text-xs text-base-content opacity-60">{{ rv.created_at|date:"d M Y" }}</p>
+                  <p class="text-xs text-base-content opacity-60 text-end">{{ rv.created_at|date:"d M Y" }}</p>
                 </div>
                 <p class="text-sm mt-1 text-base-content">{{ rv.comment }}</p>
               </div>
             </div>
           {% endfor %}
           <div class="text-center mt-4">
-            <a href="{% url 'car_reviews' car.pk %}" class="link link-primary">Show All</a>
+            <a href="{% url 'car_reviews' car.pk %}" class="link link-primary">Показать все</a>
           </div>
         {% else %}
           <p class="text-center text-base-content opacity-70">Отзывов пока нет.</p>

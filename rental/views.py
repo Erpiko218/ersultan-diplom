@@ -3,13 +3,15 @@ from datetime import datetime, timedelta
 
 import stripe
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Q, Avg
 from django.db.models.aggregates import Sum
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView, DetailView, ListView
@@ -17,7 +19,8 @@ from docx import Document
 from docx.shared import Pt
 
 from .filters import CarFilter
-from .models import Car, Rental, Transaction, TripTracking, CarLocation, Dealer, Favorite
+from .forms import CarReviewForm
+from .models import Car, Rental, Transaction, TripTracking, CarLocation, Dealer, Favorite, CarReview
 
 
 def superuser_required(view_func):
@@ -386,18 +389,126 @@ def retailer_car_tracking_history(request, retailer_id, car_id):
 	return render(request, 'retailer_car_tracking_history.html', context)
 
 
+# === НАЧАЛО НОВОГО КОДА: СКОПИРУЙТЕ ВСЮ ФУНКЦИЮ ===
+@login_required
+def cancel_rental_view(request, rental_id):
+	"""
+	Обрабатывает отмену бронирования пользователем.
+	"""
+	# Ищем аренду, которая принадлежит пользователю и еще не началась
+	rental = get_object_or_404(Rental, id=rental_id, user=request.user)
+
+	if request.method == 'POST':
+		# 1. Меняем статус аренды на "Отменено"
+		rental.status = 'CANCELED'
+		rental.save()
+
+		# 2. Освобождаем автомобиль, делаем его снова доступным
+		car = rental.car
+		car.status = 'available'
+		car.save()
+
+		# 3. Сообщаем пользователю об успехе
+		messages.success(request, f"Бронирование автомобиля {car.brand} {car.model} было отменено.")
+
+		# 4. Перенаправляем в личный кабинет
+		return redirect('dashboard')
+
+	# Если это GET-запрос, показываем страницу подтверждения
+	context = {
+		'rental': rental
+	}
+	return render(request, 'cancel_rental_confirmation.html', context)
+
+
 @login_required
 def retailers_dashboard(request):
-	"""
-	Страница дэшборда, показывающая всех ритейлеров (дилерские центры).
-	При клике на ритейлера пользователь перенаправляется на страницу
-	retailer_tracking_dashboard с нужным идентификатором.
-	"""
-	retailers = Dealer.objects.all().order_by('name')
+	# Убедимся, что у пользователя есть профиль дилера
+	try:
+		dealer = request.user.dealer
+	except AttributeError:
+		# Если у пользователя нет профиля дилера, можно перенаправить его или показать ошибку
+		return redirect('home')
+
+	# Получаем все автомобили, связанные с этим дилером
+	all_cars = Car.objects.filter(dealer=dealer)
+
+	# Фильтруем автомобили по статусам
+	pending_cars = all_cars.filter(status='pending_inspection')
+	available_cars = all_cars.filter(status='available')
+	rented_cars = all_cars.filter(status='rented')
+
+	# Получаем активные и завершенные аренды для этого дилера
+	active_rentals = Rental.objects.filter(car__dealer=dealer, status='OWNED')
+	completed_rentals = Rental.objects.filter(car__dealer=dealer, status='COMPLETED')
+
 	context = {
-		'retailers': retailers,
+	    'dealer': dealer,
+	    'pending_cars': pending_cars,      # <-- Наш новый список
+	    'available_cars': available_cars,
+	    'rented_cars': rented_cars,
+	    'active_rentals': active_rentals,
+	    'completed_rentals': completed_rentals,
+	    'total_cars': all_cars.count(),
 	}
 	return render(request, 'retailers_dashboard.html', context)
+
+
+@login_required
+def confirm_inspection_view(request, car_id):
+    # Получаем автомобиль
+    car = get_object_or_404(Car, id=car_id)
+
+    # Проверяем, что текущий пользователь является дилером этого автомобиля
+    if not hasattr(request.user, 'dealer') or car.dealer != request.user.dealer:
+        raise PermissionDenied("У вас нет прав для выполнения этого действия.")
+
+    # Меняем статус только если он 'pending_inspection'
+    if car.status == 'pending_inspection':
+        car.status = 'available'
+        car.save()
+        messages.success(request, f'Автомобиль "{car}" снова доступен для аренды.')
+    else:
+        messages.warning(request, f'Статус автомобиля "{car}" уже был изменен.')
+
+    # Возвращаем дилера в его панель
+    return redirect('retailers_dashboard')
+
+
+
+@login_required
+def finish_rental_view(request, rental_id):
+    rental = get_object_or_404(Rental, id=rental_id, user=request.user)
+    car = rental.car
+
+    if request.method == 'POST':
+        form = CarReviewForm(request.POST)
+        if form.is_valid():
+            # 1. Сохраняем отзыв
+            review = form.save(commit=False)
+            review.user = request.user
+            review.car = car
+            review.save()
+
+            # 2. Обновляем статус аренды
+            rental.status = 'COMPLETED'
+            rental.save()
+
+            # 3. Обновляем статус автомобиля
+            # (Более продвинутый вариант - см. Фичу 2)
+            car.status = 'pending_inspection'
+            car.save()
+
+            # 4. Перенаправляем пользователя в личный кабинет
+            return redirect('dashboard')
+    else:
+        form = CarReviewForm()
+
+    context = {
+        'rental': rental,
+        'form': form
+    }
+    return render(request, 'finish_rental.html', context)
 
 
 def api_car_tracking(request, retailer_id, car_id):
@@ -772,7 +883,7 @@ def admin_dealer_detail(request, pk):
 	dealer = get_object_or_404(Dealer, pk=pk)
 	cars = Car.objects.filter(dealer=dealer)
 	rentals = Rental.objects.filter(car__dealer=dealer).select_related('car', 'user')
-	total_revenue = rentals.filter(status='completed') \
+	total_revenue = rentals.filter(status='COMPLETED') \
 		                .aggregate(sum=Sum('total_price'))['sum'] or 0
 
 	return render(request, 'admin/dealer_detail.html', {
@@ -781,3 +892,17 @@ def admin_dealer_detail(request, pk):
 		'rentals': rentals,
 		'total_revenue': total_revenue,
 	})
+
+
+def car_reviews_view(request, car_id):
+	"""
+	Отображает страницу со всеми отзывами для конкретного автомобиля.
+	"""
+	car = get_object_or_404(Car, id=car_id)
+	reviews = CarReview.objects.filter(car=car).order_by('-created_at')
+
+	context = {
+		'car': car,
+		'reviews': reviews
+	}
+	return render(request, 'car_reviews.html', context)

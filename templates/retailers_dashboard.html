@@ -1,31 +1,49 @@
-{% extends "base.html" %}
-{% load static %}
-{% block title %}Дэшборд ритейлеров{% endblock %}
+{% extends 'base.html' %}
 
 {% block content %}
-<div class="container my-4">
-    <h1 class="text-center mb-4">Ритейлеры</h1>
-    <div class="row">
-        {% for retailer in retailers %}
-        <div class="col-md-4 mb-3">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">{{ retailer.name }}</h5>
-                    <p class="card-text">{{ retailer.address }}</p>
-                    <p class="card-text">
-                        <small class="text-muted">
-                            Координаты: {{ retailer.latitude }}, {{ retailer.longitude }}
-                        </small>
-                    </p>
-                </div>
-                <div class="card-footer text-center">
-                    <a href="{% url 'retailer_tracking_dashboard' retailer.id %}" class="btn btn-primary">Перейти к трекингу</a>
-                </div>
+<div class="container mx-auto mt-10">
+    <h1 class="text-3xl font-bold mb-6">Панель управления дилера: {{ dealer.name }}</h1>
+
+    <div class="mt-8">
+        <h2 class="text-2xl font-bold mb-4">Ожидают проверки ({{ pending_cars.count }})</h2>
+        {% if pending_cars %}
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Автомобиль</th>
+                        <th>Гос. номер</th>
+                        <th>Последний арендатор</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for car in pending_cars %}
+                    <tr>
+                        <td>{{ car.brand }} {{ car.model }}</td>
+                        <td>{{ car.license_plate }}</td>
+                        <td>
+                            -
+                        </td>
+                        <td>
+                            <a href="{% url 'rental:confirm_inspection' car.id %}" class="btn btn-sm btn-success">
+                                Принять и сделать доступной
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info shadow-lg">
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>Нет автомобилей, ожидающих проверки.</span>
             </div>
         </div>
-        {% empty %}
-        <p class="text-center">Нет доступных ритейлеров.</p>
-        {% endfor %}
+        {% endif %}
     </div>
-</div>
+
+    </div>
 {% endblock %}

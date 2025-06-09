@@ -20,3 +20,25 @@ class RentalForm(forms.ModelForm):
             "expiration_date": forms.TextInput(attrs={"placeholder": "MM/YY"}),
             "cvc": forms.TextInput(attrs={"placeholder": "123"}),
         }
+
+
+class CarReviewForm(forms.ModelForm):
+    """
+    Форма для добавления отзыва к автомобилю.
+    """
+    class Meta:
+        model = CarReview
+        fields = ['rating', 'comment']
+        widgets = {
+            'comment': forms.Textarea(
+                attrs={
+                    'class': 'textarea textarea-bordered w-full',
+                    'placeholder': 'Расскажите о ваших впечатлениях от автомобиля, его состоянии и качестве сервиса...',
+                    'rows': 4
+                }
+            ),
+            # Мы не определяем виджет для поля 'rating', потому что в HTML-шаблоне
+            # для него используется специальная верстка со звездами (на базе radio-кнопок).
+            # Django корректно получит значение из поля с атрибутом name="rating".
+        }
+

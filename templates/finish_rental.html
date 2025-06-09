@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto mt-10">
+    <h1 class="text-3xl font-bold mb-6">Завершение аренды: {{ rental.car.brand }} {{ rental.car.model }}</h1>
+
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <h2 class="card-title">Оставьте ваш отзыв</h2>
+            <p>Пожалуйста, оцените вашу поездку. Ваш отзыв поможет другим пользователям сделать правильный выбор.</p>
+
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Оценка</span>
+                    </label>
+                    <div class="rating rating-lg">
+                        <input type="radio" name="rating" value="1" class="mask mask-star-2 bg-orange-400" />
+                        <input type="radio" name="rating" value="2" class="mask mask-star-2 bg-orange-400" />
+                        <input type="radio" name="rating" value="3" class="mask mask-star-2 bg-orange-400" />
+                        <input type="radio" name="rating" value="4" class="mask mask-star-2 bg-orange-400" checked />
+                        <input type="radio" name="rating" value="5" class="mask mask-star-2 bg-orange-400" />
+                    </div>
+                </div>
+
+                <div class="form-control mt-4">
+                    <label class="label">
+                        <span class="label-text">Комментарий</span>
+                    </label>
+                    {{ form.comment }}
+                </div>
+
+                <div class="form-control mt-6 p-4 border border-base-300 rounded-lg">
+                    <h3 class="font-bold">Подтверждение возврата</h3>
+                    <label class="label cursor-pointer justify-start">
+                        <input type="checkbox" required class="checkbox checkbox-primary mr-2" />
+                        <span class="label-text">Я подтверждаю, что вернул(а) автомобиль дилеру в надлежащем состоянии.</span>
+                    </label>
+                </div>
+
+                <div class="form-control mt-6">
+                    <button type="submit" class="btn btn-primary">Завершить и оставить отзыв</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

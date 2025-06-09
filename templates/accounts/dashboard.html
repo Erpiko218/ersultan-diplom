@@ -4,14 +4,12 @@
 {% block content %}
 <div class="max-w-6xl mx-auto mt-10 space-y-10 px-4">
 
-  <!-- ░░ Профиль + Баланс ░░ -->
   <div class="grid md:grid-cols-3 gap-6">
-    <!-- Профиль -->
     <div class="card bg-base-100 p-6 shadow items-center text-center">
       <div class="avatar mb-4">
         <div class="w-32 h-32 rounded-full ring ring-primary ring-offset-2 overflow-hidden">
           <img
-            src="{% if user.avatar %}{{ user.avatar.url }}{% else %}https://i.pravatar.cc/256?img=65{% endif %}"
+            src="{% if user.avatar %}{{ user.avatar.url }}{% else %} https://cdn-icons-png.flaticon.com/512/15/15081.png {% endif %}"
             alt="avatar"
             class="w-full h-full object-cover"
           />
@@ -22,7 +20,6 @@
       {% if user.phone %}<p class="text-sm text-gray-500">{{ user.phone }}</p>{% endif %}
     </div>
 
-    <!-- Баланс -->
     <div class="card bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow md:col-span-2 p-6">
       <div class="flex items-center justify-between h-full">
         <div>
@@ -36,7 +33,6 @@
     </div>
   </div>
 
-  <!-- ░░ Последние транзакции ░░ -->
   <div class="card bg-base-100 shadow">
     <div class="card-body overflow-x-auto">
       <h3 class="text-xl font-semibold mb-4">Последние транзакции</h3>
@@ -72,7 +68,6 @@
     </div>
   </div>
 
-  <!-- ░░ Текущие аренды ░░ -->
   <div class="card bg-base-100 shadow">
     <div class="card-body">
       <h3 class="text-xl font-semibold mb-4">Текущие аренды</h3>
@@ -92,6 +87,7 @@
                   {{ r.end_time|date:"d.m.Y H:i" }}
                 </p>
               </div>
+              <a href="{% url 'rental_detail' r.id %}" class="btn btn-ghost btn-sm">Детали</a>
               <span class="badge badge-info badge-outline">Активна</span>
             </div>
           {% endfor %}
@@ -102,7 +98,6 @@
     </div>
   </div>
 
-  <!-- ░░ История аренд ░░ -->
   <div class="card bg-base-100 shadow">
     <div class="card-body">
       <h3 class="text-xl font-semibold mb-4">История аренд</h3>
@@ -121,11 +116,16 @@
                   {{ r.start_time|date:"d.m.Y" }} — {{ r.end_time|date:"d.m.Y" }}
                 </p>
               </div>
-              {% if r.status == "COMPLETED" %}
-                <span class="badge badge-success badge-outline">Завершена</span>
-              {% else %}
-                <span class="badge badge-error badge-outline">Отказано</span>
-              {% endif %}
+
+              <div class="flex items-center gap-3">
+                {% if r.status == "COMPLETED" %}
+                  <span class="badge badge-success badge-outline">Завершена</span>
+                {% else %}
+                  <span class="badge badge-error badge-outline">Отказано</span>
+                {% endif %}
+                <a href="{% url 'rental_detail' r.id %}" class="btn btn-ghost btn-sm">Детали</a>
+              </div>
+
             </div>
           {% endfor %}
         </div>

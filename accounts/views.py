@@ -93,7 +93,7 @@ def dashboard(request):
 
 	history_rentals = (
 		Rental.objects
-		.filter(user=user, status__in=["COMPLETED", "REJECTED"])
+		.filter(user=user, status__in=["COMPLETED", "REJECTED", "CANCELED", "REJECTED"])
 		.select_related("car")
 		.order_by("-end_time")[:10]
 	)

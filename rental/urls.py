@@ -50,4 +50,9 @@ urlpatterns = [
         admin_dealer_detail,
         name='admin_dealer_detail'
     ),
+
+    path('rental/<int:rental_id>/cancel/', cancel_rental_view, name='cancel_rental'),
+    path('finish_rental/<int:rental_id>/', finish_rental_view, name='finish_rental'),
+    path('car/<int:car_id>/confirm-inspection/', confirm_inspection_view, name='confirm_inspection'),
+    path('car/<int:car_id>/reviews/', car_reviews_view, name='car_reviews'),
 ]

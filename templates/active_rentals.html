@@ -53,6 +53,11 @@
                 <strong>Статус:</strong> {{ rental.get_status_display }}
               </p>
             </div>
+            <div class="card-actions justify-end">
+              <a href="{% url 'rental:finish_rental' rental.id %}" class="btn btn-primary">
+                Завершить поездку
+              </a>
+            </div>
             <div class="card-footer">
               <a href="{% url 'rental_detail' rental.id %}" class="btn btn-secondary btn-sm">Подробнее</a>
             </div>

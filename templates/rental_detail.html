@@ -1,66 +1,101 @@
 {% extends "base.html" %}
-{% block title %}Детали аренды{% endblock %}
+{% block title %}Детали аренды #{{ rental.id }}{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-  <div class="row">
-    <!-- Боковое меню (sidebar) -->
-    <div class="col-md-3 mb-4">
-      <div class="list-group">
-        <a href="{% url 'rental_history' %}" class="list-group-item list-group-item-action">Мои аренды</a>
-        <a href="#info" class="list-group-item list-group-item-action active">Общие сведения</a>
-        <a href="#dates" class="list-group-item list-group-item-action">Даты аренды</a>
-        <a href="#payment" class="list-group-item list-group-item-action">Оплата</a>
+<div class="max-w-6xl mx-auto py-10 px-4">
+
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold">Детали аренды #{{ rental.id }}</h1>
+      <p class="text-base-content/60">Просмотр информации о вашей аренде.</p>
+    </div>
+    <a href="{% url 'dashboard' %}" class="btn btn-ghost">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+      Назад в кабинет
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <div class="lg:col-span-2 space-y-8">
+
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <h2 class="card-title">Информация об автомобиле</h2>
+            <div class="flex flex-col md:flex-row gap-6 mt-4">
+                {% if rental.car.main_image %}
+                    <img src="{{ rental.car.main_image.url }}" class="w-full md:w-52 h-40 object-cover rounded-box" alt="{{ rental.car.brand }} {{ rental.car.model }}">
+                {% endif %}
+                <div class="flex-1">
+                    <p class="text-2xl font-bold">{{ rental.car.brand }} {{ rental.car.model }}</p>
+                    <p class="text-base-content/70">{{ rental.car.year }} год</p>
+                    <div class="flex flex-wrap gap-2 mt-4">
+                        <span class="badge badge-outline"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>{{ rental.car.get_type_display }}</span>
+                        <span class="badge badge-outline"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197m0 0A5.995 5.995 0 003 12a5.995 5.995 0 004-5.643" /></svg>{{ rental.car.capacity }} мест</span>
+                        <span class="badge badge-outline"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>{{ rental.car.get_transmission_display }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <h2 class="card-title">Детали поездки</h2>
+            <div class="grid md:grid-cols-2 gap-6 mt-4">
+                <div>
+                    <h3 class="font-semibold">Получение</h3>
+                    <p class="text-base-content/80">{{ rental.pickup_location }}</p>
+                    <p class="text-sm text-base-content/60">{{ rental.pickup_date|date:"d.m.Y" }} в {{ rental.pickup_time|time:"H:i" }}</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold">Возврат</h3>
+                    <p class="text-base-content/80">{{ rental.dropoff_location }}</p>
+                    <p class="text-sm text-base-content/60">{{ rental.dropoff_date|date:"d.m.Y" }} в {{ rental.dropoff_time|time:"H:i" }}</p>
+                </div>
+            </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="space-y-8">
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h2 class="card-title">Оплата</h2>
+          <div class="flex justify-between items-center mt-4">
+            <span class="text-base-content/70">Итоговая стоимость</span>
+            <span class="text-2xl font-bold">₸ {{ rental.total_price }}</span>
+          </div>
+          <div class="flex justify-between items-center mt-2">
+            <span class="text-base-content/70">Метод оплаты</span>
+            <span class="font-semibold">{{ rental.get_payment_method_display }}</span>
+          </div>
+          <div class="flex justify-between items-center mt-2">
+            <span class="text-base-content/70">Статус аренды</span>
+            <span class="badge badge-lg">{{ rental.get_status_display }}</span>
+          </div>
+          <div class="divider"></div>
+
+          <div class="card-actions justify-center">
+            {% if rental.status == 'OWNED' %}
+              <a href="{% url 'finish_rental' rental.id %}" class="btn btn-primary w-full">Завершить досрочно</a>
+
+            {% elif rental.status == 'COMPLETED' %}
+              <a href="{% url 'generate_receipt' rental.id %}" class="btn btn-secondary w-full" target="_blank">Скачать квитанцию</a>
+
+            {% elif rental.status == 'WAITING' %}
+              <a href="{% url 'cancel_rental' rental.id %}" class="btn btn-error btn-outline w-full">Отменить бронирование</a>
+
+            {% else %}
+              <p class="text-center text-sm text-base-content/60">Для данной аренды нет доступных действий.</p>
+
+            {% endif %}
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Основное содержимое -->
-    <div class="col-md-9">
-      <h2 class="mb-3">Детали аренды</h2>
-      <hr>
-
-      <!-- Информация об автомобиле -->
-      <div id="info" class="mb-4">
-        <h4>Информация об автомобиле</h4>
-        <p><strong>Автомобиль:</strong> {{ rental.car.brand }} {{ rental.car.model }}</p>
-        <p><strong>Тип:</strong> {{ rental.car.get_type_display }}</p>
-        {% if rental.car.image %}
-          <img src="{{ rental.car.image.url }}" class="img-fluid rounded shadow-sm mb-3" alt="{{ rental.car.brand }} {{ rental.car.model }}">
-        {% endif %}
-      </div>
-
-      <!-- Период аренды -->
-      <div id="dates" class="mb-4">
-        <h4>Период аренды</h4>
-        <p><strong>Начало аренды:</strong> {{ rental.start_time|date:"d.m.Y H:i" }}</p>
-        <p><strong>Окончание аренды:</strong> {{ rental.end_time|date:"d.m.Y H:i" }}</p>
-      </div>
-
-      <!-- Личная информация -->
-      <div id="info" class="mb-4">
-        <h4>Личная информация</h4>
-        <p><strong>ФИО:</strong> {{ rental.full_name }}</p>
-        <p><strong>Телефон:</strong> {{ rental.phone_number }}</p>
-        <p><strong>Адрес:</strong> {{ rental.address }}, {{ rental.city }}</p>
-      </div>
-
-      <!-- Локация аренды -->
-      <div id="info" class="mb-4">
-        <h4>Локация аренды</h4>
-        <p><strong>Место получения:</strong> {{ rental.pickup_location }}</p>
-        <p><strong>Дата получения:</strong> {{ rental.pickup_date }} {{ rental.pickup_time }}</p>
-        <p><strong>Место возврата:</strong> {{ rental.dropoff_location }}</p>
-        <p><strong>Дата возврата:</strong> {{ rental.dropoff_date }} {{ rental.dropoff_time }}</p>
-      </div>
-
-      <!-- Оплата -->
-      <div id="payment" class="mb-4">
-        <h4>Оплата</h4>
-        <p><strong>Метод оплаты:</strong> {{ rental.get_payment_method_display }}</p>
-        <p><strong>Статус оплаты:</strong> {% if rental.is_paid %}Оплачено{% else %}Не оплачено{% endif %}</p>
-        <p><strong>Итоговая цена:</strong> ₸{{ rental.total_price }}</p>
-      </div>
-    </div>
   </div>
 </div>
 {% endblock %}
