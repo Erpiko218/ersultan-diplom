@@ -1,5 +1,5 @@
 from django import forms
-from .models import Rental
+from .models import Rental, CarReview
 from django.utils.timezone import now
 
 class RentalForm(forms.ModelForm):
