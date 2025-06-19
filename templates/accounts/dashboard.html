@@ -106,7 +106,7 @@
           {% for r in history_rentals %}
             <div class="flex items-center gap-4 bg-base-100 border rounded-lg p-3 shadow-sm">
               <img
-                src="{{ r.car.main_image.url|default:r.car.image.url }}"
+                src="{{ r.car.main_image.url }}"
                 class="w-20 h-14 object-cover rounded"
                 alt="{{ r.car }}"
               />
