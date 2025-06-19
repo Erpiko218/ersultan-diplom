@@ -55,4 +55,9 @@ urlpatterns = [
     path('finish_rental/<int:rental_id>/', finish_rental_view, name='finish_rental'),
     path('car/<int:car_id>/confirm-inspection/', confirm_inspection_view, name='confirm_inspection'),
     path('car/<int:car_id>/reviews/', car_reviews_view, name='car_reviews'),
+    path("how-it-works/", HowItWorksView.as_view(), name="how_it_works"),
+    path("blog/", BlogView.as_view(), name="blog"),
+    path("privacy-policy/", PrivacyPolicyView.as_view(), name="privacy_policy"),
+    path("terms-of-use/", TermsOfUseView.as_view(), name="terms_of_use"),
+    path("service-conditions/", ServiceConditionsView.as_view(), name="service_conditions"),
 ]

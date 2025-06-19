@@ -906,3 +906,23 @@ def car_reviews_view(request, car_id):
 		'reviews': reviews
 	}
 	return render(request, 'car_reviews.html', context)
+
+
+class HowItWorksView(TemplateView):
+    template_name = "how_it_works.html"
+
+
+class BlogView(TemplateView):
+    template_name = "blog.html"
+
+
+class PrivacyPolicyView(TemplateView):
+    template_name = "privacy.html"
+
+
+class TermsOfUseView(TemplateView):
+    template_name = "terms_of_use.html"
+
+
+class ServiceConditionsView(TemplateView):
+    template_name = "service_conditions.html"

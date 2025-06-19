@@ -1,49 +1,50 @@
 <footer class="bg-base-200 pt-12">
     <div class="container mx-auto grid md:grid-cols-4 gap-10 pb-10 px-4">
+        <!-- Логотип и миссия -->
         <div>
             <h2 class="font-extrabold text-xl text-orange-500 mb-3">RentCur</h2>
             <p class="text-sm opacity-80">
-                Наша цель — обеспечить удобство<br/>и помочь увеличить доход
+                Наша цель&nbsp;— обеспечить удобство<br>и помочь увеличить доход
                 вашего бизнеса.
             </p>
         </div>
 
+        <!-- О платформе -->
         <div>
             <h3 class="font-semibold mb-3">О платформе</h3>
             <ul class="space-y-2 text-sm">
-                <li><a href="#" class="link link-hover">Как это работает</a></li>
-                <li><a href="#" class="link link-hover">Избранное</a></li>
-                <li><a href="#" class="link link-hover">Партнёрство</a></li>
-                <li><a href="#" class="link link-hover">Бизнес‑решения</a></li>
+                <li><a href="{% url 'how_it_works' %}"       class="link link-hover">Как это работает</a></li>
+                <li><a href="{% url 'service_conditions' %}" class="link link-hover">Условия сервиса</a></li>
             </ul>
         </div>
 
+        <!-- Сообщество -->
         <div>
             <h3 class="font-semibold mb-3">Сообщество</h3>
             <ul class="space-y-2 text-sm">
-                <li><a href="#" class="link link-hover">Мероприятия</a></li>
-                <li><a href="#" class="link link-hover">Блог</a></li>
-                <li><a href="#" class="link link-hover">Подкаст</a></li>
-                <li><a href="#" class="link link-hover">Пригласить друга</a></li>
+                <li><a href="{% url 'blog' %}" class="link link-hover">Блог</a></li>
             </ul>
         </div>
 
-        <div>
-            <h3 class="font-semibold mb-3">Соцсети</h3>
-            <ul class="space-y-2 text-sm">
-                <li><a href="#" class="link link-hover">Discord</a></li>
-                <li><a href="#" class="link link-hover">Instagram</a></li>
-                <li><a href="#" class="link link-hover">Twitter</a></li>
-                <li><a href="#" class="link link-hover">Facebook</a></li>
-            </ul>
-        </div>
+<!--        &lt;!&ndash; Соцсети (внешние ссылки) &ndash;&gt;-->
+<!--        <div>-->
+<!--            <h3 class="font-semibold mb-3">Соцсети</h3>-->
+<!--            <ul class="space-y-2 text-sm">-->
+<!--                <li><a href="https://discord.gg/your-invite" target="_blank" rel="noopener" class="link link-hover">Discord</a></li>-->
+<!--                <li><a href="https://instagram.com/your-page" target="_blank" rel="noopener" class="link link-hover">Instagram</a></li>-->
+<!--                <li><a href="https://twitter.com/your-handle"  target="_blank" rel="noopener" class="link link-hover">Twitter</a></li>-->
+<!--                <li><a href="https://facebook.com/your-page"   target="_blank" rel="noopener" class="link link-hover">Facebook</a></li>-->
+<!--            </ul>-->
+<!--        </div>-->
     </div>
 
+    <!-- Нижняя полоса -->
     <div class="border-t border-base-300 text-xs py-4 flex justify-between container mx-auto px-4">
-        <span>©2024 RentCur. Все права защищены.</span>
+        <span>©2024&nbsp;RentCur. Все права защищены.</span>
+
         <span class="space-x-4">
-            <a href="#" class="link link-hover">Политика конфиденциальности</a>
-            <a href="#" class="link link-hover">Условия использования</a>
+            <a href="{% url 'privacy_policy' %}" class="link link-hover">Политика конфиденциальности</a>
+            <a href="{% url 'terms_of_use' %}"  class="link link-hover">Условия использования</a>
         </span>
     </div>
 </footer>

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Как это работает — RentCur{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-8">Как это работает</h1>
+
+<section class="hero bg-base-200 rounded-lg mb-10">
+  <div class="hero-content flex-col lg:flex-row">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJk5EbWE0VwWwTDVWdOCN8mEfN5A0PPTC9pQ&s" class="max-w-sm rounded-lg shadow-2xl" alt="Car sharing">
+    <div>
+      <h2 class="text-2xl font-semibold">Каршеринг без забот</h2>
+      <p class="py-4">
+        Берите автомобиль через приложение, оплачивайте ровно столько, сколько водите.
+        Страховка, топливо и парковка включены в цену.
+      </p>
+      <a href="#" class="btn btn-primary">Скачать приложение</a>
+    </div>
+  </div>
+</section>
+
+<div class="grid md:grid-cols-3 gap-8">
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <h3 class="card-title">Партнёрская программа</h3>
+      <p>Сдавайте собственный автомобиль и получайте доход, пока машина работает вместо вас.</p>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <h3 class="card-title">Бизнес-решения</h3>
+      <p>Корпоративный каршеринг: единый счёт, аналитика, отсутствие ТСО.</p>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <h3 class="card-title">Поддержка&nbsp;24/7</h3>
+      <p>Чат, телефон и Telegram-бот. Среднее время ответа — 90&nbsp;секунд.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

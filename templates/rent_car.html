@@ -87,7 +87,7 @@
                     <span>Я согласен с <a href="#" class="text-indigo-500 underline">условиями аренды</a></span>
                 </label>
                 <button type="submit"
-                        class="btn btn-primary w-full mt-4">
+                        class="btn text-white bg-orange-500 w-full mt-4">
                     Оплатить
                 </button>
                 <div id="error-message" class="text-red-500 mt-2"></div>
@@ -110,7 +110,7 @@
             <li><strong>Трансмиссия:</strong> {{ car.get_transmission_display }}</li>
             <li><strong>Топливо:</strong> {{ car.get_fuel_type_display }}</li>
         </ul>
-        <p class="text-xl font-bold text-indigo-600 mt-4">
+        <p class="text-xl font-bold text-orange-500 mt-4">
             ₸{{ car.price_per_day|floatformat:2 }} / день
         </p>
         <p class="text-sm text-gray-500 mt-2">
